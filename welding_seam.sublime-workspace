@@ -1,0 +1,387 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"unit",
+				"uint16"
+			],
+			[
+				"ima",
+				"image_norm"
+			],
+			[
+				"im",
+				"img"
+			],
+			[
+				"cdf",
+				"cdf_normalized"
+			],
+			[
+				"img_l",
+				"img_lines2"
+			],
+			[
+				"validc",
+				"valid_count"
+			],
+			[
+				"ctyp",
+				"ctypeslib"
+			],
+			[
+				"Bu",
+				"BUFFER"
+			],
+			[
+				"st",
+				"strides"
+			],
+			[
+				"stri",
+				"strides_type"
+			],
+			[
+				"matri",
+				"matrix_write"
+			],
+			[
+				"cty",
+				"ctypes"
+			],
+			[
+				"mat",
+				"matrix"
+			],
+			[
+				"ma",
+				"matrix"
+			],
+			[
+				"compo",
+				"componentID"
+			],
+			[
+				"cint",
+				"c_int32"
+			],
+			[
+				"buff",
+				"bufferSize"
+			],
+			[
+				"c",
+				"c_int"
+			],
+			[
+				"event",
+				"event_info"
+			],
+			[
+				"frame",
+				"frameBuffer"
+			],
+			[
+				"image",
+				"image_mode"
+			],
+			[
+				"poi",
+				"points_p"
+			],
+			[
+				"poin",
+				"point_array"
+			],
+			[
+				"TY_g",
+				"TY_getInterfaceNumber"
+			],
+			[
+				"num",
+				"num_interface"
+			],
+			[
+				"ty",
+				"ty_lib"
+			],
+			[
+				"if",
+				"ifmain\tif __name__ == '__main__'"
+			],
+			[
+				"TYL",
+				"TY_LIB_FILE"
+			],
+			[
+				"TY",
+				"TY_VERSION_INFO"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "ws.py",
+			"settings":
+			{
+				"buffer_size": 2342,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"package in",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: in",
+				"Package Control: Install Package"
+			],
+			[
+				"package control in",
+				"Package Control: Install Package"
+			],
+			[
+				"",
+				"Set Syntax: Python"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 185.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h elseopen(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/home/dhan/myprog/ty_example/python/fetchframe/fetchframe.py",
+		"/home/dhan/myprog/ty_example/python/equalization/eq.py",
+		"/home/dhan/myprog/MyOpenCV/histogram/histequalization.py",
+		"/home/dhan/myprog/ty_example/python/TY_struct.py",
+		"/home/dhan/myprog/PythonBasic/python.so/bufRead/test.py",
+		"/home/dhan/myprog/PythonBasic/python.so/bufRead/test.c",
+		"/home/dhan/myprog/ty_example/python/listdevice/listdevice.py",
+		"/home/dhan/myprog/camport3/sample/common/Utils.hpp",
+		"/home/dhan/myprog/camport3/include/TYApi.h",
+		"/home/dhan/myprog/camport3/sample/common/common.hpp",
+		"/home/dhan/myprog/camport3/sample/SimpleView_FetchFrame/main.cpp",
+		"/home/dhan/myprog/MyOpenCV/houghTransform/houghlines.py",
+		"/home/dhan/myprog/PythonBasic/python.so/func_pointer/test.py",
+		"/home/dhan/myprog/PythonBasic/python.so/func_pointer/test.c",
+		"/home/dhan/myprog/PythonBasic/python.so/struct_array/test.py",
+		"/home/dhan/myprog/PythonBasic/python.so/struct_array/test.c",
+		"/home/dhan/myprog/PythonBasic/python.so/structure/rect_test/rect.c",
+		"/home/dhan/myprog/PythonBasic/python.so/structure/rect_test/c.py",
+		"/home/dhan/myprog/camport3/sample/ListDevices/main.cpp",
+		"/home/dhan/myprog/PythonBasic/python.so/structure/cpptest.py",
+		"/home/dhan/myprog/PythonBasic/python.so/structure/test2.py",
+		"/home/dhan/myprog/PythonBasic/python.so/structure/test.py",
+		"/home/dhan/myprog/PythonBasic/python.so/structure/cpptest.cpp",
+		"/home/dhan/myprog/PythonBasic/python.so/structure/rect_test/test.py",
+		"/home/dhan/.config/sublime-text-3/Packages/User/python3.sublime-build",
+		"/home/dhan/.config/sublime-text-3/Packages/User/Package Control.sublime-settings",
+		"/home/dhan/.config/sublime-text-3/Packages/Package Control/Package Control.sublime-settings"
+	],
+	"find":
+	{
+		"height": 24.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"))\n",
+			"py_buf",
+			"TY_PIXEL_FORMAT_JPEG",
+			"///<",
+			"=",
+			"TYISPUpdateDevice",
+			"hColorIspHandle",
+			"np_matrix",
+			"get_fps",
+			"getfps",
+			"TY_IMAGE_DATA",
+			"depthViewer",
+			"TY_TRIGGER_PARAM",
+			"TY_EVENT",
+			"frameBuffer",
+			"DepthViewer",
+			"=",
+			"selectDevice"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"#",
+			":"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "ws.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2342,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 24.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 120.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "Packages/User/python3.sublime-build",
+	"project": "welding_seam.sublime-project",
+	"replace":
+	{
+		"height": 44.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

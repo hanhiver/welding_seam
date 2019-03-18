@@ -1,3 +1,4 @@
+import math
 import numpy as np 
 import cv2 
 
@@ -59,6 +60,21 @@ def main():
         
         print('{} lines found. '.format(len(lines_p)))
 
+        
+        lines = []
+
+        for line in lines_p: 
+            one_line = []
+
+            x1, y1, x2, y2 = line[0]
+            length = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+            theta = np.arctan((y2 - y1) / (x2 - x1))
+
+            one_line.append([x1, y1, x2, y2, length, np.around(theta, 1), theta])
+
+            print(one_line)
+            lines.append(one_line)
+        
         for line in lines_p:
             #print(line)
             x1, y1, x2, y2 = line[0]
