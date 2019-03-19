@@ -150,7 +150,6 @@ def main():
             cv2.line(lines_image, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 1)
 
         
-
         #openned = cv2.morphologyEx(edges, cv2.MORPH_OPEN, kernel)
     
         #images = np.hstack([image, blur, binary, closed, edages])
@@ -161,8 +160,9 @@ def main():
         else:
             display = np.hstack([display, images])
 
-    if WRITE_RESULT:
-        cv2.imwrite('RESULT.jpg', display)
+        if WRITE_RESULT:
+            result_name = file.split('.')[0] + '_res.jpg'
+            cv2.imwrite(result_name, lines_image)
     
     cv2.namedWindow('Image', flags = cv2.WINDOW_NORMAL)
     #cv2.resizeWindow('Image', 1800, 1000)
