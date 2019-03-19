@@ -60,8 +60,10 @@ def main():
         
         print('{} lines found. '.format(len(lines_p)))
 
-        
         lines = []
+        #lines_pos = []
+        #lines_zero = []
+        #lines_neg = []
 
         for line in lines_p: 
             one_line = []
@@ -69,16 +71,41 @@ def main():
             x1, y1, x2, y2 = line[0]
             length = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
             theta = np.arctan((y2 - y1) / (x2 - x1))
+            theta_app = np.around(theta, 1)
 
-            one_line.append([x1, y1, x2, y2, length, np.around(theta, 1), theta])
+            lines.append([x1, y1, x2, y2, length, theta_app, theta])
 
             print(one_line)
             lines.append(one_line)
         
-        for line in lines_p:
+        lines_pos = np.array(lines[lines[5] > 0])
+        lines_zero = np.array(lines[lines[5] == 0])
+        lines_neg = np.array(lines[lines[5] < 0])
+
+        print("Positive slope: ")
+        print(lines_pos)
+        print("Zero slope: ")
+        print(lines_zero)
+        print("Negative slope: ")
+        print(lines_neg)
+        
+
+        """
+        for line in lines_pos:
+            #print(line)
+            x1, y1, x2, y2 = line[0]
+            cv2.line(lines_image, (x1, y1), (x2, y2), (255, 0, 0), 1)
+
+        for line in lines_zero:
             #print(line)
             x1, y1, x2, y2 = line[0]
             cv2.line(lines_image, (x1, y1), (x2, y2), (0, 255, 0), 1)
+
+        for line in lines_neg:
+            #print(line)
+            x1, y1, x2, y2 = line[0]
+            cv2.line(lines_image, (x1, y1), (x2, y2), (0, 0, 255), 1)
+        """
 
         #openned = cv2.morphologyEx(edges, cv2.MORPH_OPEN, kernel)
     
