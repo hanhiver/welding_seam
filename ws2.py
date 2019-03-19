@@ -2,8 +2,11 @@ import math
 import numpy as np 
 import cv2 
 
-#TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png', 'rbig.png')
-TEST_IMAGE = ('rsmall.png', )
+TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png', 'rbig.png')
+#TEST_IMAGE = ('rbig.png', )
+
+WRITE_RESULT = True
+SLOPE_TH = 0.15
 
 
 def main():
@@ -23,6 +26,10 @@ def main():
             print('Open file {} failed.'.format(file))
             continue
 
+        image_height = image.shape[0]
+        image_width = image.shape[1] 
+        mid_line = image_width / 2
+
         kernel = np.ones((5,5),np.uint8)
 
         #blur = cv2.fastNlMeansDenoising(image, h = 7.0)
@@ -39,7 +46,8 @@ def main():
         #binary = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,11,2)
 
         closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations = 1)
-        edages = cv2.Canny(binary, 50, 150, apertureSize = 3)
+        edages = cv2.Canny(closed, 50, 150, apertureSize = 3)
+
         #delated = cv2.dilate(edages, kernel, iterations = 1)
         #eroded = cv2.erode(closed, kernel, iterations = 1)
 
@@ -55,15 +63,17 @@ def main():
                                   rho = 1, 
                                   theta = np.pi/180, 
                                   threshold = 100, 
-                                  minLineLength = 50, 
-                                  maxLineGap = 30)
+                                  minLineLength = 25, 
+                                  maxLineGap = 25)
         
         print('{} lines found. '.format(len(lines_p)))
 
-        lines = []
-        #lines_pos = []
-        #lines_zero = []
-        #lines_neg = []
+        #lines = []
+        lines_pos = []
+        lines_zero_l = []
+        lines_zero_r = []
+        lines_zero_m = []
+        lines_neg = []
 
         for line in lines_p: 
             one_line = []
@@ -73,59 +83,91 @@ def main():
             theta = np.arctan((y2 - y1) / (x2 - x1))
             theta_app = np.around(theta, 1)
 
-            lines.append([x1, y1, x2, y2, length, theta_app, theta])
-
-            print(one_line)
-            lines.append(one_line)
+            if theta_app > SLOPE_TH and x2 > mid_line: 
+                lines_pos.append([x1, y1, x2, y2, length, theta_app, theta])
+            elif theta_app < -SLOPE_TH and x1 < mid_line:
+                lines_neg.append([x1, y1, x2, y2, length, theta_app, theta])
+            elif theta_app < SLOPE_TH and theta_app > -SLOPE_TH and x2 < mid_line:
+                lines_zero_l.append([x1, y1, x2, y2, length, theta_app, theta])
+            elif theta_app < SLOPE_TH and theta_app > -SLOPE_TH and x1 > mid_line:
+                lines_zero_r.append([x1, y1, x2, y2, length, theta_app, theta])
+            #elif theta_app < SLOPE_TH and theta_app > -SLOPE_TH and x1 > mid_line and x2 < mid_line:            
+            elif theta_app < SLOPE_TH and theta_app > -SLOPE_TH:
+                lines_zero_r.append([x1, y1, x2, y2, length, theta_app, theta])
+            
+            #print(one_line)
+            #lines.append(one_line)
         
-        lines_pos = np.array(lines[lines[5] > 0])
-        lines_zero = np.array(lines[lines[5] == 0])
-        lines_neg = np.array(lines[lines[5] < 0])
 
-        print("Positive slope: ")
+        lines_pos = np.array(lines_pos)
+        lines_zero_l = np.array(lines_zero_l)
+        lines_zero_r = np.array(lines_zero_r)
+        lines_zero_m = np.array(lines_zero_m)
+        lines_neg = np.array(lines_neg)
+
+        np.set_printoptions(precision=3, suppress=True)
+        print("\n\nPositive slope: ")
         print(lines_pos)
-        print("Zero slope: ")
-        print(lines_zero)
-        print("Negative slope: ")
+        print("\n\nNegative slope: ")
         print(lines_neg)
-        
+        print("\n\nZero slope (left): ")
+        print(lines_zero_l)
+        print("\n\nZero slope (right): ")
+        print(lines_zero_r)
+        print("\n\nZero slope (middle): ")
+        print(lines_zero_m)
 
         """
+        for line in lines_p:
+            #print(line)
+            x1, y1, x2, y2 = line[0]
+            cv2.line(lines_image, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 1)
+        """
+
         for line in lines_pos:
             #print(line)
-            x1, y1, x2, y2 = line[0]
-            cv2.line(lines_image, (x1, y1), (x2, y2), (255, 0, 0), 1)
-
-        for line in lines_zero:
-            #print(line)
-            x1, y1, x2, y2 = line[0]
-            cv2.line(lines_image, (x1, y1), (x2, y2), (0, 255, 0), 1)
+            x1, y1, x2, y2, length, theta_app, theta = line
+            cv2.line(lines_image, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 1)
 
         for line in lines_neg:
             #print(line)
-            x1, y1, x2, y2 = line[0]
-            cv2.line(lines_image, (x1, y1), (x2, y2), (0, 0, 255), 1)
-        """
+            x1, y1, x2, y2, length, theta_app, theta = line
+            cv2.line(lines_image, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 1)
+
+        for line in lines_zero_l:
+            #print(line)
+            x1, y1, x2, y2, length, theta_app, theta = line
+            cv2.line(lines_image, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 255), 1)
+
+        for line in lines_zero_r:
+            #print(line)
+            x1, y1, x2, y2, length, theta_app, theta = line
+            cv2.line(lines_image, (int(x1), int(y1)), (int(x2), int(y2)), (255, 255, 0), 1)
+
+        for line in lines_zero_m:
+            #print(line)
+            x1, y1, x2, y2, length, theta_app, theta = line
+            cv2.line(lines_image, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 1)
+
+        
 
         #openned = cv2.morphologyEx(edges, cv2.MORPH_OPEN, kernel)
     
-        images = np.hstack([image, blur, binary, edages])
+        #images = np.hstack([image, blur, binary, closed, edages])
         images = lines_image
-
-        print(images.shape)
 
         if display.size == 0:
             display = images.copy()
         else:
             display = np.hstack([display, images])
 
-    cv2.imwrite('RESULT.jpg', display)
+    if WRITE_RESULT:
+        cv2.imwrite('RESULT.jpg', display)
+    
     cv2.namedWindow('Image', flags = cv2.WINDOW_NORMAL)
     #cv2.resizeWindow('Image', 1800, 1000)
     cv2.imshow('Image', display)
     k = cv2.waitKey(0)
-
-
     
     cv2.destroyAllWindows()
 
