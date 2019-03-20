@@ -72,7 +72,6 @@ def getSurfaceAdjustAngle(image, max_angle = 30):
     max_radian = max_angle * np.pi / 180
 
     for line in lines: 
-
         x1, y1, x2, y2 = line[0]
         length = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
         theta = np.arctan((y2 - y1) / (x2 - x1))
