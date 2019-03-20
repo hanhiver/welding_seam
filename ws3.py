@@ -2,8 +2,8 @@ import math
 import numpy as np 
 import cv2 
 
-#TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png', 'rbig.png')
-TEST_IMAGE = ('rsmall.png', )
+TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png', 'rbig.png')
+#TEST_IMAGE = ('rsmall.png', )
 
 WRITE_RESULT = False
 SLOPE_TH = 0.15
@@ -78,10 +78,28 @@ def getSurfaceAdjustAngle(image, max_angle = 30):
         theta_apro = np.around(theta, 1)
 
         if theta_apro < max_radian and theta_apro > -max_radian:
-            zero_slope_lines.append([x1, y1, x2, y2, length, theta_app, theta])
+            zero_slope_lines.append([x1, y1, x2, y2, length, theta_apro, theta])
 
+    zero_slope_lines = np.array(zero_slope_lines)
+
+    # Sort the lines with length. 
+    index = np.argsort(zero_slope_lines, axis = 0)
+    index_length = index[..., 4]
+    zero_slope_lines = zero_slope_lines[index_length]
+
+    np.set_printoptions(precision=3, suppress=True)
+
+    # Get the longest X lines:
+    x = zero_slope_lines.shape[0] // 4
+    #print(zero_slope_lines[::-1][:x][..., 6])
+    #for line in zero_slope_lines[::-1][:x]:
+    #    print(line)
+
+    ret_radian = np.mean(zero_slope_lines[::-1][:x][..., 6])
+    ret_angle = ret_radian * 180 / np.pi 
+
+    return ret_angle 
         
-
 
 def main():
     print("=== Start the WS detecting ===")
@@ -100,8 +118,12 @@ def main():
             print('Open file {} failed.'.format(file))
             continue
 
+        angle = getSurfaceAdjustAngle(image_gray)
+
+        print('Rotate angle: ', angle)
+
         print('Before rotation: ', image_gray.shape)
-        image = imgRotate2(image_gray, 45)
+        image = imgRotate2(image_gray, angle)
         print('After rotation: ', image.shape)
 
         #images = np.hstack([image, blur, binary, closed, edages])
@@ -116,7 +138,7 @@ def main():
             result_name = file.split('.')[0] + '_res.jpg'
             cv2.imwrite(result_name, lines_image)
     
-    display = np.hstack([display, image_gray])
+    #display = np.hstack([display, image_gray])
     cv2.namedWindow('Image', flags = cv2.WINDOW_NORMAL)
     #cv2.resizeWindow('Image', 1800, 1000)
     cv2.imshow('Image', display)
