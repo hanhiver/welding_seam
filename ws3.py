@@ -144,7 +144,7 @@ def main():
         else:
             display = np.hstack([display, images])
 
-        np.savetxt('rsmall.csv', image_gray, fmt='%d')
+        np.savetxt('rsmall.csv', image, fmt='%2d', delimiter=',')
 
         if WRITE_RESULT:
             result_name = file.split('.')[0] + '_res.jpg'
