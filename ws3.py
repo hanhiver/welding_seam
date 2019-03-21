@@ -132,9 +132,9 @@ def main():
 
         print('Rotate angle: ', angle)
 
-        #print('Before rotation: ', image_gray.shape)
+        print('Before rotation: ', image_gray.shape)
         image = imgRotate2(image_gray, angle)
-        #print('After rotation: ', image.shape)
+        print('After rotation: ', image.shape)
 
         #images = np.hstack([image, blur, binary, closed, edages])
         images = image
@@ -145,6 +145,7 @@ def main():
             display = np.hstack([display, images])
 
         np.savetxt('rsmall.csv', image, fmt='%2d', delimiter=',')
+        print(image.max())
 
         if WRITE_RESULT:
             result_name = file.split('.')[0] + '_res.jpg'
