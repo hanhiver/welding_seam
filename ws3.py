@@ -63,7 +63,7 @@ def getLines(image, min_length = 100, max_line_gap = 25):
     return lines
 
 
-def getSurfaceAdjustAngle(image, max_angle = 30):
+def getSurfaceAdjustAngle(image, max_angle = 10):
     # Get the dimention of the image and then determine the certer. 
     (h, w) = image.shape[:2]
     (cX, cY) = (w // 2, h // 2)
@@ -82,26 +82,29 @@ def getSurfaceAdjustAngle(image, max_angle = 30):
 
         if theta_apro < max_radian and theta_apro > -max_radian:
 
-            zero_slope_lines.append([x1, y1, x2, y2, length, theta_app, theta])
+            zero_slope_lines.append([x1, y1, x2, y2, length, theta_apro, theta])
 
+    if zero_slope_lines:
+        zero_slope_lines = np.array(zero_slope_lines)
 
-    zero_slope_lines = np.array(zero_slope_lines)
+        # Sort the lines with length. 
+        index = np.argsort(zero_slope_lines, axis = 0)
+        index_length = index[..., 4]
+        zero_slope_lines = zero_slope_lines[index_length]
 
-    # Sort the lines with length. 
-    index = np.argsort(zero_slope_lines, axis = 0)
-    index_length = index[..., 4]
-    zero_slope_lines = zero_slope_lines[index_length]
+        np.set_printoptions(precision=3, suppress=True)
 
-    np.set_printoptions(precision=3, suppress=True)
+        # Get the longest X lines:
+        x = zero_slope_lines.shape[0] // 4
+        print(zero_slope_lines[::-1][:x])
+        #for line in zero_slope_lines[::-1][:x]:
+        #    print(line)
 
-    # Get the longest X lines:
-    x = zero_slope_lines.shape[0] // 4
-    #print(zero_slope_lines[::-1][:x][..., 6])
-    #for line in zero_slope_lines[::-1][:x]:
-    #    print(line)
-
-    ret_radian = np.mean(zero_slope_lines[::-1][:x][..., 6])
-    ret_angle = ret_radian * 180 / np.pi 
+        ret_radian = np.mean(zero_slope_lines[::-1][:x][..., 6])
+        ret_angle = ret_radian * 180 / np.pi 
+    else:
+        print('Failed to found enough surface lines. ')
+        ret_angle = 0
 
     return ret_angle 
         
@@ -129,9 +132,9 @@ def main():
 
         print('Rotate angle: ', angle)
 
-        print('Before rotation: ', image_gray.shape)
+        #print('Before rotation: ', image_gray.shape)
         image = imgRotate2(image_gray, angle)
-        print('After rotation: ', image.shape)
+        #print('After rotation: ', image.shape)
 
         #images = np.hstack([image, blur, binary, closed, edages])
         images = image
@@ -141,11 +144,13 @@ def main():
         else:
             display = np.hstack([display, images])
 
+        np.savetxt('rsmall.csv', image_gray, fmt='%d')
+
         if WRITE_RESULT:
             result_name = file.split('.')[0] + '_res.jpg'
             cv2.imwrite(result_name, lines_image)
     
-    display = np.hstack([display, image_gray])
+    display = np.hstack([image_gray, display])
     cv2.namedWindow('Image', flags = cv2.WINDOW_NORMAL)
     #cv2.resizeWindow('Image', 1800, 1000)
     cv2.imshow('Image', display)
