@@ -1,13 +1,16 @@
 import math
 import numpy as np 
 import cv2 
+import ctypes
+import time
 
 
-TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png', 'rbig.png')
+TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png')
 #TEST_IMAGE = ('rsmall.png', )
 
 
-WRITE_RESULT = True
+WRITE_RESULT = False
+RESIZE = 1
 SLOPE_TH = 0.15
 
 def imgRotate(image, angle):
@@ -48,10 +51,10 @@ def imgRotate2(image, angle):
 
 
 def getLines(image, min_length = 100, max_line_gap = 25):
-    kernel = np.ones((5,5),np.uint8)
+    kernel = np.ones((3,3),np.uint8)
 
     blur = cv2.medianBlur(image, 5)
-    ret,binary = cv2.threshold(blur,0,255,cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    ret,binary = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations = 1)
 
     lines = cv2.HoughLinesP(closed, rho = 1, 
@@ -63,14 +66,14 @@ def getLines(image, min_length = 100, max_line_gap = 25):
     return lines
 
 
-def getSurfaceAdjustAngle(image, max_angle = 10):
+def getSurfaceAdjustAngle(image, max_angle = 10, min_length = 200, max_line_gap = 25):
     np.set_printoptions(precision=3, suppress=True)
 
     # Get the dimention of the image and then determine the certer. 
     (h, w) = image.shape[:2]
     (cX, cY) = (w // 2, h // 2)
 
-    lines = getLines(image, min_length = 200)
+    lines = getLines(image, min_length = min_length, max_line_gap = max_line_gap)
 
     zero_slope_lines_left = []
     zero_slope_lines_right = []
@@ -143,6 +146,78 @@ def getSurfaceAdjustAngle(image, max_angle = 10):
 
     return ret_angle 
 
+def getSurfaceLevel(image, max_angle = 1, min_length = 200, max_line_gap = 25):
+    np.set_printoptions(precision=3, suppress=True)
+
+    # Get the dimention of the image and then determine the certer. 
+    (h, w) = image.shape[:2]
+    (cX, cY) = (w // 2, h // 2)
+
+    ret_level_left = 0
+    ret_level_right = 0
+
+    lines = getLines(image, min_length = min_length, max_line_gap = max_line_gap)
+
+    zero_slope_lines_left = []
+    zero_slope_lines_right = []
+    max_radian = max_angle * np.pi / 180
+
+    for line in lines: 
+
+        x1, y1, x2, y2 = line[0]
+        length = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+        theta = np.arctan((y2 - y1) / (x2 - x1))
+        theta_apro = np.around(theta, 1)
+
+        if theta_apro < max_radian and theta_apro > -max_radian:
+        
+            if (x1 + x2) < w:
+                zero_slope_lines_left.append([x1, y1, x2, y2, length, theta_apro, theta])
+            else:
+                zero_slope_lines_right.append([x1, y1, x2, y2, length, theta_apro, theta])
+
+    if zero_slope_lines_left or zero_slope_lines_right:
+
+        reference_lines = []
+        ret_level_left = -1
+        ret_level_right = -1
+
+        if zero_slope_lines_left:
+            zero_slope_lines_left = np.array(zero_slope_lines_left)
+
+            # Sort the lines with length. 
+            index = np.argsort(zero_slope_lines_left, axis = 0)
+            index_length = index[..., 4]
+            zero_slope_lines_left = zero_slope_lines_left[index_length]
+
+            # Get the longest X lines:
+            x = zero_slope_lines_left.shape[0] // 2 + 1
+            print(zero_slope_lines_left[::-1][:x])
+            
+            ret_level_left = np.median(zero_slope_lines_left[::-1][:x][..., 1])
+            print('Level LEFT: ', ret_level_left)
+
+
+        if zero_slope_lines_right:
+            zero_slope_lines_right = np.array(zero_slope_lines_right)
+
+            # Sort the lines with length. 
+            index = np.argsort(zero_slope_lines_right, axis = 0)
+            index_length = index[..., 4]
+            zero_slope_lines_right = zero_slope_lines_right[index_length]
+
+            # Get the longest X lines:
+            x = zero_slope_lines_right.shape[0] // 2 + 1
+            print(zero_slope_lines_right[::-1][:x])
+            
+            ret_level_right = np.median(zero_slope_lines_right[::-1][:x][..., 1])
+            print('Level RIGHT: ', ret_level_right)
+
+    else:
+        print('Failed to found enough surface lines. ')
+
+    return (ret_level_left, ret_level_right) 
+
 def getCorePoint(inputArray, begin, end):
     value = None
     balance = 0
@@ -168,39 +243,20 @@ def getCorePoint(inputArray, begin, end):
 
     return (begin, value)  
 
-def lineSegment(inputArray, min_sep = 0):
-    ret = []
-    segment = []
+def getCorePoint2(inputArray, begin, end):
+    value = inputArray[begin:end].sum() // 2
+    max_value = inputArray[begin:end].max()
 
-    for item in inputArray:
-        if item <= min_sep:
-            if segment:
-                ret.append(segment)
-                segment = []
+    while begin < end: 
+        value = value - inputArray[begin]
+        if value > 0:
+            begin += 1
             continue
         else:
-            segment.append(item)
+            break
 
-    if segment:
-        ret.append(segment)
+    return (begin, max_value)  
 
-    np.array(ret)
-    return ret    
-
-def getOutline(image, black_limit = 0):
-    
-    outline = np.zeros(shape = image.shape, dtype = np.uint8)
-    (h, w) = image.shape[:2]
-
-    for i in range(w):
-        array = image[..., i]
-        segments = lineSegment(array, min_sep = black_limit)
-        for segment in segments:
-            pos, value = getCenterPoint(segment)
-            outline[pos][i] = value
-            print('DOT: ({}, {}), value: {}'.format(i, pos, value))
-
-    return outline
 
 def getCoreImage(image, black_limit = 0):
     (h, w) = image.shape[:2]
@@ -220,8 +276,8 @@ def getCoreImage(image, black_limit = 0):
                     if image[seg_pos][i] <= black_limit:
                         break
                 
-                pos, value = getCorePoint(image[..., i], scan_pos, seg_pos)
-                print('DOT: ({}, {}), value: {}'.format(i, pos, value))
+                pos, value = getCorePoint2(image[..., i], scan_pos, seg_pos)
+                print('DOT: ({}, {}), value: {}'.format(i, pos, value), end = '\r')
                 coreImage[pos][i] = value
 
                 scan_pos = seg_pos
@@ -231,9 +287,41 @@ def getCoreImage(image, black_limit = 0):
 
     return coreImage
 
+def getCoreImage2(lib, image, black_limit = 0):
+    (h, w) = image.shape[:2]
+
+    src = np.ctypeslib.as_ctypes(image)
+    dst = ctypes.create_string_buffer(ctypes.sizeof(ctypes.c_uint8) * w * h)
+    
+    lib.getCoreImage(src, dst, h, w, black_limit)
+    
+    dst = ctypes.cast(dst, ctypes.POINTER(ctypes.c_uint8))
+    coreImage = np.ctypeslib.as_array(dst, shape = image.shape)
+
+    return coreImage
+
+def followCoreLine(lib, image, ref_level, min_gap = 20, black_limit = 0):
+    (h, w) = image.shape[:2]
+
+    src = np.ctypeslib.as_ctypes(image)
+    dst = ctypes.create_string_buffer(ctypes.sizeof(ctypes.c_uint8) * w * h)
+
+    lib.followCoreLine(src, dst, h, w, ref_level, min_gap, black_limit)
+
+    dst = ctypes.cast(dst, ctypes.POINTER(ctypes.c_uint8))
+    lineImage = np.ctypeslib.as_array(dst, shape = image.shape)
+
+    return lineImage
+
 
 def main():
     print("=== Start the WS detecting ===")
+
+    print('Load C lib. ')
+    so_file = './libws_c.so'
+    lib = ctypes.cdll.LoadLibrary(so_file)
+
+    lib.testlib()
 
     print("=== Read test image ===")
 
@@ -243,14 +331,18 @@ def main():
     for file in TEST_IMAGE:
         print('Open file: {}'.format(file))
         image_gray = cv2.imread(file, 0)
-        image_color = cv2.imread(file, cv2.IMREAD_COLOR)
+        #image_color = cv2.imread(file, cv2.IMREAD_COLOR)
+        (h, w) = image_gray.shape[:2]
+        if RESIZE != 1:
+            image_gray = cv2.resize(image_gray, (h//RESIZE, w//RESIZE))
 
         if type(image_gray) == type(None):
             print('Open file {} failed.'.format(file))
             continue
 
+        kernel = np.ones((5,5),np.uint8)
 
-        angle = getSurfaceAdjustAngle(image_gray)
+        angle = getSurfaceAdjustAngle(image_gray, min_length = 200//RESIZE)
 
         print('Rotate angle: ', angle)
 
@@ -258,10 +350,24 @@ def main():
         image = imgRotate2(image_gray, angle)
         print('After rotation: ', image.shape)
 
-        coreImage = getCoreImage(image, black_limit = 0)
+        level = getSurfaceLevel(image, min_length = 200//RESIZE)
+        print('Surface Level: ', level)
 
+        left_level = int(level[0])
+        #print('Left level: ', left_level)
+
+        start = time.time()
+        #coreImage = getCoreImage(image, black_limit = 0)
+        coreImage = getCoreImage2(lib, image, black_limit = 0)
+        lineImage = followCoreLine(lib, coreImage, left_level, min_gap = 50//RESIZE)
+        end = time.time()
+        print("TIME COST: ", end - start, ' seconds')
+
+        print("MEAN: ", lineImage.max())
+        print("\n\n")
+        
         #images = np.hstack([image, blur, binary, closed, edages])
-        images = np.hstack([coreImage])
+        images = np.hstack([image_gray, coreImage, lineImage])
 
         #np.savetxt('rsmall.csv', image, fmt='%2d', delimiter=',')
         #print(image.max())
@@ -269,11 +375,11 @@ def main():
         if WRITE_RESULT:
             result_name = file.split('.')[0] + '_res.jpg'
             cv2.imwrite(result_name, coreImage)
-    
+
         if display.size == 0:
             display = images.copy()
         else:
-            display = np.hstack([display, images])
+            display = np.vstack([display, images])
 
     #display = np.vstack([display])
     cv2.namedWindow('Image', flags = cv2.WINDOW_NORMAL)

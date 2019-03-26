@@ -1,0 +1,176 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int WIDTH = 6;
+int HEIGHT = 6;
+char IMAGE[] = { 0, 0, 5, 0, 1, 0, 
+		  		2, 1, 3, 0, 0, 2, 
+		  		1, 4, 0, 1, 0, 3, 
+		  		0, 2, 0, 1, 2, 4, 
+		  		0, 0, 1, 0, 4, 5, 
+		  		0, 0, 0, 0, 4, 3 }; 
+
+
+/*
+typedef struct image
+{
+	int width;
+	int height;
+	int imageBuffer; 
+} Image; 
+*/
+int testlib()
+{
+	printf("Lib load OK. \n");
+	return 0;
+}
+
+int getCorePoint(char* src, char* out_max, int out_pos, int h, int w, int column, int begin, int end)
+{
+	char max = 0;
+	int sum = 0;
+	//int length = end - begin;
+	int i;
+	char temp;
+
+	for (i=begin; i<end; i++)
+	{
+		printf("XXXX MAX: %d, SUM: %d, POINT: %d. \n", max, sum, src[i*w + column]);
+		temp = src[i*w + column]; //src[column][i];
+
+		sum += int(temp);
+
+		if (temp > max)
+		{
+			max = temp;
+		}
+	}
+	printf("Found Max = %d, Sum = %d. \n", max, sum);
+
+	sum = sum / 2;
+
+	while (begin < end)
+	{
+		sum -= src[begin*w + column]; //src[column][begin];
+		if (sum > 0)
+		{
+			begin ++;
+			continue;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	*out_pos = begin;
+	*out_max = max;
+
+	return 0; 
+}
+
+int getCoreImage(char* src, char* dst, int h, int w, char black_limit)
+{   
+	int scan_pos = 0;
+	int seg_pos = 0;
+	int pos = 0;
+	char max = 0;
+
+	int i, j;
+	int pos, value;
+
+	for (int i=0; i<h; i++)
+	{
+		for (int j=0; j<w; j++)
+		{
+			dst[i*w + j] = 0;
+		}
+	}
+
+	for (i=0; i<w; i++)
+	{
+		printf("Start the column: %u\n", i);
+		scan_pos = 0;
+
+		while (scan_pos < h)
+		{
+			if (src[scan_pos*w + i] > black_limit)
+			{
+				seg_pos = scan_pos;
+				printf("Found seg_pos begin: %u \n", src[seg_pos*w + i]);
+
+				while (seg_pos < h)
+				//for (seg_pos=scan_pos; seg_pos<h; seg_pos++)
+				{
+					if (src[seg_pos*w + i] > black_limit)
+					{
+						seg_pos++;
+					}
+					else
+					{
+						printf("Found seg_pos end: %u \n", src[seg_pos*w + i]);
+						break;
+					}
+				}
+
+				printf("Call getCorePoint: column = %u, scan_pos = %u, seg_pos = %u. \n", i, scan_pos, seg_pos);
+				//pos, value = getCorePoint(image[..., i], scan_pos, seg_pos)
+				getCorePoint(src, &max, &pos, h, w, i, scan_pos, seg_pos);
+				printf("\rDOT: (%u, %u), value: %u.\n", i, pos, max);
+				dst[pos*w + i] = max;
+
+				scan_pos = seg_pos;
+			}
+			else
+			{
+				scan_pos++;
+			}
+		}
+	} 
+
+    return 0; 
+}
+
+int main(int argc, char const *argv[])
+{
+	//int* image = (int*)malloc(sizeof(int)*16);
+	char* image = IMAGE;
+
+	char* output =  (char*)malloc(sizeof(char)*HEIGHT*WIDTH);
+	for (int i=0; i<HEIGHT; i++)
+	{
+		for (int j=0; j<WIDTH; j++)
+		{
+			output[i*WIDTH + j] = 0;
+		}
+	}
+
+	getCoreImage(image, output, HEIGHT, WIDTH, 0);
+
+	printf("\n===Original Image: ===\n");
+	for (int i=0; i<HEIGHT; i++)
+	{
+		printf("\n");
+
+		for (int j=0; j<WIDTH; j++)
+		{
+			printf("%u\t", image[i*WIDTH + j]);
+		}
+	}
+
+	printf("\n===Output Image: ===\n");
+	for (int i=0; i<HEIGHT; i++)
+	{
+		printf("\n");
+
+		for (int j=0; j<WIDTH; j++)
+		{
+			printf("%u\t", output[i*WIDTH + j]);
+		}
+	}
+
+	printf("\n");
+
+	return 0;
+}
+
