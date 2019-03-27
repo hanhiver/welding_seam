@@ -154,8 +154,8 @@ def getSurfaceLevel(image, max_angle = 1, min_length = 200, max_line_gap = 25):
     (h, w) = image.shape[:2]
     (cX, cY) = (w // 2, h // 2)
 
-    ret_level_left = 0
-    ret_level_right = 0
+    ret_level_left = cX
+    ret_level_right = cX
 
     lines = getLines(image, min_length = min_length, max_line_gap = max_line_gap)
 
@@ -307,12 +307,30 @@ def followCoreLine(lib, image, ref_level, min_gap = 20, black_limit = 0):
     src = np.ctypeslib.as_ctypes(image)
     dst = ctypes.create_string_buffer(ctypes.sizeof(ctypes.c_uint8) * w * h)
 
-    lib.followCoreLine(src, dst, h, w, ref_level, min_gap, black_limit)
+    level_left, level_right = ref_level
+    level_left = int(level_left)
+    level_right = int(level_right)
+
+    lib.followCoreLine(src, dst, h, w, level_left, level_right, min_gap, black_limit)
 
     dst = ctypes.cast(dst, ctypes.POINTER(ctypes.c_uint8))
     lineImage = np.ctypeslib.as_array(dst, shape = image.shape)
 
     return lineImage
+
+def fill2ColorImage(lib, colorImage, grayImage):
+    (h, w) = colorImage.shape[:2]
+    colorShape = colorImage.shape
+
+    color = np.ctypeslib.as_ctypes(colorImage)
+    gray = np.ctypeslib.as_ctypes(grayImage)
+    
+    lib.fill2ColorImage(color, gray, h, w, 0)
+
+    color = ctypes.cast(color, ctypes.POINTER(ctypes.c_uint8))
+    mergedImage = np.ctypeslib.as_array(color, shape = colorShape)
+
+    return mergedImage
 
 
 def old_main():
@@ -354,13 +372,10 @@ def old_main():
         level = getSurfaceLevel(image, min_length = 200//RESIZE)
         print('Surface Level: ', level)
 
-        left_level = int(level[0])
-        #print('Left level: ', left_level)
-
         start = time.time()
         #coreImage = getCoreImage(image, black_limit = 0)
         coreImage = getCoreImage2(lib, image, black_limit = 0)
-        lineImage = followCoreLine(lib, coreImage, left_level, min_gap = 50//RESIZE)
+        lineImage = followCoreLine(lib, coreImage, level, min_gap = 50//RESIZE)
         end = time.time()
         print("TIME COST: ", end - start, ' seconds')
 
@@ -390,32 +405,32 @@ def old_main():
     
     cv2.destroyAllWindows()
 
-def wsImagePhase(lib, image):
+def wsImagePhase(lib, image, correct_angle = True):
     (h, w) = image.shape[:2]
     
     #if RESIZE != 1:
     #    image = cv2.resize(image, (h//RESIZE, w//RESIZE))
 
-    kernel = np.ones((5,5),np.uint8)
+    if correct_angle:
+        kernel = np.ones((5,5),np.uint8)
 
-    angle = getSurfaceAdjustAngle(image, min_length = 200//RESIZE)
+        angle = getSurfaceAdjustAngle(image, min_length = 200//RESIZE)
 
-    print('Rotate angle: ', angle)
+        print('Rotate angle: ', angle)
 
-    print('Before rotation: ', image.shape)
-    image = imgRotate2(image, angle)
-    print('After rotation: ', image.shape)
+        print('Before rotation: ', image.shape)
+        image = imgRotate2(image, angle)
+        print('After rotation: ', image.shape)
 
-    level = getSurfaceLevel(image, min_length = 200//RESIZE)
-    print('Surface Level: ', level)
+        level = getSurfaceLevel(image, min_length = 200//RESIZE)
+        print('Surface Level: ', level)
 
-    left_level = int(level[0])
-    #print('Left level: ', left_level)
+    level = (h//2, h//2)
 
     start = time.time()
     #coreImage = getCoreImage(image, black_limit = 0)
     coreImage = getCoreImage2(lib, image, black_limit = 0)
-    lineImage = followCoreLine(lib, coreImage, left_level, min_gap = 50//RESIZE)
+    lineImage = followCoreLine(lib, coreImage, level, min_gap = 100//RESIZE)
     end = time.time()
     print("TIME COST: ", end - start, ' seconds')
 
@@ -436,10 +451,10 @@ def wsVideoPhase(input, output, local_view = True):
 
     isOutput = True if output != "" else False
     if isOutput:
-        video_FourCC = cv2.VideoWriter_fourcc(*'mp4v')
+        #video_FourCC = cv2.VideoWriter_fourcc(*'mp4v')
         #print("!!! TYPE:", type(output_path), type(video_FourCC), type(video_fps), type(video_size))
         #print("!!! TYPE:", output_path, video_FourCC, video_fps, video_size)
-        out = cv2.VideoWriter(output_path, video_FourCC, video_fps, video_size)
+        out = cv2.VideoWriter(output, video_FourCC, video_fps, video_size)
 
     print("=== Start the WS detecting ===")
 
@@ -449,31 +464,41 @@ def wsVideoPhase(input, output, local_view = True):
 
     lib.testlib()
 
+    kernel = np.ones((3,3),np.uint8)
+
     if local_view:
         cv2.namedWindow("result", cv2.WINDOW_NORMAL)
-        cv2.resizeWindow("result", 800, 600)
+        cv2.resizeWindow("result", 800, 400)
         cv2.moveWindow("result", 100, 100)
 
     while True:
         return_value, frame = vid.read()
 
         if type(frame) != type(None):
-            #image = cv2.resize(frame, (800, 600), interpolation = cv2.INTER_LINEAR)
+            frame = cv2.resize(frame, (500, 300), interpolation = cv2.INTER_LINEAR)
             image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-            print("COLOR: ", image)
+            #print("COLOR: ", image)
             #result = frame
-            result = wsImagePhase(lib, image)
+            result = wsImagePhase(lib, image, correct_angle = False)
             #image = Image.fromarray(frame)
             #image = dpool_detect_car(client, image)
             #result = np.asarray(image)
+            #result = cv2.dilate(result, kernel, iterations = 1)
+            #color = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
+
+            #image = image // 2
+            frame = frame//2
+
+            #images = np.hstack([image, result])
+            images = fill2ColorImage(lib, frame, result)
 
             if local_view:
-                cv2.imshow("result", result)
+                cv2.imshow("result", images)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     return False
              
             if isOutput:
-                out.write(result)
+                out.write(images)
         else:
             break
                 

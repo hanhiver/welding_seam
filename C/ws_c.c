@@ -132,11 +132,11 @@ int getCoreImage(unsigned char* src, unsigned char* dst, int h, int w, unsigned 
     return 0; 
 }
 
-int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref_level, int min_gap, int black_limit)
+int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref_level_left, int ref_level_right, int min_gap, int black_limit)
 {
 	int core_pos = 0; 
 	int min_dist = h;
-	int pre_level = ref_level;
+	int pre_level = ref_level_left;
 	int i, j, temp;
 
 	for (i=0; i<h; i++)
@@ -174,10 +174,73 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 
 		//printf("Found column: %u, pre_level: %u, core_pos: %u, min_dist: %u. \n", i, pre_level, core_pos, min_dist);
 
-		if (core_pos < h && min_dist < min_gap)
+		//if (core_pos < h && min_dist < min_gap)
+		if (core_pos < h)
 		{
-			dst[core_pos*w + i] = src[core_pos*w + i];
+			dst[core_pos*w + i] = 255;
+			//dst[core_pos*w + i] = src[core_pos*w + i];
 			pre_level = core_pos;
+		}
+	}
+
+	core_pos = 0; 
+	min_dist = h;
+	pre_level = ref_level_right;
+
+	for (i=w-1; i>=0; i--)
+	{	
+		core_pos = 0;
+		min_dist = h; 
+
+		for (j=0; j<h; j++)
+		{
+			if (src[j*w + i] > black_limit)
+			{
+				temp = j - pre_level; 
+				if (temp < 0)
+				{
+					temp = -temp;
+				}
+
+				if (temp < min_dist)
+				{
+					min_dist = temp;
+					core_pos = j;
+				}
+				//printf("DOT: (%u, %u), pre_level: %u, core_pos: %u, min_dist: %u. \n", i, j, pre_level, core_pos, min_dist);
+			}
+		}
+
+		//printf("Found column: %u, pre_level: %u, core_pos: %u, min_dist: %u. \n", i, pre_level, core_pos, min_dist);
+
+		//if (core_pos < h && min_dist < min_gap)
+		if (core_pos < h)
+		{
+			dst[core_pos*w + i] = 255;
+			//dst[core_pos*w + i] = src[core_pos*w + i];
+			pre_level = core_pos;
+		}
+	}
+
+	return 0;
+}
+
+int fill2ColorImage(unsigned char* color, unsigned char* coreLine, int h, int w, int black_limit)
+{
+	int i, j, index;
+
+	for (i=0; i<h; i++)
+	{
+		for (j=0; j<w; j++)
+		{	
+			index = i * w + j;
+			if (coreLine[index] > black_limit)
+			{
+				color[index*3]     = 0; 
+				color[index*3 + 1] = 0;
+				color[index*3 + 2] = 255;
+			}
+
 		}
 	}
 
@@ -204,7 +267,7 @@ int main(int argc, char const *argv[])
 	}
 
 	getCoreImage(image, output1, HEIGHT, WIDTH, 0);
-	followCoreLine(output1, output2, HEIGHT, WIDTH, 2, 3, 0);
+	followCoreLine(output1, output2, HEIGHT, WIDTH, 2, 2, 3, 0);
 
 	printf("\n===Original Image: ===\n");
 	for (i=0; i<HEIGHT; i++)
