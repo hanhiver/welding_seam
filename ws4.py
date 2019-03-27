@@ -3,6 +3,7 @@ import numpy as np
 import cv2 
 import ctypes
 import time
+import argparse
 
 
 TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png')
@@ -389,6 +390,37 @@ def old_main():
     
     cv2.destroyAllWindows()
 
+def wsImagePhase(lib, image):
+    (h, w) = image.shape[:2]
+    
+    #if RESIZE != 1:
+    #    image = cv2.resize(image, (h//RESIZE, w//RESIZE))
+
+    kernel = np.ones((5,5),np.uint8)
+
+    angle = getSurfaceAdjustAngle(image, min_length = 200//RESIZE)
+
+    print('Rotate angle: ', angle)
+
+    print('Before rotation: ', image.shape)
+    image = imgRotate2(image, angle)
+    print('After rotation: ', image.shape)
+
+    level = getSurfaceLevel(image, min_length = 200//RESIZE)
+    print('Surface Level: ', level)
+
+    left_level = int(level[0])
+    #print('Left level: ', left_level)
+
+    start = time.time()
+    #coreImage = getCoreImage(image, black_limit = 0)
+    coreImage = getCoreImage2(lib, image, black_limit = 0)
+    lineImage = followCoreLine(lib, coreImage, left_level, min_gap = 50//RESIZE)
+    end = time.time()
+    print("TIME COST: ", end - start, ' seconds')
+
+    return lineImage
+
 
 def wsVideoPhase(input, output, local_view = True):
 
@@ -397,152 +429,56 @@ def wsVideoPhase(input, output, local_view = True):
     if not vid.isOpened():
         raise IOError("Couldn't open webcam or video: {}".format(input))
 
-
-
-
-
-
-
-
-
-
-
     video_FourCC    = int(vid.get(cv2.CAP_PROP_FOURCC))
     video_fps       = vid.get(cv2.CAP_PROP_FPS)
     video_size      = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)),
                         int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    isOutput = True if output_path != "" else False
+
+    isOutput = True if output != "" else False
     if isOutput:
         video_FourCC = cv2.VideoWriter_fourcc(*'mp4v')
         #print("!!! TYPE:", type(output_path), type(video_FourCC), type(video_fps), type(video_size))
         #print("!!! TYPE:", output_path, video_FourCC, video_fps, video_size)
         out = cv2.VideoWriter(output_path, video_FourCC, video_fps, video_size)
-        logger.info('Output video: {}, format: {}, fps: {}, video size: {}'.format(
-                    output_path, video_FourCC, video_fps, video_size))
-    
-    # isRecord: if record the incident to certain file. 
-    # frame_remained: how many frames remained for incident recording.  
-    isRecord = True if record_path != "" else False
-    
-    global frame_remained 
-    frame_remained = 0
-    record_out = None
 
-    accum_time = 0
-    curr_fps = 0
-    accum_frame = 0
-    run_time = []
-    fps = "FPS: ??"
-    prev_time = timer()
+    print("=== Start the WS detecting ===")
 
-    # Initialize the Stream to send frame. 
-    #stream_to_gui = None
-    #if stream_port: 
-    #    stream_to_gui = mjpeg_stream.Stream(camera_id, stream_port)
-    #    logger.info('Initialize stream_to_gui, camera_id: {}, stream_port: {}'.format(
-    #                camera_id, stream_port))
+    print('Load C lib. ')
+    so_file = './libws_c.so'
+    lib = ctypes.cdll.LoadLibrary(so_file)
 
-    client = darkPool.clientInit(host = model_host, port = model_port, 
-                                 send_msg_size = CLIENT_SEND_MSG_SIZE, 
-                                 recv_msg_size = CLIENT_RECV_MSG_SIZE)
-    logger.info('Connect to the model server: {}:{}, send_msg_size: {}, recv_msg_size: {}.'.format(
-                model_host, model_port, CLIENT_SEND_MSG_SIZE, CLIENT_RECV_MSG_SIZE))
+    lib.testlib()
+
+    if local_view:
+        cv2.namedWindow("result", cv2.WINDOW_NORMAL)
+        cv2.resizeWindow("result", 800, 600)
+        cv2.moveWindow("result", 100, 100)
 
     while True:
-        start_time = datetime.now()
         return_value, frame = vid.read()
-        time_elapse('vid.read()', start_time)
+
         if type(frame) != type(None):
-            start_time = datetime.now()
-            image = cv2.resize(frame, (416, 416), interpolation = cv2.INTER_LINEAR)
-            time_elapse('cv2.resize()', start_time)
-            start_time = datetime.now()
-            image = Image.fromarray(frame)
-            time_elapse('Image.fromearray()', start_time)
-            start_time = datetime.now()
-            image = dpool_detect_car(client, image)
-            time_elapse('dpool_detect_car()', start_time)
-            result = np.asarray(image)
+            #image = cv2.resize(frame, (800, 600), interpolation = cv2.INTER_LINEAR)
+            image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+            print("COLOR: ", image)
+            #result = frame
+            result = wsImagePhase(lib, image)
+            #image = Image.fromarray(frame)
+            #image = dpool_detect_car(client, image)
+            #result = np.asarray(image)
 
-            # Send frame to GUI interface. 
-            #if stream_to_gui:
-            #    stream_to_gui.send_frame(result)
-            #    logger.debug('Send a frame to stream_to_gui. ')
-
-            curr_time = timer()
-            exec_time = curr_time - prev_time
-            prev_time = curr_time
-            accum_time = accum_time + exec_time
-            run_time.append(exec_time)
-            accum_frame = accum_frame + 1
-            curr_fps = curr_fps + 1
-            if accum_time > 1:
-                accum_time = accum_time - 1
-                fps = "FPS: " + str(curr_fps)
-                curr_fps = 0
-
-            #print('frame_remained: ', frame_remained, isRecord)
-            if isRecord:
-                logger.debug('{} frame remained in the reccord video. '.format(frame_remained))
-                if frame_remained > 0:
-                    if not record_out:
-
-                        now = datetime.now()
-                        now_str = now.strftime('%Y-%m-%d_%H_%M_%S')
-                        base_name = 'incident_cam-%s_%s.mp4' % (str(camera_id), now_str)
-                        record_file = os.path.join(record_path, base_name)
-                        # Post alert to GUI. 
-                        if stream_port:
-                            logger.debug('Incident Found!')
-                            args = (base_name, mjpeg_stream.Alert.ALERT_START)
-                            frame_queue.put(args)
-                            #stream_to_gui.post_alert('Incident Found! ', record_file)
-                        #else:
-                        #    logger.debug('stream_to_gui not initialized')
-                        video_FourCC = cv2.VideoWriter_fourcc(*'avc1')
-                        record_out = cv2.VideoWriter(record_file, video_FourCC, video_fps, video_size)
-                        logger.info('Create record file: {}'.format(record_out))
-
-                    record_out.write(result)
-                    logger.debug('Log a frame to record file: {}'.format(record_file))
-                    #print('Incident Record: {}'.format(file_name))
-                    frame_remained -= 1
-
-                    if frame_remained == 0: 
-                        record_out = None
-                        args = ('', mjpeg_stream.Alert.ALERT_END)
-                        frame_queue.put(args)
-                        logger.info('Record file {} finished. '.format(record_file))
-
-            if local_view or stream_port:
-                start_time = datetime.now()
-                cv2.putText(result, text=fps, org=(3, 30), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                            fontScale=0.8, color=(255, 255, 255), thickness=2)
-                #cv2.imshow("result", result)
-                if frame_index % SKIP_FRAME_NUM == 0:
-                    frame_queue.put(result)
-                time_elapse('stream', start_time)
-            
+            if local_view:
+                cv2.imshow("result", result)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    return False
+             
             if isOutput:
                 out.write(result)
-
-            frame_index += 1
-
         else:
             break
-    
-    cv2.destroyAllWindows()
-
-    sum_run_time = sum(run_time)
-    print('run_time:', sum_run_time)
-    print('accum_frame:', accum_frame)
-    print('Average FPS = {}'.format(accum_frame / sum_run_time))
-    
-    if summary_file:
-        with open(summary_file, 'w') as summary:
-            summary.write('RUNTIME = {}, #Frame = {}, Average FPS = {}'.format(sum_run_time, accum_frame, accum_frame / sum_run_time))
-            for item in run_time:
-                summary.write(str(item) + '\n')
+                
+    if local_view:
+        cv2.destroyAllWindows()
 
 
 def main():
@@ -565,21 +501,15 @@ def main():
 
     if 'input' in FLAGS:
 
-        # detect_video(FLAGS.input,  
-        detect_video_smooth(FLAGS.input,  
-                     output_path = FLAGS.output, 
-                     summary_file = FLAGS.summary,
-                     stream_port = FLAGS.port,
-                     camera_id = FLAGS.cnumber,
-                     record_path = FLAGS.recordpath,
-                     model_host = FLAGS.modelhost,
-                     model_port = FLAGS.modelport,
-                     local_view = FLAGS.localview)
+        wsVideoPhase(input = FLAGS.input,  
+                     output = FLAGS.output)
+
 
     else:
         print("See usage with --help.")
 
 
-
 if __name__ == '__main__':
     main()
+
+
