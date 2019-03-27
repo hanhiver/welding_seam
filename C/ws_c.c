@@ -78,9 +78,9 @@ int getCoreImage(unsigned char* src, unsigned char* dst, int h, int w, unsigned 
 
 	int i, j;
 
-	for (int i=0; i<h; i++)
+	for (i=0; i<h; i++)
 	{
-		for (int j=0; j<w; j++)
+		for (j=0; j<w; j++)
 		{
 			dst[i*w + j] = 0;
 		}
@@ -139,9 +139,9 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 	int pre_level = ref_level;
 	int i, j, temp;
 
-	for (int i=0; i<h; i++)
+	for (i=0; i<h; i++)
 	{
-		for (int j=0; j<w; j++)
+		for (j=0; j<w; j++)
 		{
 			dst[i*w + j] = 0;
 		}
@@ -192,9 +192,11 @@ int main(int argc, char const *argv[])
 	unsigned char* output1 =  (unsigned char*)malloc(sizeof(unsigned char)*HEIGHT*WIDTH);
 	unsigned char* output2 =  (unsigned char*)malloc(sizeof(unsigned char)*HEIGHT*WIDTH);
 
-	for (int i=0; i<HEIGHT; i++)
+	int i, j;
+
+	for (i=0; i<HEIGHT; i++)
 	{
-		for (int j=0; j<WIDTH; j++)
+		for (j=0; j<WIDTH; j++)
 		{
 			output1[i*WIDTH + j] = 0;
 			output2[i*WIDTH + j] = 0;
@@ -205,33 +207,33 @@ int main(int argc, char const *argv[])
 	followCoreLine(output1, output2, HEIGHT, WIDTH, 2, 3, 0);
 
 	printf("\n===Original Image: ===\n");
-	for (int i=0; i<HEIGHT; i++)
+	for (i=0; i<HEIGHT; i++)
 	{
 		printf("\n");
 
-		for (int j=0; j<WIDTH; j++)
+		for (j=0; j<WIDTH; j++)
 		{
 			printf("%u\t", image[i*WIDTH + j]);
 		}
 	}
 
 	printf("\n===Output1 Image: ===\n");
-	for (int i=0; i<HEIGHT; i++)
+	for (i=0; i<HEIGHT; i++)
 	{
 		printf("\n");
 
-		for (int j=0; j<WIDTH; j++)
+		for (j=0; j<WIDTH; j++)
 		{
 			printf("%u\t", output1[i*WIDTH + j]);
 		}
 	}
 
 	printf("\n===Output2 Image: ===\n");
-	for (int i=0; i<HEIGHT; i++)
+	for (i=0; i<HEIGHT; i++)
 	{
 		printf("\n");
 
-		for (int j=0; j<WIDTH; j++)
+		for (j=0; j<WIDTH; j++)
 		{
 			printf("%u\t", output2[i*WIDTH + j]);
 		}
