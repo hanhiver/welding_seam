@@ -451,10 +451,11 @@ def wsVideoPhase(input, output, local_view = True):
 
     isOutput = True if output != "" else False
     if isOutput:
-        #video_FourCC = cv2.VideoWriter_fourcc(*'mp4v')
+        video_FourCC = cv2.VideoWriter_fourcc(*'XVID')
+        #video_FourCC = -1
         #print("!!! TYPE:", type(output_path), type(video_FourCC), type(video_fps), type(video_size))
         #print("!!! TYPE:", output_path, video_FourCC, video_fps, video_size)
-        out = cv2.VideoWriter(output, video_FourCC, video_fps, video_size)
+        out = cv2.VideoWriter(output, video_FourCC, 10, (1200, 800))
 
     print("=== Start the WS detecting ===")
 
@@ -475,7 +476,7 @@ def wsVideoPhase(input, output, local_view = True):
         return_value, frame = vid.read()
 
         if type(frame) != type(None):
-            frame = cv2.resize(frame, (500, 300), interpolation = cv2.INTER_LINEAR)
+            frame = cv2.resize(frame, (1200, 800), interpolation = cv2.INTER_LINEAR)
             image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             #print("COLOR: ", image)
             #result = frame
