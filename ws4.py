@@ -488,7 +488,7 @@ def wsVideoPhase(input, output, local_view = True):
             #color = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
 
             #image = image // 2
-            frame = frame//2
+            frame = frame // 3 * 2
 
             #images = np.hstack([image, result])
             images = fill2ColorImage(lib, frame, result)

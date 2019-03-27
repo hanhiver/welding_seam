@@ -150,7 +150,7 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 
 	for (i=0; i<w; i++)
 	{	
-		core_pos = 0;
+		core_pos = -1;
 		min_dist = h; 
 
 		for (j=0; j<h; j++)
@@ -175,7 +175,7 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 		//printf("Found column: %u, pre_level: %u, core_pos: %u, min_dist: %u. \n", i, pre_level, core_pos, min_dist);
 
 		//if (core_pos < h && min_dist < min_gap)
-		if (core_pos < h)
+		if (core_pos < h && core_pos > 0)
 		{
 			dst[core_pos*w + i] = 255;
 			//dst[core_pos*w + i] = src[core_pos*w + i];
@@ -214,7 +214,7 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 		//printf("Found column: %u, pre_level: %u, core_pos: %u, min_dist: %u. \n", i, pre_level, core_pos, min_dist);
 
 		//if (core_pos < h && min_dist < min_gap)
-		if (core_pos < h)
+		if (core_pos < h && core_pos > 0)
 		{
 			dst[core_pos*w + i] = 255;
 			//dst[core_pos*w + i] = src[core_pos*w + i];
