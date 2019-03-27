@@ -333,78 +333,6 @@ def fill2ColorImage(lib, colorImage, grayImage):
     return mergedImage
 
 
-def old_main():
-    print("=== Start the WS detecting ===")
-
-    print('Load C lib. ')
-    so_file = './libws_c.so'
-    lib = ctypes.cdll.LoadLibrary(so_file)
-
-    lib.testlib()
-
-    print("=== Read test image ===")
-
-    display = []
-    display = np.array(display)
-
-    for file in TEST_IMAGE:
-        print('Open file: {}'.format(file))
-        image_gray = cv2.imread(file, 0)
-        #image_color = cv2.imread(file, cv2.IMREAD_COLOR)
-        (h, w) = image_gray.shape[:2]
-        if RESIZE != 1:
-            image_gray = cv2.resize(image_gray, (h//RESIZE, w//RESIZE))
-
-        if type(image_gray) == type(None):
-            print('Open file {} failed.'.format(file))
-            continue
-
-        kernel = np.ones((5,5),np.uint8)
-
-        angle = getSurfaceAdjustAngle(image_gray, min_length = 200//RESIZE)
-
-        print('Rotate angle: ', angle)
-
-        print('Before rotation: ', image_gray.shape)
-        image = imgRotate2(image_gray, angle)
-        print('After rotation: ', image.shape)
-
-        level = getSurfaceLevel(image, min_length = 200//RESIZE)
-        print('Surface Level: ', level)
-
-        start = time.time()
-        #coreImage = getCoreImage(image, black_limit = 0)
-        coreImage = getCoreImage2(lib, image, black_limit = 0)
-        lineImage = followCoreLine(lib, coreImage, level, min_gap = 50//RESIZE)
-        end = time.time()
-        print("TIME COST: ", end - start, ' seconds')
-
-        print("MEAN: ", lineImage.max())
-        print("\n\n")
-        
-        #images = np.hstack([image, blur, binary, closed, edages])
-        images = np.hstack([image_gray, coreImage, lineImage])
-
-        #np.savetxt('rsmall.csv', image, fmt='%2d', delimiter=',')
-        #print(image.max())
-
-        if WRITE_RESULT:
-            result_name = file.split('.')[0] + '_res.jpg'
-            cv2.imwrite(result_name, coreImage)
-
-        if display.size == 0:
-            display = images.copy()
-        else:
-            display = np.vstack([display, images])
-
-    #display = np.vstack([display])
-    cv2.namedWindow('Image', flags = cv2.WINDOW_NORMAL)
-    #cv2.resizeWindow('Image', 1800, 1000)
-    cv2.imshow('Image', display)
-    k = cv2.waitKey(0)
-    
-    cv2.destroyAllWindows()
-
 def wsImagePhase(lib, image, correct_angle = True):
     (h, w) = image.shape[:2]
     
@@ -528,8 +456,8 @@ def main():
     if 'input' in FLAGS:
 
         wsVideoPhase(input = FLAGS.input,  
-                     output = FLAGS.output)
-
+                     output = FLAGS.output, 
+                     local_view = FLAGS.localview)
 
     else:
         print("See usage with --help.")
