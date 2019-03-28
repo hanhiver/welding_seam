@@ -422,7 +422,7 @@ def wsImagePhase(files, output = None):
 
 def wsVideoPhase(input, output, local_view = True):
 
-    vid = cv2.VideoCapture(input)
+    vid = cv2.VideoCapture(input[0])
 
     if not vid.isOpened():
         raise IOError("Couldn't open webcam or video: {}".format(input))
@@ -515,7 +515,7 @@ def main():
 
     FLAGS = parser.parse_args()
 
-    if 'image' in FLAGS:
+    if FLAGS.image:
         wsImagePhase(FLAGS.input, output = FLAGS.output)
 
     elif FLAGS.input:
