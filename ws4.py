@@ -373,7 +373,7 @@ def wsImagePhase(files, output = None):
 
     display = []
     display = np.array(display)
-    kernel = np.ones((5,5),np.uint8)
+    kernel = np.ones((3,3),np.uint8)
 
     print('Load C lib. ')
     so_file = './libws_c.so'
@@ -399,6 +399,7 @@ def wsImagePhase(files, output = None):
 
         #images = np.hstack([image, result])
         mix_image = fill2ColorImage(lib, frame, result)
+        result = cv2.dilate(result, kernel, iterations = 1)
         result = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
 
         images = np.hstack([color, mix_image, result])
