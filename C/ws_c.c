@@ -139,6 +139,12 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 	int pre_level = ref_level_left;
 	int i, j, temp;
 
+	int* index = (int*)malloc(sizeof(int)*w);
+	for (i=0; i<h; i++)
+	{
+		index[i] = -1;
+	}
+
 	for (i=0; i<h; i++)
 	{
 		for (j=0; j<w; j++)
@@ -176,7 +182,8 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 
 		//if (core_pos < h && min_dist < min_gap)
 		if (core_pos < h && core_pos > 0)
-		{
+		{	
+			index[i] = core_pos;
 			dst[core_pos*w + i] = 255;
 			//dst[core_pos*w + i] = src[core_pos*w + i];
 			pre_level = core_pos;
@@ -216,9 +223,39 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 		//if (core_pos < h && min_dist < min_gap)
 		if (core_pos < h && core_pos > 0)
 		{
+			int left_p, mid_p;
+
+			if (index[i] > 0)
+			{
+				// Caculate the left point. 
+				if (i != 0)
+				{
+					left_p = index[i-1];
+				}
+				else
+				{
+					left_p = ref_level_left;
+				}
+
+				// Right point is the pre_level. 
+				// Caculate the mid point. 
+				if (left_p > 0)
+				{
+					mid_p = left_p + pre_level / 2;
+
+					// if the new found pos is more approach to the mid point than the previous value.  
+					if ( abs(core_pos - mid_p) > abs(index[i] - mid_p))
+					{
+						continue;
+					}
+				}
+			}
+			
+			index[i] = core_pos;
 			dst[core_pos*w + i] = 255;
 			//dst[core_pos*w + i] = src[core_pos*w + i];
 			pre_level = core_pos;
+
 		}
 	}
 

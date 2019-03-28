@@ -333,7 +333,7 @@ def fill2ColorImage(lib, colorImage, grayImage):
     return mergedImage
 
 
-def wsImagePhase(lib, image, correct_angle = True):
+def getLineImage(lib, image, correct_angle = True):
     (h, w) = image.shape[:2]
     
     #if RESIZE != 1:
@@ -363,6 +363,61 @@ def wsImagePhase(lib, image, correct_angle = True):
     print("TIME COST: ", end - start, ' seconds')
 
     return lineImage
+
+def wsImagePhase(files, output = None):
+
+    print('FILES: ', files)
+    print("=== Start the WS Image Detecting ===")
+
+    print("=== Read test image ===")
+
+    display = []
+    display = np.array(display)
+    kernel = np.ones((5,5),np.uint8)
+
+    print('Load C lib. ')
+    so_file = './libws_c.so'
+    lib = ctypes.cdll.LoadLibrary(so_file)
+
+    lib.testlib()
+
+    for file in files:
+        print('Open file: {}'.format(file))
+        frame = cv2.imread(file, cv2.IMREAD_COLOR)
+        color = frame.copy()
+
+        if type(frame) == type(None):
+            print('Open file {} failed.'.format(file))
+            continue
+
+        image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+        result = getLineImage(lib, image, correct_angle = False)
+        #result = cv2.dilate(result, kernel, iterations = 1)
+        #color = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
+
+        frame = frame // 3 * 2
+
+        #images = np.hstack([image, result])
+        mix_image = fill2ColorImage(lib, frame, result)
+        result = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
+
+        images = np.hstack([color, mix_image, result])
+
+        if display.size == 0:
+            display = images.copy()
+        else:
+            display = np.vstack([display, images])
+
+    if output:
+        cv2.imwrite(output, display)
+        print('Result file: {} saved. '.format(output))
+
+    cv2.namedWindow('Image', flags = cv2.WINDOW_NORMAL)
+    #cv2.resizeWindow('Image', 1800, 1000)
+    cv2.imshow('Image', display)
+    k = cv2.waitKey(0)
+    
+    cv2.destroyAllWindows()
 
 
 def wsVideoPhase(input, output, local_view = True):
@@ -408,7 +463,8 @@ def wsVideoPhase(input, output, local_view = True):
             image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             #print("COLOR: ", image)
             #result = frame
-            result = wsImagePhase(lib, image, correct_angle = False)
+            #result = wsImagePhase(lib, image, correct_angle = False)
+            result = getLineImage(lib, image, correct_angle = False)
             #image = Image.fromarray(frame)
             #image = dpool_detect_car(client, image)
             #result = np.asarray(image)
@@ -439,8 +495,8 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-i', '--input', type = str, default = 'test.mp4', 
-                        help = 'Input video. DEFAULT: test.mp4 ')
+    parser.add_argument('-i', '--image', default = False, action="store_true",
+                        help = '[Optional] Input video. DEFAULT: test.mp4 ')
 
     parser.add_argument('-o', '--output', type = str, default = '', 
                         help = '[Optional] Output video. ')
@@ -448,13 +504,21 @@ def main():
     parser.add_argument('-l', '--loglevel', type = str, default = 'warning',
                         help = '[Optional] Log level. WARNING is default. ')
 
-    parser.add_argument('-lv', '--localview', default = False, action="store_true",
+    parser.add_argument('-s', '--singleimages', type = str, default = None,
+                        help = '[Optional] Single image files. ')
+
+    parser.add_argument('-lv', '--localview', default = False, action = "store_true",
                         help = '[Optional] If shows result to local view. ')    
+
+    parser.add_argument('input', type = str, default = None, nargs = '+',
+                        help = 'Input files. ')
 
     FLAGS = parser.parse_args()
 
-    if 'input' in FLAGS:
+    if 'image' in FLAGS:
+        wsImagePhase(FLAGS.input, output = FLAGS.output)
 
+    elif FLAGS.input:
         wsVideoPhase(input = FLAGS.input,  
                      output = FLAGS.output, 
                      local_view = FLAGS.localview)
