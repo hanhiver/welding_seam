@@ -219,6 +219,87 @@ def getSurfaceLevel(image, max_angle = 1, min_length = 200, max_line_gap = 25):
 
     return (ret_level_left, ret_level_right) 
 
+
+def getSurfaceLevel2(image, max_angle = 5, min_length = 200, max_line_gap = 25):
+    np.set_printoptions(precision=3, suppress=True)
+
+    # Get the dimention of the image and then determine the certer. 
+    (h, w) = image.shape[:2]
+    (cX, cY) = (w // 2, h // 2)
+
+    ret_level_left = cX
+    ret_level_right = cX
+    ret_bevel_top_left = -1
+    ret_bevel_top_right = -1
+
+    lines = getLines(image, min_length = min_length, max_line_gap = max_line_gap)
+
+    zero_slope_lines_left = []
+    zero_slope_lines_right = []
+    max_radian = max_angle * np.pi / 180
+
+    for line in lines: 
+
+        x1, y1, x2, y2 = line[0]
+        length = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+        theta = np.arctan((y2 - y1) / (x2 - x1))
+        theta_apro = np.around(theta, 1)
+
+        if theta_apro < max_radian and theta_apro > -max_radian:
+        
+            if (x1 + x2) < w:
+                zero_slope_lines_left.append([x1, y1, x2, y2, length, theta_apro, theta])
+            else:
+                zero_slope_lines_right.append([x1, y1, x2, y2, length, theta_apro, theta])
+
+    if zero_slope_lines_left or zero_slope_lines_right:
+
+        reference_lines = []
+        ret_level_left = -1
+        ret_level_right = -1
+
+        if zero_slope_lines_left:
+            zero_slope_lines_left = np.array(zero_slope_lines_left)
+
+            # Sort the lines with length. 
+            index = np.argsort(zero_slope_lines_left, axis = 0)
+            index_length = index[..., 4]
+            zero_slope_lines_left = zero_slope_lines_left[index_length]
+
+            # Get the longest X lines:
+            x = zero_slope_lines_left.shape[0] // 2 + 1
+            print(zero_slope_lines_left[::-1][:x])
+            
+            ret_level_left = np.median(zero_slope_lines_left[::-1][:x][..., 1])
+            print('Level LEFT: ', ret_level_left)
+
+            ret_bevel_top_left = np.mean(zero_slope_lines_left[::-1][:x][..., 2])
+            print('Bevel Top LEFT: ', ret_bevel_top_left)
+
+
+        if zero_slope_lines_right:
+            zero_slope_lines_right = np.array(zero_slope_lines_right)
+
+            # Sort the lines with length. 
+            index = np.argsort(zero_slope_lines_right, axis = 0)
+            index_length = index[..., 4]
+            zero_slope_lines_right = zero_slope_lines_right[index_length]
+
+            # Get the longest X lines:
+            x = zero_slope_lines_right.shape[0] // 2 + 1
+            print(zero_slope_lines_right[::-1][:x])
+            
+            ret_level_right = np.median(zero_slope_lines_right[::-1][:x][..., 1])
+            print('Level RIGHT: ', ret_level_right)
+
+            ret_bevel_top_right = np.mean(zero_slope_lines_right[::-1][:x][..., 0])
+            print('Bevel Top RIGHT: ', ret_bevel_top_right)
+
+    else:
+        print('Failed to found enough surface lines. ')
+
+    return (ret_level_left, ret_level_right, ret_bevel_top_left, ret_bevel_top_right) 
+
 def getCorePoint(inputArray, begin, end):
     value = None
     balance = 0
@@ -350,7 +431,7 @@ def getLineImage(lib, image, correct_angle = True):
         image = imgRotate2(image, angle)
         print('After rotation: ', image.shape)
 
-        level = getSurfaceLevel(image, min_length = 200//RESIZE)
+        level = getSurfaceLevel2(image, min_length = 200//RESIZE)[:2]
         print('Surface Level: ', level)
 
     level = (h//2, h//2)
@@ -363,6 +444,23 @@ def getLineImage(lib, image, correct_angle = True):
     print("TIME COST: ", end - start, ' seconds')
 
     return lineImage
+
+def getBevelTopCenter(lineImage, max_angle = 5, min_length = 200, max_line_gap = 25):
+    kernel = np.ones((5,5),np.uint8)
+
+    dilate = cv2.dilate(lineImage, kernel, iterations = 1)
+
+    bevel_top = getSurfaceLevel2(dilate, 
+                                 max_angle = max_angle, 
+                                 min_length = 100,
+                                 max_line_gap = max_line_gap)
+    bevel_top = bevel_top[2:]
+
+    #bevel_top_center = int((bevel_top[0] + bevel_top[1]) / 2)
+    #return bevel_top_center
+
+    return int(bevel_top[0]), int(bevel_top[1])
+
 
 def wsImagePhase(files, output = None):
 
@@ -392,6 +490,11 @@ def wsImagePhase(files, output = None):
 
         image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         result = getLineImage(lib, image, correct_angle = False)
+        cv2.imwrite('line.jpg', result)
+
+        bevel_top = getBevelTopCenter(image)
+        bevel_top_center = (bevel_top[0] + bevel_top[1]) // 2
+        print("BEVEL: ", bevel_top_center)
         #result = cv2.dilate(result, kernel, iterations = 1)
         #color = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
 
@@ -399,7 +502,23 @@ def wsImagePhase(files, output = None):
 
         #images = np.hstack([image, result])
         mix_image = fill2ColorImage(lib, frame, result)
-        result = cv2.dilate(result, kernel, iterations = 1)
+        
+        """
+        cv2.line(mix_image, (bevel_top_center, 200), (bevel_top_center, 1800), (255, 255, 0), 8)
+        cv2.line(mix_image, (bevel_top[0], 200), (bevel_top[0], 1800), (0, 255, 0), 3)
+        cv2.line(mix_image, (bevel_top[1], 200), (bevel_top[1], 1800), (0, 255, 0), 3)
+        """
+
+        #######################################################
+        #lines = getLines(frame)
+        #for line in lines:
+        #    x1, y1, x2, y2 = line[0]
+        #    cv2.line(mix_image, (x1, y1), (x2, y2), (0, 255, 0), 1)
+
+        #######################################################
+
+
+        #result = cv2.dilate(result, kernel, iterations = 1)
         result = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
 
         images = np.hstack([color, mix_image, result])
