@@ -490,10 +490,59 @@ def coreLine2Index(lib, coreImage):
 
     return index_array
 
-def getBevelBottom(lib, coreImage):
-    index_array = coreLine2Index(lib, coreImage)
+def getBottomCenter(lib, coreImage, bottom_thick = 10):
+    index = coreLine2Index(lib, coreImage)
+    bottom_index = np.where(index < (index.min()+bottom_thick))
 
-    return index_array.argmin()
+    level = np.mean(index[bottom_index])
+    level = int(level)
+    center = np.mean(bottom_index)
+    center = int(center)
+
+    return center, level
+
+def drawTag(image, b_center, b_level):
+    (h, w) = image.shape[:2]
+
+    x1 = b_center - w//30
+    x2 = b_center + w//30
+
+    y1 = b_level
+    y2 = b_level
+
+    cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 1)
+
+    x1 = b_center
+    x2 = b_center
+
+    y1 = b_level - h//20 
+    if y1 < 0:
+        y1 = 0
+    y2 = b_level + h//20 
+    if y2 > h-1:
+        y2 = h-1
+
+    cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 1)
+    
+    x3 = x1 - w//50
+    if x3 < 0:
+        x3 = 0
+    x4 = x2 + w//50 
+    if x4 > w-1:
+        x4 = w-1
+
+    y3 = y1 + h//40
+    y4 = y2 - h//40   
+
+    cv2.rectangle(image, (x3, y3), (x4, y4), (255, 0, 255), 1)
+    
+    #cv2.line(mix_image, (x3, y3), (x4, y3), (0, 255, 255), 3)
+    #cv2.line(mix_image, (x3, y4), (x4, y4), (0, 255, 255), 3)
+    #cv2.line(mix_image, (x3, y3), (x3, y4), (0, 255, 255), 3)
+    #cv2.line(mix_image, (x4, y3), (x4, y4), (0, 255, 255), 3)
+
+    #cv2.line(mix_image, (b_center, 200), (b_center, 1800), (255, 255, 0), 1)
+
 
 
 def wsImagePhase(files, output = None):
@@ -522,21 +571,25 @@ def wsImagePhase(files, output = None):
             print('Open file {} failed.'.format(file))
             continue
 
+        (h, w) = frame.shape[:2]
+
         image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         result = getLineImage(lib, image, correct_angle = False)
         
         #slope_array = getBevelTop(lib, result)
         #slope_array = np.arctan2(slope_array)
 
-        index_array = coreLine2Index(lib, result)
-        bottom_index = np.where(index_array < (index_array.min()+10))
+        #index_array = coreLine2Index(lib, result)
+        b_center, b_level = getBottomCenter(lib, result, bottom_thick = 10)
 
-        center = np.mean(bottom_index)
-        center = int(center)
+        #bottom_index = np.where(index_array < (index_array.min()+10))
+
+        #center = np.mean(bottom_index)
+        #center = int(center)
 
         np.set_printoptions(precision=10, suppress=True)
-        print('Lowest point: ', center)
-        print(bottom_index)
+        print('Lowest point: ', b_center)
+        #print(bottom_index)
         
         #pyplot.plot(index_array)
         #pyplot.show()
@@ -554,7 +607,7 @@ def wsImagePhase(files, output = None):
 
         #images = np.hstack([image, result])
         mix_image = fill2ColorImage(lib, frame, result)
-        cv2.line(mix_image, (center, 200), (center, 1800), (255, 255, 0), 1)
+        drawTag(mix_image, b_center, b_level)
         
         """
         cv2.line(mix_image, (bevel_top_center, 200), (bevel_top_center, 1800), (255, 255, 0), 8)
@@ -625,14 +678,15 @@ def wsVideoPhase(input, output, local_view = True):
 
     if local_view:
         cv2.namedWindow("result", cv2.WINDOW_NORMAL)
-        cv2.resizeWindow("result", 800, 400)
-        cv2.moveWindow("result", 100, 100)
+        #cv2.resizeWindow("result", 800, 400)
+        #cv2.moveWindow("result", 100, 100)
 
     while True:
         return_value, frame = vid.read()
 
         if type(frame) != type(None):
-            frame = cv2.resize(frame, (1200, 800), interpolation = cv2.INTER_LINEAR)
+            #frame = cv2.resize(frame, (1200, 800), interpolation = cv2.INTER_LINEAR)
+            (h, w) = frame.shape[:2]
             image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             #print("COLOR: ", image)
             #result = frame
@@ -644,20 +698,14 @@ def wsVideoPhase(input, output, local_view = True):
             #result = cv2.dilate(result, kernel, iterations = 1)
             #color = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
 
-            index_array = coreLine2Index(lib, result)
-            bottom_index = np.where(index_array < (index_array.min()+10))
-
-            center = np.mean(bottom_index)
-            center = int(center)
+            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 15)
 
             #image = image // 2
             frame = frame // 3 * 2
 
             #images = np.hstack([image, result])
             images = fill2ColorImage(lib, frame, result)
-
-            cv2.line(images, (center, 200), (center, 600), (255, 255, 0), 1)
-
+            drawTag(images, b_center, b_level)
 
             if local_view:
                 cv2.imshow("result", images)

@@ -288,7 +288,7 @@ int getBevelTop(unsigned char* coreLine, float* slope, int h, int w)
 
 int coreLine2Index(unsigned char* coreLine, int h, int w, int* index)
 {
-	int i, j;
+	int i, j, pre_value;
 
 	for (i=0; i<w; i++)
 	{
@@ -302,6 +302,16 @@ int coreLine2Index(unsigned char* coreLine, int h, int w, int* index)
 			}
 		}
 	}
+
+	int pre_value = -1; 
+
+	/*
+	FILL THE CODE FOR MISSING POINT.
+	for (i=0; i<w; i++)
+	{
+		if (index[i])
+	}
+	*/
 
 	return 0;
 }
