@@ -262,6 +262,51 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 	return 0;
 }
 
+//int getBevelTop(unsigned char* coreLine, float* slope, int h, int w, int* bevelLeft, int* bevelRight, int judgeLength)
+int getBevelTop(unsigned char* coreLine, float* slope, int h, int w)
+{
+	int i, j; 
+	float pre_value = 20.0;
+
+	for (i=0; i<w; i++)
+	{
+		slope[i] = pre_value;
+
+		for (j=h-1; j>=0; j--)
+		{
+			if (coreLine[j*w + i] > 0)
+			{
+				pre_value = (float)(h - j + 1) / (float)(i + 1);
+				slope[i] = pre_value;
+			}
+		}
+	}
+
+
+	return 0;
+}
+
+int coreLine2Index(unsigned char* coreLine, int h, int w, int* index)
+{
+	int i, j;
+
+	for (i=0; i<w; i++)
+	{
+		index[i] = h;
+
+		for (j=h-1; j>=0; j--)
+		{
+			if (coreLine[j*w + i] > 0)
+			{
+				index[i] = j;
+			}
+		}
+	}
+
+	return 0;
+}
+
+
 int fill2ColorImage(unsigned char* color, unsigned char* coreLine, int h, int w, int black_limit)
 {
 	int i, j, index;

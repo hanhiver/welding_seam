@@ -5,6 +5,8 @@ import ctypes
 import time
 import argparse
 
+from matplotlib import pyplot
+
 
 TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png')
 #TEST_IMAGE = ('rsmall.png', )
@@ -461,6 +463,38 @@ def getBevelTopCenter(lineImage, max_angle = 5, min_length = 200, max_line_gap =
 
     return int(bevel_top[0]), int(bevel_top[1])
 
+def getBevelTop(lib, coreImage, judgeLength = 10):
+    (h, w) = coreImage.shape[:2]
+    #coreImageShape = coreImage.shape
+
+    coreLine = np.ctypeslib.as_ctypes(coreImage)
+    slope = ctypes.create_string_buffer(ctypes.sizeof(ctypes.c_float) * w)
+    
+    lib.getBevelTop(coreLine, slope, h, w)
+
+    slope = ctypes.cast(slope, ctypes.POINTER(ctypes.c_float))
+    slope_array = np.ctypeslib.as_array(slope, shape = (w,))
+
+    return slope_array
+
+def coreLine2Index(lib, coreImage):
+    (h, w) = coreImage.shape[:2]
+    
+    coreLine = np.ctypeslib.as_ctypes(coreImage)
+    index = ctypes.create_string_buffer(ctypes.sizeof(ctypes.c_int) * w)
+    
+    lib.coreLine2Index(coreLine, h, w, index)
+
+    index = ctypes.cast(index, ctypes.POINTER(ctypes.c_int))
+    index_array = np.ctypeslib.as_array(index, shape = (w,))
+
+    return index_array
+
+def getBevelBottom(lib, coreImage):
+    index_array = coreLine2Index(lib, coreImage)
+
+    return index_array.argmin()
+
 
 def wsImagePhase(files, output = None):
 
@@ -490,11 +524,29 @@ def wsImagePhase(files, output = None):
 
         image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         result = getLineImage(lib, image, correct_angle = False)
-        cv2.imwrite('line.jpg', result)
+        
+        #slope_array = getBevelTop(lib, result)
+        #slope_array = np.arctan2(slope_array)
 
-        bevel_top = getBevelTopCenter(image)
-        bevel_top_center = (bevel_top[0] + bevel_top[1]) // 2
-        print("BEVEL: ", bevel_top_center)
+        index_array = coreLine2Index(lib, result)
+        bottom_index = np.where(index_array < (index_array.min()+10))
+
+        center = np.mean(bottom_index)
+        center = int(center)
+
+        np.set_printoptions(precision=10, suppress=True)
+        print('Lowest point: ', center)
+        print(bottom_index)
+        
+        #pyplot.plot(index_array)
+        #pyplot.show()
+        
+
+        #cv2.imwrite('line.jpg', result)
+
+        #bevel_top = getBevelTopCenter(image)
+        #bevel_top_center = (bevel_top[0] + bevel_top[1]) // 2
+        #print("BEVEL: ", bevel_top_center)
         #result = cv2.dilate(result, kernel, iterations = 1)
         #color = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
 
@@ -502,6 +554,7 @@ def wsImagePhase(files, output = None):
 
         #images = np.hstack([image, result])
         mix_image = fill2ColorImage(lib, frame, result)
+        cv2.line(mix_image, (center, 200), (center, 1800), (255, 255, 0), 1)
         
         """
         cv2.line(mix_image, (bevel_top_center, 200), (bevel_top_center, 1800), (255, 255, 0), 8)
@@ -591,11 +644,20 @@ def wsVideoPhase(input, output, local_view = True):
             #result = cv2.dilate(result, kernel, iterations = 1)
             #color = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
 
+            index_array = coreLine2Index(lib, result)
+            bottom_index = np.where(index_array < (index_array.min()+10))
+
+            center = np.mean(bottom_index)
+            center = int(center)
+
             #image = image // 2
             frame = frame // 3 * 2
 
             #images = np.hstack([image, result])
             images = fill2ColorImage(lib, frame, result)
+
+            cv2.line(images, (center, 200), (center, 600), (255, 255, 0), 1)
+
 
             if local_view:
                 cv2.imshow("result", images)
