@@ -674,6 +674,7 @@ def wsImagePhase(files, output = None):
 
 
 def wsVideoPhase(input, output, local_view = True):
+    RESOLUTION = (800, 600)
 
     vid = cv2.VideoCapture(input[0])
 
@@ -691,7 +692,7 @@ def wsVideoPhase(input, output, local_view = True):
         #video_FourCC = -1
         #print("!!! TYPE:", type(output_path), type(video_FourCC), type(video_fps), type(video_size))
         #print("!!! TYPE:", output_path, video_FourCC, video_fps, video_size)
-        out = cv2.VideoWriter(output, video_FourCC, 10, (1200, 800))
+        out = cv2.VideoWriter(output, video_FourCC, 10, RESOLUTION)
 
     print("=== Start the WS detecting ===")
 
@@ -712,7 +713,7 @@ def wsVideoPhase(input, output, local_view = True):
         return_value, frame = vid.read()
 
         if type(frame) != type(None):
-            #frame = cv2.resize(frame, (1200, 800), interpolation = cv2.INTER_LINEAR)
+            frame = cv2.resize(frame, RESOLUTION, interpolation = cv2.INTER_LINEAR)
             (h, w) = frame.shape[:2]
             image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             #print("COLOR: ", image)
@@ -725,7 +726,7 @@ def wsVideoPhase(input, output, local_view = True):
             #result = cv2.dilate(result, kernel, iterations = 1)
             #color = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
 
-            b_center, b_level = getBottomCenter2(lib, result, bottom_thick = 100, noisy_pixels = 10)
+            b_center, b_level = getBottomCenter2(lib, result, bottom_thick = 20, noisy_pixels = 3)
 
             #image = image // 2
             frame = frame // 3 * 2
@@ -736,7 +737,7 @@ def wsVideoPhase(input, output, local_view = True):
 
             if local_view:
                 cv2.imshow("result", images)
-                if cv2.waitKey(0) & 0xFF == ord('q'):
+                if cv2.waitKey(1) & 0xFF == ord('q'):
                     return False
              
             if isOutput:
