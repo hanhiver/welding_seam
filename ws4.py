@@ -494,16 +494,41 @@ def getBottomCenter(lib, coreImage, bottom_thick = 10):
     index = coreLine2Index(lib, coreImage)
     bottom_index = np.where(index < (index.min()+bottom_thick))
 
-    level = np.mean(index[bottom_index])
+    level = np.median(index[bottom_index])
     level = int(level)
-    center = np.mean(bottom_index)
+    center = np.median(bottom_index)
     center = int(center)
+
+    print('Center: ', center)
+    print('Level:  ', level)
+
+    return center, level
+
+#def getBottomCenter2(lib, coreImage, bottom_pixels = 10):
+def getBottomCenter2(lib, coreImage, bottom_thick = 20, noisy_pixels = 10):
+    index = coreLine2Index(lib, coreImage)
+    srt = index.argsort(kind = 'stable')
+    idx = srt[:bottom_thick]
+    #print('IDX: ', idx.size)
+    bottom = index[idx]
+    #print('BOT: ', bottom.size)
+
+    #level = int(np.mean(bottom))
+    #center = int(np.mean(idx))
+    level = int(np.median( bottom[noisy_pixels:(bottom.size - noisy_pixels)] ))
+    center = int(np.median( idx[noisy_pixels:(idx.size - noisy_pixels)] ))
+    #level = int(np.median(bottom))
+    #center = int(np.median(idx))
+
+    #print('Center: ', center)
+    #print('Level:  ', level)
 
     return center, level
 
 def drawTag(image, b_center, b_level):
     (h, w) = image.shape[:2]
 
+    """
     x1 = b_center - w//30
     x2 = b_center + w//30
 
@@ -511,6 +536,7 @@ def drawTag(image, b_center, b_level):
     y2 = b_level
 
     cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 1)
+    """
 
     x1 = b_center
     x2 = b_center
@@ -518,12 +544,13 @@ def drawTag(image, b_center, b_level):
     y1 = b_level - h//20 
     if y1 < 0:
         y1 = 0
-    y2 = b_level + h//20 
+    y2 = b_level + h//5 
     if y2 > h-1:
         y2 = h-1
 
     cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 1)
     
+    """
     x3 = x1 - w//50
     if x3 < 0:
         x3 = 0
@@ -535,7 +562,7 @@ def drawTag(image, b_center, b_level):
     y4 = y2 - h//40   
 
     cv2.rectangle(image, (x3, y3), (x4, y4), (255, 0, 255), 1)
-    
+    """
     #cv2.line(mix_image, (x3, y3), (x4, y3), (0, 255, 255), 3)
     #cv2.line(mix_image, (x3, y4), (x4, y4), (0, 255, 255), 3)
     #cv2.line(mix_image, (x3, y3), (x3, y4), (0, 255, 255), 3)
@@ -580,7 +607,7 @@ def wsImagePhase(files, output = None):
         #slope_array = np.arctan2(slope_array)
 
         #index_array = coreLine2Index(lib, result)
-        b_center, b_level = getBottomCenter(lib, result, bottom_thick = 10)
+        b_center, b_level = getBottomCenter2(lib, result, bottom_thick = 10)
 
         #bottom_index = np.where(index_array < (index_array.min()+10))
 
@@ -698,7 +725,7 @@ def wsVideoPhase(input, output, local_view = True):
             #result = cv2.dilate(result, kernel, iterations = 1)
             #color = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
 
-            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 15)
+            b_center, b_level = getBottomCenter2(lib, result, bottom_thick = 100, noisy_pixels = 10)
 
             #image = image // 2
             frame = frame // 3 * 2
@@ -709,7 +736,7 @@ def wsVideoPhase(input, output, local_view = True):
 
             if local_view:
                 cv2.imshow("result", images)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
+                if cv2.waitKey(0) & 0xFF == ord('q'):
                     return False
              
             if isOutput:
