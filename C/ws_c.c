@@ -262,6 +262,31 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 	return 0;
 }
 
+int fillLineGaps(unsigned char* coreLine, unsigned char* output, int black_limit)
+{
+	int i, j;
+	int line_start = 0; 
+
+	i = 0;
+	while (i<w)
+	{
+		while (j<h)
+		{
+			if (coreLine[j*w + i] <= black_limit)
+			{	
+				h ++;
+			}
+			XXXXXXXXXXXX
+
+		}
+
+		if (line_start == 1)
+		{
+			break;
+		}
+	}
+}
+
 //int getBevelTop(unsigned char* coreLine, float* slope, int h, int w, int* bevelLeft, int* bevelRight, int judgeLength)
 int getBevelTop(unsigned char* coreLine, float* slope, int h, int w)
 {
