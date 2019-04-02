@@ -507,7 +507,8 @@ def getBottomCenter(lib, coreImage, bottom_thick = 10):
 #def getBottomCenter2(lib, coreImage, bottom_pixels = 10):
 def getBottomCenter2(lib, coreImage, bottom_thick = 20, noisy_pixels = 10):
     index = coreLine2Index(lib, coreImage)
-    srt = index.argsort(kind = 'stable')
+    #srt = index.argsort(kind = 'stable')
+    srt = index.argsort()
     idx = srt[:bottom_thick]
     #print('IDX: ', idx.size)
     bottom = index[idx]
@@ -524,6 +525,19 @@ def getBottomCenter2(lib, coreImage, bottom_thick = 20, noisy_pixels = 10):
     #print('Level:  ', level)
 
     return center, level
+
+def fillLineGaps(lib, coreImage, black_limit = 0):
+    (h, w) = coreImage.shape[:2]
+    
+    coreLine = np.ctypeslib.as_ctypes(coreImage)
+    outImage = ctypes.create_string_buffer(ctypes.sizeof(ctypes.c_uint8) * w * h)
+    
+    lib.fillLineGaps(coreLine, outImage, h, w, black_limit)
+
+    outImage = ctypes.cast(outImage, ctypes.POINTER(ctypes.c_uint8))
+    resImage = np.ctypeslib.as_array(outImage, shape = (h, w))
+
+    return resImage
 
 def drawTag(image, b_center, b_level):
     (h, w) = image.shape[:2]
@@ -719,12 +733,14 @@ def wsVideoPhase(input, output, local_view = True):
             #print("COLOR: ", image)
             #result = frame
             #result = wsImagePhase(lib, image, correct_angle = False)
-            result = getLineImage(lib, image, correct_angle = False)
+            coreline = getLineImage(lib, image, correct_angle = False)
             #image = Image.fromarray(frame)
             #image = dpool_detect_car(client, image)
             #result = np.asarray(image)
             #result = cv2.dilate(result, kernel, iterations = 1)
             #color = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
+            gaps = fillLineGaps(lib, coreline)
+            result = gaps + coreline
 
             b_center, b_level = getBottomCenter2(lib, result, bottom_thick = 20, noisy_pixels = 3)
 
@@ -737,7 +753,7 @@ def wsVideoPhase(input, output, local_view = True):
 
             if local_view:
                 cv2.imshow("result", images)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
+                if cv2.waitKey(0) & 0xFF == ord('q'):
                     return False
              
             if isOutput:

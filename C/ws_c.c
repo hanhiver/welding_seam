@@ -3,13 +3,19 @@
 
 int WIDTH = 6;
 int HEIGHT = 6;
-char IMAGE[] = { 0, 0, 3, 0, 1, 0, 
+unsigned char IMAGE[] = { 0, 0, 3, 0, 1, 0, 
 		  		2, 1, 5, 0, 0, 2, 
 		  		1, 4, 0, 1, 0, 3, 
 		  		0, 2, 0, 1, 2, 4, 
 		  		0, 0, 1, 0, 4, 5, 
 		  		0, 0, 0, 0, 4, 3 }; 
 
+unsigned char CORELINE[] = { 0,   0, 0, 0,   0,   0, 
+		  					 0,   0, 0, 0,   0,   0, 
+		  					 255, 0, 0, 0,   0,   0, 
+		  					 0,   0, 0, 0,   0,   0, 
+		  					 0,   0, 0, 0,   0,   0, 
+		  					 0,   0, 0, 255, 255, 0 }; 
 
 /*
 typedef struct image
@@ -262,29 +268,71 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 	return 0;
 }
 
-int fillLineGaps(unsigned char* coreLine, unsigned char* output, int black_limit)
+int fillLineGaps(unsigned char* coreLine, unsigned char* output, int h, int w, int black_limit)
 {
-	int i, j;
-	int line_start = 0; 
+	int i, j, m, n;
+	int line_start = -1; 
+	int gap_start = -1;
+	int pre_value = -1;
+	int found = -1; 
+	float step = 0;
+
+	for (i=0; i<w*h; i++)
+	{
+		output[i] = 0;
+	}
 
 	i = 0;
 	while (i<w)
 	{
+		j = 0;
+
 		while (j<h)
 		{
-			if (coreLine[j*w + i] <= black_limit)
+			//printf("i: %d, j: %d, line_start: %d, gap_start: %d\n", i, j, line_start, gap_start);
+			if (coreLine[j*w + i] > black_limit) //有像素点
 			{	
-				h ++;
+				if (gap_start > 0) //之前都是没有像素点 
+				{
+					step = (j - pre_value) / (i - gap_start);
+					for (m=gap_start; m<i; m++)
+					{
+						//printf("Set output pixel: %d, %d\n", m, pre_value+(int)step);
+						output[(pre_value + (int)step)*w + m] = 255;
+						step = step + step;
+					}
+				}
+				else //之前也有像素点
+				{
+					//pre_value = coreLine[j*w + i];
+					pre_value = j;
+					//printf("Set pre_value: %d, %d\n", i, pre_value);
+				} 
+
+				gap_start = -1; 
+				line_start = i;
+				break; 
 			}
-			XXXXXXXXXXXX
+			else // 没有像素点
+			{
+				j++;
+			}
+
+			if (j == h) //这一列都没找到像素点
+			{
+				if (gap_start < 0)
+					gap_start = i;
+
+				line_start = -1;
+				//printf("No pixel found in: %d, gap_start: %d\n", i, gap_start);
+			}
 
 		}
-
-		if (line_start == 1)
-		{
-			break;
-		}
+		i++;
 	}
+
+	return 0; 
+
 }
 
 //int getBevelTop(unsigned char* coreLine, float* slope, int h, int w, int* bevelLeft, int* bevelRight, int judgeLength)
@@ -328,7 +376,7 @@ int coreLine2Index(unsigned char* coreLine, int h, int w, int* index)
 		}
 	}
 
-	int pre_value = -1; 
+	pre_value = -1; 
 
 	/*
 	FILL THE CODE FOR MISSING POINT.
@@ -367,10 +415,12 @@ int fill2ColorImage(unsigned char* color, unsigned char* coreLine, int h, int w,
 int main(int argc, char const *argv[])
 {
 	//int* image = (int*)malloc(sizeof(int)*16);
-	unsigned char* image = IMAGE;
+	unsigned char* image = (unsigned char*)IMAGE;
+	unsigned char* coreLine = (unsigned char*)CORELINE;
 
 	unsigned char* output1 =  (unsigned char*)malloc(sizeof(unsigned char)*HEIGHT*WIDTH);
 	unsigned char* output2 =  (unsigned char*)malloc(sizeof(unsigned char)*HEIGHT*WIDTH);
+	unsigned char* output3 =  (unsigned char*)malloc(sizeof(unsigned char)*HEIGHT*WIDTH);
 
 	int i, j;
 
@@ -380,13 +430,15 @@ int main(int argc, char const *argv[])
 		{
 			output1[i*WIDTH + j] = 0;
 			output2[i*WIDTH + j] = 0;
+			output3[i*WIDTH + j] = 0;
 		}
 	}
 
+	/*
 	getCoreImage(image, output1, HEIGHT, WIDTH, 0);
 	followCoreLine(output1, output2, HEIGHT, WIDTH, 2, 2, 3, 0);
 
-	printf("\n===Original Image: ===\n");
+	printf("\n===Original Image: ===");
 	for (i=0; i<HEIGHT; i++)
 	{
 		printf("\n");
@@ -396,8 +448,9 @@ int main(int argc, char const *argv[])
 			printf("%u\t", image[i*WIDTH + j]);
 		}
 	}
+	printf("\n");
 
-	printf("\n===Output1 Image: ===\n");
+	printf("\n===Output1 Image: ===");
 	for (i=0; i<HEIGHT; i++)
 	{
 		printf("\n");
@@ -407,8 +460,9 @@ int main(int argc, char const *argv[])
 			printf("%u\t", output1[i*WIDTH + j]);
 		}
 	}
+	printf("\n");
 
-	printf("\n===Output2 Image: ===\n");
+	printf("\n===Output2 Image: ===");
 	for (i=0; i<HEIGHT; i++)
 	{
 		printf("\n");
@@ -418,7 +472,32 @@ int main(int argc, char const *argv[])
 			printf("%u\t", output2[i*WIDTH + j]);
 		}
 	}
+	printf("\n");
+	*/
 
+	printf("\n===CORELINE Image: ===");
+	for (i=0; i<HEIGHT; i++)
+	{
+		printf("\n");
+
+		for (j=0; j<WIDTH; j++)
+		{
+			printf("%u\t", CORELINE[i*WIDTH + j]);
+		}
+	}
+	printf("\n");
+
+	fillLineGaps(coreLine, output3, HEIGHT, WIDTH, 0);
+	printf("\n===fillLineGaps Image: ===");
+	for (i=0; i<HEIGHT; i++)
+	{
+		printf("\n");
+
+		for (j=0; j<WIDTH; j++)
+		{
+			printf("%u\t", output3[i*WIDTH + j]);
+		}
+	}
 	printf("\n");
 
 	return 0;
