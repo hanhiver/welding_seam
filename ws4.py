@@ -401,14 +401,16 @@ def followCoreLine(lib, image, ref_level, min_gap = 20, black_limit = 0):
 
     return lineImage
 
-def fill2ColorImage(lib, colorImage, grayImage):
+def fill2ColorImage(lib, colorImage, grayImage, fill_color = (255, 0, 0)):
     (h, w) = colorImage.shape[:2]
     colorShape = colorImage.shape
 
     color = np.ctypeslib.as_ctypes(colorImage)
     gray = np.ctypeslib.as_ctypes(grayImage)
+
+    (r, g, b) = fill_color
     
-    lib.fill2ColorImage(color, gray, h, w, 0)
+    lib.fill2ColorImage(color, gray, h, w, 0, r, g, b)
 
     color = ctypes.cast(color, ctypes.POINTER(ctypes.c_uint8))
     mergedImage = np.ctypeslib.as_array(color, shape = colorShape)
@@ -516,10 +518,10 @@ def getBottomCenter2(lib, coreImage, bottom_thick = 20, noisy_pixels = 10):
 
     #level = int(np.mean(bottom))
     #center = int(np.mean(idx))
-    level = int(np.median( bottom[noisy_pixels:(bottom.size - noisy_pixels)] ))
-    center = int(np.median( idx[noisy_pixels:(idx.size - noisy_pixels)] ))
-    #level = int(np.median(bottom))
-    #center = int(np.median(idx))
+    #level = int(np.median( bottom[noisy_pixels:(bottom.size - noisy_pixels)] ))
+    #center = int(np.median( idx[noisy_pixels:(idx.size - noisy_pixels)] ))
+    level = int(np.median(bottom))
+    center = int(np.median(idx))
 
     #print('Center: ', center)
     #print('Level:  ', level)
@@ -531,7 +533,7 @@ def fillLineGaps(lib, coreImage, black_limit = 0):
     
     coreLine = np.ctypeslib.as_ctypes(coreImage)
     outImage = ctypes.create_string_buffer(ctypes.sizeof(ctypes.c_uint8) * w * h)
-    
+
     lib.fillLineGaps(coreLine, outImage, h, w, black_limit)
 
     outImage = ctypes.cast(outImage, ctypes.POINTER(ctypes.c_uint8))
@@ -688,7 +690,7 @@ def wsImagePhase(files, output = None):
 
 
 def wsVideoPhase(input, output, local_view = True):
-    RESOLUTION = (800, 600)
+    RESOLUTION = (1600, 1200)
 
     vid = cv2.VideoCapture(input[0])
 
@@ -734,13 +736,11 @@ def wsVideoPhase(input, output, local_view = True):
             #result = frame
             #result = wsImagePhase(lib, image, correct_angle = False)
             coreline = getLineImage(lib, image, correct_angle = False)
-            #image = Image.fromarray(frame)
-            #image = dpool_detect_car(client, image)
-            #result = np.asarray(image)
-            #result = cv2.dilate(result, kernel, iterations = 1)
-            #color = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
-            gaps = fillLineGaps(lib, coreline)
-            result = gaps + coreline
+
+            #gaps = fillLineGaps(lib, coreline)
+
+            #result = gaps + coreline
+            result = coreline
 
             b_center, b_level = getBottomCenter2(lib, result, bottom_thick = 20, noisy_pixels = 3)
 
@@ -749,11 +749,12 @@ def wsVideoPhase(input, output, local_view = True):
 
             #images = np.hstack([image, result])
             images = fill2ColorImage(lib, frame, result)
+            #images = fill2ColorImage(lib, frame, gaps, fill_color = (0, 255, 0))
             drawTag(images, b_center, b_level)
 
             if local_view:
                 cv2.imshow("result", images)
-                if cv2.waitKey(0) & 0xFF == ord('q'):
+                if cv2.waitKey(1) & 0xFF == ord('q'):
                     return False
              
             if isOutput:
