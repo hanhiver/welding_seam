@@ -390,7 +390,7 @@ int coreLine2Index(unsigned char* coreLine, int h, int w, int* index)
 }
 
 
-int fill2ColorImage(unsigned char* color, unsigned char* coreLine, int h, int w, int black_limit)
+int fill2ColorImage(unsigned char* color, unsigned char* coreLine, int h, int w, int black_limit, unsigned char r, unsigned char g, unsigned char b)
 {
 	int i, j, index;
 
@@ -401,9 +401,9 @@ int fill2ColorImage(unsigned char* color, unsigned char* coreLine, int h, int w,
 			index = i * w + j;
 			if (coreLine[index] > black_limit)
 			{
-				color[index*3]     = 0; 
-				color[index*3 + 1] = 0;
-				color[index*3 + 2] = 255;
+				color[index*3]     = b; 
+				color[index*3 + 1] = g;
+				color[index*3 + 2] = r;
 			}
 
 		}
