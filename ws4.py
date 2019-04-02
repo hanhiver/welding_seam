@@ -541,6 +541,7 @@ def fillLineGaps(lib, coreImage, black_limit = 0):
 
     return resImage
 
+
 def drawTag(image, b_center, b_level):
     (h, w) = image.shape[:2]
 
@@ -618,7 +619,17 @@ def wsImagePhase(files, output = None):
 
         image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         result = getLineImage(lib, image, correct_angle = False)
+
         
+        for i in range(h):
+            col = result[..., i]
+            d = np.where(col>254)
+            number = d[0].size
+            if number > 1:
+                print("OOps...", d[0])
+
+        
+
         #slope_array = getBevelTop(lib, result)
         #slope_array = np.arctan2(slope_array)
 

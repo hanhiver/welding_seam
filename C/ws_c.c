@@ -336,10 +336,10 @@ int fillLineGaps(unsigned char* coreLine, unsigned char* output, int h, int w, i
 }
 
 
-int fillLineGaps(unsigned char* coreLine, unsigned char* output, int h, int w, int black_limit)
+int fillLineGaps2(unsigned char* coreLine, unsigned char* output, int h, int w, int black_limit)
 {
 	int i, j, m, pre_value;
-	bool pre_black, pre_write;
+	int pre_black, pre_write;
 
 	pre_black = 0; 
 	pre_write = 0;
