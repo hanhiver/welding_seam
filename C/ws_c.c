@@ -335,6 +335,36 @@ int fillLineGaps(unsigned char* coreLine, unsigned char* output, int h, int w, i
 
 }
 
+
+int fillLineGaps(unsigned char* coreLine, unsigned char* output, int h, int w, int black_limit)
+{
+	int i, j, m, pre_value;
+	bool pre_black, pre_write;
+
+	pre_black = 0; 
+	pre_write = 0;
+	pre_value = -1;
+
+	for (i=0; i<w; i++)
+	{
+		for (j=0; j<h; j++)
+		{
+			//如果有点
+			if (coreLine[j*w+i] > black_limit)
+			{
+				if (pre_black)
+				{
+					pre_black = 1;
+					pre_write = 0; 
+					break;
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+
 //int getBevelTop(unsigned char* coreLine, float* slope, int h, int w, int* bevelLeft, int* bevelRight, int judgeLength)
 int getBevelTop(unsigned char* coreLine, float* slope, int h, int w)
 {
