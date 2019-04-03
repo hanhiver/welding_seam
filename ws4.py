@@ -387,8 +387,12 @@ def getCoreImage2(lib, image, black_limit = 0):
 def followCoreLine(lib, image, ref_level, min_gap = 20, black_limit = 0):
     (h, w) = image.shape[:2]
 
+    dst = np.zeros(shape = image.shape, dtype = np.uint8)
+
     src = np.ctypeslib.as_ctypes(image)
-    dst = ctypes.create_string_buffer(ctypes.sizeof(ctypes.c_uint8) * w * h)
+    dst = np.ctypeslib.as_ctypes(dst)
+
+    #dst = ctypes.create_string_buffer(ctypes.sizeof(ctypes.c_uint8) * w * h)
 
     level_left, level_right = ref_level
     level_left = int(level_left)
@@ -398,6 +402,7 @@ def followCoreLine(lib, image, ref_level, min_gap = 20, black_limit = 0):
 
     dst = ctypes.cast(dst, ctypes.POINTER(ctypes.c_uint8))
     lineImage = np.ctypeslib.as_array(dst, shape = image.shape)
+    #lineImage = dst
 
     return lineImage
 
@@ -443,7 +448,7 @@ def getLineImage(lib, image, correct_angle = True):
     start = time.time()
     #coreImage = getCoreImage(image, black_limit = 0)
     coreImage = getCoreImage2(lib, image, black_limit = 0)
-    lineImage = followCoreLine(lib, coreImage, level, min_gap = 100//RESIZE)
+    lineImage = followCoreLine(lib, coreImage, level, min_gap = 100//RESIZE, black_limit = 5)
     end = time.time()
     print("TIME COST: ", end - start, ' seconds')
 
@@ -541,6 +546,11 @@ def fillLineGaps(lib, coreImage, black_limit = 0):
 
     return resImage
 
+def fillLineGaps2(lib, coreImage, black_limit = 0):
+    (h, w) = coreImage.shape[:2]
+    
+    return resImage
+
 
 def drawTag(image, b_center, b_level):
     (h, w) = image.shape[:2]
@@ -565,7 +575,7 @@ def drawTag(image, b_center, b_level):
     if y2 > h-1:
         y2 = h-1
 
-    cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 1)
+    cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 3)
     
     """
     x3 = x1 - w//50
@@ -589,7 +599,7 @@ def drawTag(image, b_center, b_level):
 
 
 
-def wsImagePhase(files, output = None):
+def wsImagePhase(files, output = None, local_view = True):
 
     print('FILES: ', files)
     print("=== Start the WS Image Detecting ===")
@@ -627,6 +637,7 @@ def wsImagePhase(files, output = None):
             number = d[0].size
             if number > 1:
                 print("OOps...", d[0])
+        print('No OOps... :) ')
 
         
 
@@ -692,10 +703,11 @@ def wsImagePhase(files, output = None):
         cv2.imwrite(output, display)
         print('Result file: {} saved. '.format(output))
 
-    cv2.namedWindow('Image', flags = cv2.WINDOW_NORMAL)
-    #cv2.resizeWindow('Image', 1800, 1000)
-    cv2.imshow('Image', display)
-    k = cv2.waitKey(0)
+    if local_view:
+        cv2.namedWindow('Image', flags = cv2.WINDOW_NORMAL)
+        #cv2.resizeWindow('Image', 1800, 1000)
+        cv2.imshow('Image', display)
+        k = cv2.waitKey(0)
     
     cv2.destroyAllWindows()
 
@@ -753,6 +765,14 @@ def wsVideoPhase(input, output, local_view = True):
             #result = gaps + coreline
             result = coreline
 
+            for i in range(h):
+                col = result[..., i]
+                d = np.where(col>254)
+                number = d[0].size
+                if number > 1:
+                    print("OOps...", d[0])
+            print('No OOps... :) ')
+
             b_center, b_level = getBottomCenter2(lib, result, bottom_thick = 20, noisy_pixels = 3)
 
             #image = image // 2
@@ -765,7 +785,7 @@ def wsVideoPhase(input, output, local_view = True):
 
             if local_view:
                 cv2.imshow("result", images)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
+                if cv2.waitKey(0) & 0xFF == ord('q'):
                     return False
              
             if isOutput:

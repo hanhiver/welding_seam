@@ -247,7 +247,7 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 				// Caculate the mid point. 
 				if (left_p > 0)
 				{
-					mid_p = left_p + pre_level / 2;
+					mid_p = (left_p + pre_level) / 2;
 
 					// if the new found pos is more approach to the mid point than the previous value.  
 					if ( abs(core_pos - mid_p) > abs(index[i] - mid_p))
@@ -257,10 +257,14 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 				}
 			}
 			
-			index[i] = core_pos;
-			dst[core_pos*w + i] = 255;
-			//dst[core_pos*w + i] = src[core_pos*w + i];
-			pre_level = core_pos;
+			if (src[index[i]*w + i] <= src[core_pos*w + i])
+			{
+				dst[index[i]*w + i] = 0;
+				index[i] = core_pos;
+				dst[core_pos*w + i] = 255;
+				//dst[core_pos*w + i] = src[core_pos*w + i];
+				pre_level = core_pos;
+			}
 
 		}
 	}
