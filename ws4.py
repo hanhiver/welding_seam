@@ -423,7 +423,7 @@ def fill2ColorImage(lib, colorImage, grayImage, fill_color = (255, 0, 0)):
     return mergedImage
 
 
-def getLineImage(lib, image, correct_angle = True):
+def getLineImage(lib, image, black_limit = 0, correct_angle = True):
     (h, w) = image.shape[:2]
     
     #if RESIZE != 1:
@@ -447,8 +447,8 @@ def getLineImage(lib, image, correct_angle = True):
 
     start = time.time()
     #coreImage = getCoreImage(image, black_limit = 0)
-    coreImage = getCoreImage2(lib, image, black_limit = 0)
-    lineImage = followCoreLine(lib, coreImage, level, min_gap = 100//RESIZE, black_limit = 5)
+    coreImage = getCoreImage2(lib, image, black_limit = black_limit)
+    lineImage = followCoreLine(lib, coreImage, level, min_gap = 100//RESIZE, black_limit = black_limit)
     end = time.time()
     print("TIME COST: ", end - start, ' seconds')
 
@@ -533,13 +533,13 @@ def getBottomCenter2(lib, coreImage, bottom_thick = 20, noisy_pixels = 10):
 
     return center, level
 
-def fillLineGaps(lib, coreImage, black_limit = 0):
+def fillLineGaps(lib, coreImage, start_pixel = 0):
     (h, w) = coreImage.shape[:2]
     
     coreLine = np.ctypeslib.as_ctypes(coreImage)
     outImage = ctypes.create_string_buffer(ctypes.sizeof(ctypes.c_uint8) * w * h)
 
-    lib.fillLineGaps(coreLine, outImage, h, w, black_limit)
+    lib.fillLineGaps(coreLine, outImage, h, w, start_pixel)
 
     outImage = ctypes.cast(outImage, ctypes.POINTER(ctypes.c_uint8))
     resImage = np.ctypeslib.as_array(outImage, shape = (h, w))
@@ -629,8 +629,11 @@ def wsImagePhase(files, output = None, local_view = True):
 
         image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         result = getLineImage(lib, image, correct_angle = False)
+        gaps = fillLineGaps(lib, result, start_pixel = 5)
+        result = result + gaps 
 
-        
+
+        """
         for i in range(h):
             col = result[..., i]
             d = np.where(col>254)
@@ -638,7 +641,7 @@ def wsImagePhase(files, output = None, local_view = True):
             if number > 1:
                 print("OOps...", d[0])
         print('No OOps... :) ')
-
+        """
         
 
         #slope_array = getBevelTop(lib, result)
@@ -672,6 +675,7 @@ def wsImagePhase(files, output = None, local_view = True):
 
         #images = np.hstack([image, result])
         mix_image = fill2ColorImage(lib, frame, result)
+        mix_image = fill2ColorImage(lib, mix_image, gaps, fill_color = (0, 255, 0))
         drawTag(mix_image, b_center, b_level)
         
         """
@@ -691,8 +695,9 @@ def wsImagePhase(files, output = None, local_view = True):
 
         #result = cv2.dilate(result, kernel, iterations = 1)
         result = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
+        gaps = cv2.cvtColor(gaps, cv2.COLOR_GRAY2RGB)
 
-        images = np.hstack([color, mix_image, result])
+        images = np.hstack([color, mix_image, gaps])
 
         if display.size == 0:
             display = images.copy()
@@ -758,13 +763,14 @@ def wsVideoPhase(input, output, local_view = True):
             #print("COLOR: ", image)
             #result = frame
             #result = wsImagePhase(lib, image, correct_angle = False)
-            coreline = getLineImage(lib, image, correct_angle = False)
+            coreline = getLineImage(lib, image, black_limit = 50, correct_angle = False)
+            gaps = fillLineGaps(lib, coreline, start_pixel = 5)
 
-            #gaps = fillLineGaps(lib, coreline)
+            result = gaps + coreline
+            #result = coreline
 
-            #result = gaps + coreline
-            result = coreline
-
+            """
+            # Check if there are more than one pixels in one column.  
             for i in range(h):
                 col = result[..., i]
                 d = np.where(col>254)
@@ -772,6 +778,7 @@ def wsVideoPhase(input, output, local_view = True):
                 if number > 1:
                     print("OOps...", d[0])
             print('No OOps... :) ')
+            """
 
             b_center, b_level = getBottomCenter2(lib, result, bottom_thick = 20, noisy_pixels = 3)
 
@@ -780,7 +787,7 @@ def wsVideoPhase(input, output, local_view = True):
 
             #images = np.hstack([image, result])
             images = fill2ColorImage(lib, frame, result)
-            #images = fill2ColorImage(lib, frame, gaps, fill_color = (0, 255, 0))
+            images = fill2ColorImage(lib, frame, gaps, fill_color = (0, 255, 0))
             drawTag(images, b_center, b_level)
 
             if local_view:

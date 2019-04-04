@@ -272,7 +272,124 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 	return 0;
 }
 
-int fillLineGaps(unsigned char* coreLine, unsigned char* output, int h, int w, int black_limit)
+int findPixelInColomn(unsigned char* coreline, int h, int w, int column)
+{
+	int i; 
+	
+	for (i=0; i<h; i++)
+	{
+		if (coreline[i*w + column] > 0)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+int fillLineBetweenTwoPixels(unsigned char* output, int h, int w, int x1, int y1, int x2, int y2)
+{
+	int i, j;
+
+	float step = (y2 - y1) / (x2 - x1);
+	float cur_step = step; 
+
+	for (i=x1; i<x2; i++)
+	{
+		output[(y1 + (int)cur_step)*w + i] = 255;
+		cur_step += step; 
+	}
+
+	return 0;
+}
+
+int fillLineGaps(unsigned char* coreline, unsigned char* output, int h, int w, int start_pixel)
+{
+	int i, j;
+	int pre_value = 0; // (>0) = pre y of the white, (0) = black. 
+	int gap_start = -1; // Start of the gap. 
+	int x, y;
+	int x1, y1, x2, y2; 
+	int end = start_pixel;
+
+	// Find the first white pixel. 
+	j = 0; 
+	while (j<w)
+	{
+		y = findPixelInColomn(coreline, h, w, j);
+		//printf("Y for %d column is %d\n", j, y);
+
+		if (y<0)
+		{
+			j++;
+		}
+		else
+		{
+			gap_start = y; 
+			pre_value = y; 
+
+			if (end > 0)
+			{	
+				end --; 
+				j ++; 
+				continue;
+			}
+			else
+			{
+				break; 
+			}
+			
+		}
+	}
+
+	//printf("Fist white found: x:%d, y:%d, gap_start:%d. \n", j, y, gap_start);
+
+	// Start form the first white pixel.
+	for (i=j+1; i<w; i++)
+	{
+		y = findPixelInColomn(coreline, h, w, i);
+		//printf("Y for %d column is %d, pre_value: %d, gap_start: %d. \n", i, y, pre_value, gap_start);
+
+		if (y < 0) // black pixel.
+		{
+			if (pre_value > 0) // pre white pixel. 
+			{
+				x1 = i; 
+				y1 = gap_start;
+			}
+			else  // pre black pixel. 
+			{
+				continue;
+			}
+		}
+		else // white pixel.
+		{
+			if (pre_value < 0) // pre black pixel. 
+			{
+				x2 = i; 
+				y2 = y; 
+
+				fillLineBetweenTwoPixels(output, h, w, x1, y1, x2, y2);
+				//printf("Fill LIne, x1:%d, y1:%d, x2:%d, y2:%d. \n", x1, y1, x2, y2);
+			}
+			else
+			{
+				gap_start = y;
+			}
+			
+			// pre white pixel, no action. 
+
+			// no matter pre_prevalue, set to current y.  
+			//gap_start = y; 
+		}
+
+		pre_value = y;
+	}
+
+	return 0;
+}
+
+int fillLineGaps2(unsigned char* coreLine, unsigned char* output, int h, int w, int black_limit)
 {
 	int i, j, m, n;
 	int line_start = -1; 
@@ -340,34 +457,6 @@ int fillLineGaps(unsigned char* coreLine, unsigned char* output, int h, int w, i
 }
 
 
-int fillLineGaps2(unsigned char* coreLine, unsigned char* output, int h, int w, int black_limit)
-{
-	int i, j, m, pre_value;
-	int pre_black, pre_write;
-
-	pre_black = 0; 
-	pre_write = 0;
-	pre_value = -1;
-
-	for (i=0; i<w; i++)
-	{
-		for (j=0; j<h; j++)
-		{
-			//如果有点
-			if (coreLine[j*w+i] > black_limit)
-			{
-				if (pre_black)
-				{
-					pre_black = 1;
-					pre_write = 0; 
-					break;
-				}
-			}
-		}
-	}
-
-	return 0;
-}
 
 //int getBevelTop(unsigned char* coreLine, float* slope, int h, int w, int* bevelLeft, int* bevelRight, int judgeLength)
 int getBevelTop(unsigned char* coreLine, float* slope, int h, int w)
@@ -521,7 +610,7 @@ int main(int argc, char const *argv[])
 	}
 	printf("\n");
 
-	fillLineGaps(coreLine, output3, HEIGHT, WIDTH, 0);
+	fillLineGaps(coreLine, output3, HEIGHT, WIDTH, 1);
 	printf("\n===fillLineGaps Image: ===");
 	for (i=0; i<HEIGHT; i++)
 	{
