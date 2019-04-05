@@ -758,20 +758,35 @@ def wsVideoPhase(input, output, local_view = True):
 
         if type(frame) != type(None):
             (h, w) = frame.shape[:2]
-            frame = frame[h//3:h, w//6:w*5//6]
+            frame = frame[0:h, w//6:w*5//6]
+
             frame = cv2.resize(frame, RESOLUTION, interpolation = cv2.INTER_LINEAR)
             (h, w) = frame.shape[:2]
-            image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+
+            # Get the blue image. 
+            b, r, g = cv2.split(frame)
+            n = 200
+            filt = (b.clip(n, n+1) - n) * 255 
+            """
+            image1 = np.hstack([r, b])
+            image2 = np.hstack([g, filt])
+            images = np.vstack([image1, image2])
+            
+            print("MAX, R:{}, G:{}, B:{}. ".format(r.max(), g.max(), b.max()))
+            """
+            #images = cv2.cvtColor(b, cv2.COLOR_GRAY2RGB)
+
+            #image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             #print("COLOR: ", image)
             #result = frame
             #result = wsImagePhase(lib, image, correct_angle = False)
-            coreline = getLineImage(lib, image, black_limit = 50, correct_angle = False)
+            coreline = getLineImage(lib, filt, black_limit = 50, correct_angle = False)
             gaps = fillLineGaps(lib, coreline, start_pixel = 5)
 
             result = gaps + coreline
             #result = coreline
 
-            """
+            '''
             # Check if there are more than one pixels in one column.  
             for i in range(h):
                 col = result[..., i]
@@ -780,16 +795,17 @@ def wsVideoPhase(input, output, local_view = True):
                 if number > 1:
                     print("OOps...", d[0])
             print('No OOps... :) ')
-            """
+            '''
 
             b_center, b_level = getBottomCenter2(lib, result, bottom_thick = 20, noisy_pixels = 3)
 
             #image = image // 2
-            frame = frame // 3 * 2
+            frame = frame // 2
 
             #images = np.hstack([image, result])
             images = fill2ColorImage(lib, frame, result)
             images = fill2ColorImage(lib, frame, gaps, fill_color = (0, 255, 0))
+            #images = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
             drawTag(images, b_center, b_level)
 
             if local_view:
