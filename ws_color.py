@@ -512,10 +512,10 @@ def getBottomCenter(lib, coreImage, bottom_thick = 10):
     return center, level
 
 #def getBottomCenter2(lib, coreImage, bottom_pixels = 10):
-def getBottomCenter2(lib, coreImage, bottom_thick = 20, noisy_pixels = 10):
+def getBottomCenter2(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
     index = coreLine2Index(lib, coreImage)
-    #srt = index.argsort(kind = 'stable')
-    srt = index.argsort()
+    srt = index.argsort(kind = 'stable')
+    #srt = index.argsort()
     idx = srt[:bottom_thick]
     #print('IDX: ', idx.size)
     bottom = index[idx]
@@ -523,10 +523,10 @@ def getBottomCenter2(lib, coreImage, bottom_thick = 20, noisy_pixels = 10):
 
     #level = int(np.mean(bottom))
     #center = int(np.mean(idx))
-    #level = int(np.median( bottom[noisy_pixels:(bottom.size - noisy_pixels)] ))
-    #center = int(np.median( idx[noisy_pixels:(idx.size - noisy_pixels)] ))
-    level = int(np.median(bottom))
-    center = int(np.median(idx))
+    level = int(np.mean( bottom[noisy_pixels:(bottom.size - noisy_pixels)] ))
+    center = int(np.mean( idx[noisy_pixels:(idx.size - noisy_pixels)] ))
+    #level = int(np.median(bottom))
+    #center = int(np.median(idx))
 
     #print('Center: ', center)
     #print('Level:  ', level)
@@ -554,7 +554,7 @@ def fillLineGaps2(lib, coreImage, black_limit = 0):
 
 def drawTag(image, b_center, b_level):
     (h, w) = image.shape[:2]
-
+    cv2.rectangle(image, (1, 1), (w-2, h-2), (130, 130, 130), 3)
     """
     x1 = b_center - w//30
     x2 = b_center + w//30
@@ -648,7 +648,7 @@ def wsImagePhase(files, output = None, local_view = True):
         #slope_array = np.arctan2(slope_array)
 
         #index_array = coreLine2Index(lib, result)
-        b_center, b_level = getBottomCenter2(lib, result, bottom_thick = 10)
+        b_center, b_level = getBottomCenter2(lib, result, bottom_thick = 30)
 
         #bottom_index = np.where(index_array < (index_array.min()+10))
 
@@ -718,8 +718,11 @@ def wsImagePhase(files, output = None, local_view = True):
 
 
 def wsVideoPhase(input, output, local_view = True):
-    RESOLUTION = (1600, 1200)
-
+    W = 400
+    H = 300
+    RESOLUTION = (W*2, H*2)
+    HALF_RESOLUTION = (W, H)
+    
     vid = cv2.VideoCapture(input[0])
 
     if not vid.isOpened():
@@ -749,7 +752,8 @@ def wsVideoPhase(input, output, local_view = True):
     kernel = np.ones((3,3),np.uint8)
 
     if local_view:
-        cv2.namedWindow("result", cv2.WINDOW_NORMAL)
+        #cv2.namedWindow("result", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("result")
         #cv2.resizeWindow("result", 800, 400)
         #cv2.moveWindow("result", 100, 100)
 
@@ -758,15 +762,35 @@ def wsVideoPhase(input, output, local_view = True):
 
         if type(frame) != type(None):
             (h, w) = frame.shape[:2]
-            frame = frame[0:h, w//6:w*5//6]
+            frame = frame[0:h, w//4:w*4//5]
+
+            if len(frame.shape) > 2:
+                color_input = True
+            else:
+                color_input = False
 
             frame = cv2.resize(frame, RESOLUTION, interpolation = cv2.INTER_LINEAR)
             (h, w) = frame.shape[:2]
 
-            # Get the blue image. 
-            b, r, g = cv2.split(frame)
-            n = 200
-            filt = (b.clip(n, n+1) - n) * 255 
+            if color_input:
+                # Get the blue image. 
+                b, r, g = cv2.split(frame)
+                #n = 50
+                #filt = (g.clip(n, n+1) - n) * 255 
+                filt = g
+            else:
+                filt = frame
+
+            mean = filt.mean()
+            black_limit = (int)(mean * 8)
+            if black_limit > 245:
+                black_limit = 245
+
+            if black_limit < 10:
+                black_limit = 10
+
+            print('MEAN: ', filt.mean(), ' BLACK_LIMIT: ', black_limit)
+
             """
             image1 = np.hstack([r, b])
             image2 = np.hstack([g, filt])
@@ -780,7 +804,7 @@ def wsVideoPhase(input, output, local_view = True):
             #print("COLOR: ", image)
             #result = frame
             #result = wsImagePhase(lib, image, correct_angle = False)
-            coreline = getLineImage(lib, filt, black_limit = 50, correct_angle = False)
+            coreline = getLineImage(lib, filt, black_limit = black_limit, correct_angle = False)
             gaps = fillLineGaps(lib, coreline, start_pixel = 5)
 
             result = gaps + coreline
@@ -797,17 +821,37 @@ def wsVideoPhase(input, output, local_view = True):
             print('No OOps... :) ')
             '''
 
-            b_center, b_level = getBottomCenter2(lib, result, bottom_thick = 20, noisy_pixels = 3)
+            b_center, b_level = getBottomCenter2(lib, result, bottom_thick = 50, noisy_pixels = 10)
 
             #image = image // 2
-            frame = frame // 2
+            #frame = frame // 2
+
+            if not color_input:
+                frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
 
             #images = np.hstack([image, result])
-            images = fill2ColorImage(lib, frame, result)
-            images = fill2ColorImage(lib, frame, gaps, fill_color = (0, 255, 0))
+            mix_image = fill2ColorImage(lib, frame//2, result, fill_color = (255, 0, 0))
+            mix_image = fill2ColorImage(lib, mix_image, gaps, fill_color = (0, 255, 0))
             #images = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
-            drawTag(images, b_center, b_level)
+            drawTag(mix_image, b_center, b_level)
+            #images = g
 
+            result = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
+            
+            drawTag(result, b_center, b_level)
+            drawTag(frame, b_center, b_level)
+
+            #images = np.hstack([frame, mix_image, result])
+            
+            fill_black = np.zeros(shape = (RESOLUTION[1], RESOLUTION[0], 3))
+
+            #image1 = np.hstack([frame, frame])
+            frame = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+            result = cv2.resize(result, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+
+            image2 = np.hstack([frame, result])
+            images = np.vstack([mix_image, image2])
+            
             if local_view:
                 cv2.imshow("result", images)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
