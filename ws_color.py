@@ -718,8 +718,8 @@ def wsImagePhase(files, output = None, local_view = True):
 
 
 def wsVideoPhase(input, output, local_view = True):
-    W = 400
-    H = 300
+    W = 600
+    H = 500
     RESOLUTION = (W*2, H*2)
     HALF_RESOLUTION = (W, H)
     
