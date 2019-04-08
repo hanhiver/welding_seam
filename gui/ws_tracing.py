@@ -2,19 +2,18 @@
 
 # Form implementation generated from reading ui file 'ws_tracing.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.1
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1200, 960)
-        MainWindow.setMinimumSize(QtCore.QSize(1200, 960))
-        MainWindow.setMaximumSize(QtCore.QSize(1200, 960))
+        MainWindow.resize(1200, 980)
+        MainWindow.setMinimumSize(QtCore.QSize(1200, 980))
+        MainWindow.setMaximumSize(QtCore.QSize(12000, 9800))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.button_openFile = QtWidgets.QPushButton(self.centralwidget)
@@ -58,7 +57,7 @@ class Ui_MainWindow(object):
         self.toolButton_selectFile.setObjectName("toolButton_selectFile")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1200, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1200, 49))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -82,5 +81,4 @@ class Ui_MainWindow(object):
         self.button_startTracing.setText(_translate("MainWindow", "开始跟踪"))
         self.button_exitApp.setText(_translate("MainWindow", "退出"))
         self.toolButton_selectFile.setText(_translate("MainWindow", "..."))
-
 

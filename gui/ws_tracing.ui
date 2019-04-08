@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>960</height>
+    <height>980</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>1200</width>
-    <height>960</height>
+    <height>980</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1200</width>
-    <height>960</height>
+    <width>12000</width>
+    <height>9800</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -143,7 +143,7 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>22</height>
+     <height>49</height>
     </rect>
    </property>
   </widget>
