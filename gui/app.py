@@ -8,9 +8,13 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         super(MyWindow, self).__init__(parent)
         self.setupUi(self)
 
+def openFile():
+	filename = getOpenFileName()
+	return filename
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     myWin = MyWindow()
+    myWin.button_openFile.clicked.connect(openFile) 
     myWin.show()
     sys.exit(app.exec_())

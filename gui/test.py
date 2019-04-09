@@ -14,34 +14,34 @@ class MyWindow(QMainWindow, Ui_dialog):
         self.setupUi(self)
 
     def slot_openFile(self):
-    	# 调用打开文件的dialog.
-    	fileName, tmp = QFileDialog.getOpenFileName(
-    		self, '打开文件', '../', '*.png *.jpg *.bmp')
+        # 调用打开文件的dialog.
+        fileName, tmp = QFileDialog.getOpenFileName(
+            self, '打开文件', '../', '*.png *.jpg *.bmp')
 
-    	if fileName is '':
-    		return
+        if fileName is '':
+            return
 
-    	self.img = cv2.imread(fileName)
+        self.img = cv2.imread(fileName)
 
-    	if self.img.size == 1:
-    		return
+        if self.img.size == 1:
+            return
 
-    	self.refreshShow() 
+        self.refreshShow() 
 
     def refreshShow(self):
-    	# 根据label_show尺寸缩放图像.
-    	width = self.label_show.width() 
-    	height = self.label_show.height()
-    	self.img = cv2.resize(self.img, (height, width))
+        # 根据label_show尺寸缩放图像.
+        width = self.label_show.width() 
+        height = self.label_show.height()
+        self.img = cv2.resize(self.img, (height, width))
 
-    	# 提取图形尺寸和通道，将opencv下的img转换成Qimage
-    	height, width, channel = self.img.shape
-    	bytesPerLine = 3 * width
-    	self.qImg = QImage(self.img.data, width, height, bytesPerLine, 
-    					   QImage.Format_RGB888).rgbSwapped()
+        # 提取图形尺寸和通道，将opencv下的img转换成Qimage
+        height, width, channel = self.img.shape
+        bytesPerLine = 3 * width
+        self.qImg = QImage(self.img.data, width, height, bytesPerLine, 
+                           QImage.Format_RGB888).rgbSwapped()
 
-    	# 将图像显示出来
-    	self.label_show.setPixmap(QPixmap.fromImage(self.qImg))
+        # 将图像显示出来
+        self.label_show.setPixmap(QPixmap.fromImage(self.qImg))
 
 
 if __name__ == '__main__':

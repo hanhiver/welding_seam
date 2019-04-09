@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>620</height>
+    <height>660</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,8 +39,8 @@
   <widget class="QPushButton" name="button_exit">
    <property name="geometry">
     <rect>
-     <x>1010</x>
-     <y>560</y>
+     <x>1020</x>
+     <y>590</y>
      <width>160</width>
      <height>50</height>
     </rect>
@@ -81,11 +81,24 @@
      <x>10</x>
      <y>10</y>
      <width>800</width>
-     <height>600</height>
+     <height>640</height>
     </rect>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Plain</enum>
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QGraphicsView" name="graphicsView_show">
+   <property name="geometry">
+    <rect>
+     <x>870</x>
+     <y>250</y>
+     <width>256</width>
+     <height>192</height>
+    </rect>
    </property>
   </widget>
  </widget>
