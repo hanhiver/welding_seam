@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>980</height>
+    <height>960</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>1200</width>
-    <height>980</height>
+    <height>960</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -43,16 +43,6 @@
     </property>
     <property name="text">
      <string>打开文件</string>
-    </property>
-   </widget>
-   <widget class="QGraphicsView" name="graphicsView_center">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>800</width>
-      <height>600</height>
-     </rect>
     </property>
    </widget>
    <widget class="QGraphicsView" name="graphicsView_right">
@@ -136,6 +126,19 @@
      <string>...</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_show">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>800</width>
+      <height>600</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -143,7 +146,7 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>49</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -156,7 +159,6 @@
   <tabstop>button_exitApp</tabstop>
   <tabstop>graphicsView_left</tabstop>
   <tabstop>graphicsView_right</tabstop>
-  <tabstop>graphicsView_center</tabstop>
  </tabstops>
  <resources/>
  <connections>

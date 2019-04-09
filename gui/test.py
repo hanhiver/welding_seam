@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog, QGridLayout,
                              QLabel, QPushButton)
-from grid import *
+from grid2 import *
 
 import cv2
 
