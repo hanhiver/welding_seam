@@ -55,7 +55,10 @@ def getLines(image, min_length = 100, max_line_gap = 25):
 
 
 """
-判断图像是否为正
+判断图像是否为正，如果不是，计算偏转角度以供后续函数矫正。
+max_angle: 最大矫正角度
+min_length:　最小表面线段长度。
+max_line_gap:　最小线段之间跨越像素值。
 """
 def getSurfaceAdjustAngle(image, max_angle = 10, min_length = 200, max_line_gap = 25):
     np.set_printoptions(precision=3, suppress=True)
@@ -137,8 +140,9 @@ def getSurfaceAdjustAngle(image, max_angle = 10, min_length = 200, max_line_gap 
 
     return ret_angle 
 
-
-
+"""
+得到焊接表面到底面深度
+"""
 def getSurfaceLevel(image, max_angle = 5, min_length = 200, max_line_gap = 25):
     np.set_printoptions(precision=3, suppress=True)
 
@@ -220,22 +224,10 @@ def getSurfaceLevel(image, max_angle = 5, min_length = 200, max_line_gap = 25):
     return (ret_level_left, ret_level_right, ret_bevel_top_left, ret_bevel_top_right) 
 
 
-
-def getCorePoint(inputArray, begin, end):
-    value = inputArray[begin:end].sum() // 2
-    max_value = inputArray[begin:end].max()
-
-    while begin < end: 
-        value = value - inputArray[begin]
-        if value > 0:
-            begin += 1
-            continue
-        else:
-            break
-
-    return (begin, max_value)  
-
-
+"""
+对于一个图像，得到由核心点组成的核心图。
+black_limit: 小于等于这个值的点会被视作黑色。
+"""
 def getCoreImage(lib, image, black_limit = 0):
     (h, w) = image.shape[:2]
 
@@ -249,6 +241,9 @@ def getCoreImage(lib, image, black_limit = 0):
 
     return coreImage
 
+"""
+输入核心点组成的图像，过滤得到核心线段。
+"""
 def followCoreLine(lib, image, ref_level, min_gap = 20, black_limit = 0):
     (h, w) = image.shape[:2]
 
@@ -271,6 +266,10 @@ def followCoreLine(lib, image, ref_level, min_gap = 20, black_limit = 0):
 
     return lineImage
 
+"""
+在彩色图像中叠加灰度图像线段。
+fill_color: 灰度图像中的点在彩色图像中显示的颜色。
+"""
 def fill2ColorImage(lib, colorImage, grayImage, fill_color = (255, 0, 0)):
     (h, w) = colorImage.shape[:2]
     colorShape = colorImage.shape
@@ -287,7 +286,11 @@ def fill2ColorImage(lib, colorImage, grayImage, fill_color = (255, 0, 0)):
 
     return mergedImage
 
-
+"""
+从原始输入图像得到最终识别结果的轮廓线。
+black_limit: 小于等于这个值的点会被视作黑色。
+correct_angle: 是否对图像做矫正处理。 
+"""
 def getLineImage(lib, image, black_limit = 0, correct_angle = True):
     (h, w) = image.shape[:2]
     
@@ -315,7 +318,10 @@ def getLineImage(lib, image, black_limit = 0, correct_angle = True):
 
     return lineImage
 
-
+"""
+从识别轮廓线得到轮廓数组。轮廓数组长度为图像宽度，每个单元包含该列线段高度。
+轮廓数组可以传送给后续函数做焊枪位置识别。
+"""
 def coreLine2Index(lib, coreImage):
     (h, w) = coreImage.shape[:2]
     
@@ -329,7 +335,11 @@ def coreLine2Index(lib, coreImage):
 
     return index_array
 
-
+"""
+输入轮廓线图像得到焊缝最底部小平台中点位置。
+bottom_thick: 底部小平台厚度
+noisy_pixels: 作为噪音滤除的像素数目
+"""
 def getBottomCenter(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
     index = coreLine2Index(lib, coreImage)
     srt = index.argsort(kind = 'stable')
@@ -342,6 +352,9 @@ def getBottomCenter(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
 
     return center, level
 
+"""
+输入轮廓线图像平均法自动补足中间缺失的像素。
+"""
 def fillLineGaps(lib, coreImage, start_pixel = 0):
     (h, w) = coreImage.shape[:2]
     
@@ -355,7 +368,9 @@ def fillLineGaps(lib, coreImage, start_pixel = 0):
 
     return resImage
 
-
+"""
+输入彩色图像，焊缝底部中点位置画出标志线。
+"""
 def drawTag(image, b_center, b_level):
     (h, w) = image.shape[:2]
     cv2.rectangle(image, (1, 1), (w-2, h-2), (130, 130, 130), 3)
