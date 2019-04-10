@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"show",
+				"show_pic"
+			],
+			[
 				"zer",
 				"zeros"
 			],
@@ -272,26 +276,19 @@
 	"buffers":
 	[
 		{
-			"file": "/home/dhan/myprog/MyOpenCV/houghTransform/houghlines.py",
-			"settings":
-			{
-				"buffer_size": 938,
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "ws_color.py",
 			"settings":
 			{
-				"buffer_size": 28357,
+				"buffer_size": 28491,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "ws4.py",
+			"file": "gui/ws_gui.py",
 			"settings":
 			{
-				"buffer_size": 26333,
+				"buffer_size": 1380,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -306,19 +303,27 @@
 			}
 		},
 		{
-			"file": "C/ws_c.c",
+			"file": "/home/dhan/myprog/PythonBasic/QT/showCamera/showCamera.py",
 			"settings":
 			{
-				"buffer_size": 11126,
-				"encoding": "UTF-8",
+				"buffer_size": 861,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "/home/dhan/myprog/MyOpenCV/captureVideo/CapFrame.py",
+			"file": "gui/first.py",
 			"settings":
 			{
-				"buffer_size": 552,
+				"buffer_size": 2684,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "gui/test.py",
+			"settings":
+			{
+				"buffer_size": 1478,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		}
@@ -372,6 +377,14 @@
 	},
 	"file_history":
 	[
+		"/home/dhan/myprog/welding_seam/gui/app.py",
+		"/home/dhan/myprog/welding_seam/gui/ws_tracing.py",
+		"/home/dhan/myprog/welding_seam/gui/test.py",
+		"/home/dhan/myprog/welding_seam/gui/grid2.py",
+		"/home/dhan/myprog/MyOpenCV/captureVideo/CapFrame.py",
+		"/home/dhan/myprog/welding_seam/C/ws_c.c",
+		"/home/dhan/myprog/MyOpenCV/houghTransform/houghlines.py",
+		"/home/dhan/myprog/welding_seam/ws4.py",
 		"/home/dhan/myprog/PythonBasic/python.so/bufRead/test.c",
 		"/home/dhan/myprog/welding_seam/ws3.py",
 		"/home/dhan/myprog/pool_test.py",
@@ -397,7 +410,6 @@
 		"/home/dhan/myprog/camport3/include/TYApi.h",
 		"/home/dhan/myprog/camport3/sample/common/common.hpp",
 		"/home/dhan/myprog/camport3/sample/SimpleView_FetchFrame/main.cpp",
-		"/home/dhan/myprog/MyOpenCV/houghTransform/houghlines.py",
 		"/home/dhan/myprog/PythonBasic/python.so/func_pointer/test.py",
 		"/home/dhan/myprog/PythonBasic/python.so/func_pointer/test.c",
 		"/home/dhan/myprog/PythonBasic/python.so/struct_array/test.py",
@@ -416,7 +428,7 @@
 	],
 	"find":
 	{
-		"height": 24.0
+		"height": 39.0
 	},
 	"find_in_files":
 	{
@@ -430,6 +442,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"blur",
+			"self.horizontalLayout.addWidget",
 			"fillLineGaps",
 			"write",
 			"followCoreLine",
@@ -479,24 +493,24 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 0,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "/home/dhan/myprog/MyOpenCV/houghTransform/houghlines.py",
+					"file": "ws_color.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 938,
+						"buffer_size": 28491,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								674,
-								674
+								23842,
+								23842
 							]
 						],
 						"settings":
@@ -504,82 +518,50 @@
 							"syntax": "Packages/Python/Python.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 11774.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "gui/ws_gui.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1380,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								744,
+								744
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "ws_color.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 28357,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								23517,
-								23517
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 11680.0,
-						"zoom_level": 1.0
-					},
 					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "ws4.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 26333,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								9313,
-								9313
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 7234.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
 					"type": "text"
 				}
 			]
 		},
 		{
-			"selected": 2,
+			"selected": 1,
 			"sheets":
 			[
 				{
-					"buffer": 3,
+					"buffer": 2,
 					"file": "/home/dhan/myprog/PythonBasic/GUI/playVideo/showCamera.py",
 					"semi_transient": false,
 					"settings":
@@ -608,49 +590,49 @@
 					"type": "text"
 				},
 				{
-					"buffer": 4,
-					"file": "C/ws_c.c",
+					"buffer": 3,
+					"file": "/home/dhan/myprog/PythonBasic/QT/showCamera/showCamera.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 11126,
+						"buffer_size": 861,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1614,
-								1614
+								651,
+								651
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/C++/C.sublime-syntax",
+							"syntax": "Packages/Python/Python.sublime-syntax",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 765.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
-					"file": "/home/dhan/myprog/MyOpenCV/captureVideo/CapFrame.py",
+					"buffer": 4,
+					"file": "gui/first.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 552,
+						"buffer_size": 2684,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								552,
-								552
+								527,
+								527
 							]
 						],
 						"settings":
@@ -663,7 +645,37 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "gui/test.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1478,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
 					"type": "text"
 				}
 			]
@@ -749,7 +761,7 @@
 		],
 		"width": 0.0
 	},
-	"selected_group": 1,
+	"selected_group": 0,
 	"settings":
 	{
 	},
