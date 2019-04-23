@@ -374,15 +374,6 @@ def fillLineGaps(lib, coreImage, start_pixel = 0):
 def drawTag(image, b_center, b_level):
     (h, w) = image.shape[:2]
     cv2.rectangle(image, (1, 1), (w-2, h-2), (130, 130, 130), 3)
-    """
-    x1 = b_center - w//30
-    x2 = b_center + w//30
-
-    y1 = b_level
-    y2 = b_level
-
-    cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 1)
-    """
 
     x1 = b_center
     x2 = b_center
@@ -395,28 +386,11 @@ def drawTag(image, b_center, b_level):
         y2 = h-1
 
     cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 3)
-    
-    """
-    x3 = x1 - w//50
-    if x3 < 0:
-        x3 = 0
-    x4 = x2 + w//50 
-    if x4 > w-1:
-        x4 = w-1
-
-    y3 = y1 + h//40
-    y4 = y2 - h//40   
-
-    cv2.rectangle(image, (x3, y3), (x4, y4), (255, 0, 255), 1)
-    """
-    #cv2.line(mix_image, (x3, y3), (x4, y3), (0, 255, 255), 3)
-    #cv2.line(mix_image, (x3, y4), (x4, y4), (0, 255, 255), 3)
-    #cv2.line(mix_image, (x3, y3), (x3, y4), (0, 255, 255), 3)
-    #cv2.line(mix_image, (x4, y3), (x4, y4), (0, 255, 255), 3)
-
-    #cv2.line(mix_image, (b_center, 200), (b_center, 1800), (255, 255, 0), 1)
 
 
+"""
+输入图像文件，处理图像文件。
+"""
 def wsImagePhase(files, output = None, local_view = True):
 
     print('FILES: ', files)
@@ -450,68 +424,17 @@ def wsImagePhase(files, output = None, local_view = True):
         gaps = fillLineGaps(lib, result, start_pixel = 5)
         result = result + gaps 
 
-
-        """
-        for i in range(h):
-            col = result[..., i]
-            d = np.where(col>254)
-            number = d[0].size
-            if number > 1:
-                print("OOps...", d[0])
-        print('No OOps... :) ')
-        """
-        
-
-        #slope_array = getBevelTop(lib, result)
-        #slope_array = np.arctan2(slope_array)
-
-        #index_array = coreLine2Index(lib, result)
         b_center, b_level = getBottomCenter(lib, result, bottom_thick = 30)
-
-        #bottom_index = np.where(index_array < (index_array.min()+10))
-
-        #center = np.mean(bottom_index)
-        #center = int(center)
 
         np.set_printoptions(precision=10, suppress=True)
         print('Lowest point: ', b_center)
-        #print(bottom_index)
         
-        #pyplot.plot(index_array)
-        #pyplot.show()
-        
-
-        #cv2.imwrite('line.jpg', result)
-
-        #bevel_top = getBevelTopCenter(image)
-        #bevel_top_center = (bevel_top[0] + bevel_top[1]) // 2
-        #print("BEVEL: ", bevel_top_center)
-        #result = cv2.dilate(result, kernel, iterations = 1)
-        #color = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
-
         frame = frame // 3 * 2
 
-        #images = np.hstack([image, result])
         mix_image = fill2ColorImage(lib, frame, result)
         mix_image = fill2ColorImage(lib, mix_image, gaps, fill_color = (0, 255, 0))
         drawTag(mix_image, b_center, b_level)
-        
-        """
-        cv2.line(mix_image, (bevel_top_center, 200), (bevel_top_center, 1800), (255, 255, 0), 8)
-        cv2.line(mix_image, (bevel_top[0], 200), (bevel_top[0], 1800), (0, 255, 0), 3)
-        cv2.line(mix_image, (bevel_top[1], 200), (bevel_top[1], 1800), (0, 255, 0), 3)
-        """
-
-        #######################################################
-        #lines = getLines(frame)
-        #for line in lines:
-        #    x1, y1, x2, y2 = line[0]
-        #    cv2.line(mix_image, (x1, y1), (x2, y2), (0, 255, 0), 1)
-
-        #######################################################
-
-
-        #result = cv2.dilate(result, kernel, iterations = 1)
+       
         result = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
         gaps = cv2.cvtColor(gaps, cv2.COLOR_GRAY2RGB)
 
@@ -534,7 +457,13 @@ def wsImagePhase(files, output = None, local_view = True):
     
     cv2.destroyAllWindows()
 
+"""
+输入视频文件，处理视频文件。
+input: 输入的视频文件名称。
+	   如果是数字，则是打开第n+1号系统摄像头。
 
+output: 输出存储的视频文件名称。
+"""
 def wsVideoPhase(input, output, local_view = True):
     W = 600
     H = 500
@@ -579,7 +508,10 @@ def wsVideoPhase(input, output, local_view = True):
         return_value, frame = vid.read()
 
         if type(frame) != type(None):
-            #frame = np.rot90(frame, k = 2)
+            
+            # 根据摄像头摆放位置确定是否需要旋转图像。
+            # 目前的处理逻辑是处理凸字形的焊缝折线。
+            frame = np.rot90(frame, k = 2)
 
             (h, w) = frame.shape[:2]
             frame = frame[0:h, w//5:w*4//5]
@@ -614,61 +546,30 @@ def wsVideoPhase(input, output, local_view = True):
 
             print('MEAN: ', filt.mean(), ' BLACK_LIMIT: ', black_limit)
 
-            """
-            image1 = np.hstack([r, b])
-            image2 = np.hstack([g, filt])
-            images = np.vstack([image1, image2])
-            
-            print("MAX, R:{}, G:{}, B:{}. ".format(r.max(), g.max(), b.max()))
-            """
-            #images = cv2.cvtColor(b, cv2.COLOR_GRAY2RGB)
-
-            #image = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-            #print("COLOR: ", image)
-            #result = frame
-            #result = wsImagePhase(lib, image, correct_angle = False)
-            coreline = getLineImage(lib, filt, black_limit = black_limit, correct_angle = False)
+            coreline = getLineImage(lib, filt, black_limit = black_limit, correct_angle = True)
             gaps = fillLineGaps(lib, coreline, start_pixel = 5)
 
             result = gaps + coreline
-            #result = coreline
-
-            '''
-            # Check if there are more than one pixels in one column.  
-            for i in range(h):
-                col = result[..., i]
-                d = np.where(col>254)
-                number = d[0].size
-                if number > 1:
-                    print("OOps...", d[0])
-            print('No OOps... :) ')
-            '''
-
+           
             b_center, b_level = getBottomCenter(lib, result, bottom_thick = 50, noisy_pixels = 10)
-
-            #image = image // 2
-            #frame = frame // 2
 
             if not color_input:
                 frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
 
-            #images = np.hstack([image, result])
             mix_image = fill2ColorImage(lib, frame//2, result, fill_color = (255, 0, 0))
             mix_image = fill2ColorImage(lib, mix_image, gaps, fill_color = (0, 255, 0))
-            #images = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
+
             drawTag(mix_image, b_center, b_level)
-            #images = g
+
 
             result = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
             
             drawTag(result, b_center, b_level)
             drawTag(frame, b_center, b_level)
 
-            #images = np.hstack([frame, mix_image, result])
             
             fill_black = np.zeros(shape = (RESOLUTION[1], RESOLUTION[0], 3))
 
-            #image1 = np.hstack([frame, frame])
             frame = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
             result = cv2.resize(result, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
 
@@ -693,21 +594,27 @@ def main():
 
     parser = argparse.ArgumentParser()
 
+    # 输入文件。
     parser.add_argument('-i', '--image', default = False, action="store_true",
                         help = '[Optional] Input video. DEFAULT: test.mp4 ')
 
+    # 输出文件。
     parser.add_argument('-o', '--output', type = str, default = '', 
                         help = '[Optional] Output video. ')
     
+    # 日志级别
     parser.add_argument('-l', '--loglevel', type = str, default = 'warning',
                         help = '[Optional] Log level. WARNING is default. ')
 
+    # 处理单幅图像。
     parser.add_argument('-s', '--singleimages', type = str, default = None,
                         help = '[Optional] Single image files. ')
 
+    # 是否将处理后结果显示。
     parser.add_argument('-lv', '--localview', default = False, action = "store_true",
                         help = '[Optional] If shows result to local view. ')    
 
+    # 默认处理所有文件选项。
     parser.add_argument('input', type = str, default = None, nargs = '+',
                         help = 'Input files. ')
 
