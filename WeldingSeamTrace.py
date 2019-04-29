@@ -12,7 +12,7 @@ TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png')
 #TEST_IMAGE = ('rsmall.png', )
 
 WRITE_RESULT = False
-RESIZE = 1
+RESIZE = 20
 SLOPE_TH = 0.15
 
 """
@@ -72,19 +72,20 @@ def getSurfaceAdjustAngle(image, max_angle = 10, min_length = 200, max_line_gap 
     zero_slope_lines_right = []
     max_radian = max_angle * np.pi / 180
 
-    for line in lines: 
+    if type(lines) != type(None) and lines.size > 0:
+        for line in lines: 
 
-        x1, y1, x2, y2 = line[0]
-        length = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
-        theta = np.arctan((y2 - y1) / (x2 - x1))
-        theta_apro = np.around(theta, 1)
+            x1, y1, x2, y2 = line[0]
+            length = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+            theta = np.arctan((y2 - y1) / (x2 - x1))
+            theta_apro = np.around(theta, 1)
 
-        if theta_apro < max_radian and theta_apro > -max_radian:
-        
-            if (x1 + x2) < w:
-                zero_slope_lines_left.append([x1, y1, x2, y2, length, theta_apro, theta])
-            else:
-                zero_slope_lines_right.append([x1, y1, x2, y2, length, theta_apro, theta])
+            if theta_apro < max_radian and theta_apro > -max_radian:
+            
+                if (x1 + x2) < w:
+                    zero_slope_lines_left.append([x1, y1, x2, y2, length, theta_apro, theta])
+                else:
+                    zero_slope_lines_right.append([x1, y1, x2, y2, length, theta_apro, theta])
 
     if zero_slope_lines_left or zero_slope_lines_right:
 
@@ -160,19 +161,22 @@ def getSurfaceLevel(image, max_angle = 5, min_length = 200, max_line_gap = 25):
     zero_slope_lines_right = []
     max_radian = max_angle * np.pi / 180
 
-    for line in lines: 
+    print('No LINE: ', type(lines))
 
-        x1, y1, x2, y2 = line[0]
-        length = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
-        theta = np.arctan((y2 - y1) / (x2 - x1))
-        theta_apro = np.around(theta, 1)
+    if type(lines) != type(None) and lines.size > 0:
+        for line in lines: 
 
-        if theta_apro < max_radian and theta_apro > -max_radian:
-        
-            if (x1 + x2) < w:
-                zero_slope_lines_left.append([x1, y1, x2, y2, length, theta_apro, theta])
-            else:
-                zero_slope_lines_right.append([x1, y1, x2, y2, length, theta_apro, theta])
+            x1, y1, x2, y2 = line[0]
+            length = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+            theta = np.arctan((y2 - y1) / (x2 - x1))
+            theta_apro = np.around(theta, 1)
+
+            if theta_apro < max_radian and theta_apro > -max_radian:
+            
+                if (x1 + x2) < w:
+                    zero_slope_lines_left.append([x1, y1, x2, y2, length, theta_apro, theta])
+                else:
+                    zero_slope_lines_right.append([x1, y1, x2, y2, length, theta_apro, theta])
 
     if zero_slope_lines_left or zero_slope_lines_right:
 
@@ -521,7 +525,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
             # 目前这个设置是基于7块样板的图像进行设置。
             # 未来这里会在GUI界面中可以设置，排除不必要的干扰区域。
             (h, w) = frame.shape[:2]
-            frame = frame[0:h, w//5:w*4//5]
+            #frame = frame[0:h, w//5:w*4//5]
 
             if len(frame.shape) > 2:
                 color_input = True
@@ -548,8 +552,8 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
             if black_limit > 245:
                 black_limit = 245
 
-            if black_limit < 10:
-                black_limit = 10
+            if black_limit < 5:
+                black_limit = 5
 
             print('MEAN: ', filt.mean(), ' BLACK_LIMIT: ', black_limit)
 
