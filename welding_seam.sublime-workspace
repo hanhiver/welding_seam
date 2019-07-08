@@ -4,6 +4,110 @@
 		"selected_items":
 		[
 			[
+				"minish",
+				"mini_shape"
+			],
+			[
+				"phase_pd",
+				"phase_pdf_raw"
+			],
+			[
+				"file",
+				"filename"
+			],
+			[
+				"im",
+				"images"
+			],
+			[
+				"pdf2",
+				"pdf2img"
+			],
+			[
+				"cont",
+				"contours"
+			],
+			[
+				"Ch",
+				"CHAIN_APPROX_SIMPLE"
+			],
+			[
+				"dil",
+				"dilate_iteration"
+			],
+			[
+				"con",
+				"contour_img"
+			],
+			[
+				"acu",
+				"accum_frame"
+			],
+			[
+				"accu",
+				"accu_number"
+			],
+			[
+				"frame",
+				"frame_index"
+			],
+			[
+				"ac",
+				"acum_frame"
+			],
+			[
+				"fram",
+				"frame_index"
+			],
+			[
+				"thresh",
+				"threshold"
+			],
+			[
+				"cv",
+				"cvtColor"
+			],
+			[
+				"image",
+				"image_contours"
+			],
+			[
+				"bl",
+				"GaussianBlur"
+			],
+			[
+				"contou",
+				"contours_valid"
+			],
+			[
+				"b",
+				"b_center"
+			],
+			[
+				"vi",
+				"video_size"
+			],
+			[
+				"input",
+				"input_path"
+			],
+			[
+				"imag",
+				"image_delta"
+			],
+			[
+				"cou",
+				"contours_valid"
+			],
+			[
+				"co",
+				"contourArea"
+			],
+			[
+				"coun",
+				"contours"
+			],
+			[
 				"show",
 				"show_pic"
 			],
@@ -34,10 +138,6 @@
 			[
 				"gap",
 				"gap_start"
-			],
-			[
-				"co",
-				"coreline"
 			],
 			[
 				"prev",
@@ -86,10 +186,6 @@
 			[
 				"min",
 				"min_length"
-			],
-			[
-				"image",
-				"image_gray"
 			],
 			[
 				"wid",
@@ -148,10 +244,6 @@
 				"max_ajust_angle"
 			],
 			[
-				"imag",
-				"image_width"
-			],
-			[
 				"linesz",
 				"lines_zero_l"
 			],
@@ -166,10 +258,6 @@
 			[
 				"ima",
 				"image_norm"
-			],
-			[
-				"im",
-				"img"
 			],
 			[
 				"cdf",
@@ -236,10 +324,6 @@
 				"event_info"
 			],
 			[
-				"frame",
-				"frameBuffer"
-			],
-			[
 				"poi",
 				"points_p"
 			],
@@ -276,54 +360,91 @@
 	"buffers":
 	[
 		{
-			"file": "ws_color.py",
+			"file": "DoctTian/ImagePreprocessing.py",
 			"settings":
 			{
-				"buffer_size": 28491,
+				"buffer_size": 13494,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "gui/ws_gui.py",
+			"file": "/home/dhan/myprog/PROJ/highway/src/darkLocal.py",
 			"settings":
 			{
-				"buffer_size": 1380,
+				"buffer_size": 30199,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "/home/dhan/myprog/PythonBasic/GUI/playVideo/showCamera.py",
+			"file": "/home/dhan/myprog/MyOpenCV/pdf/pdf2imgs.py",
 			"settings":
 			{
-				"buffer_size": 1709,
+				"buffer_size": 6190,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "/home/dhan/myprog/PythonBasic/QT/showCamera/showCamera.py",
+			"file": "/home/dhan/myprog/Mask_RCNN-2.0/utils.py",
 			"settings":
 			{
-				"buffer_size": 861,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "gui/first.py",
-			"settings":
-			{
-				"buffer_size": 2684,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "gui/test.py",
-			"settings":
-			{
-				"buffer_size": 1478,
+				"buffer_size": 25943,
 				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "WeldingSeamTrace.py",
+			"settings":
+			{
+				"buffer_size": 20196,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/dhan/myprog/MyOpenCV/contours/findCountours.py",
+			"settings":
+			{
+				"buffer_size": 23460,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/dhan/myprog/PROJ/highway/src/fmfinding.py",
+			"settings":
+			{
+				"buffer_size": 3660,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "arduino_serial.py",
+			"settings":
+			{
+				"buffer_size": 1367,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "ws/ws_c.c",
+			"settings":
+			{
+				"buffer_size": 8603,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/dhan/myprog/PROJ/highway/src/schedrun.py",
+			"settings":
+			{
+				"buffer_size": 3062,
 				"line_ending": "Unix"
 			}
 		}
@@ -339,6 +460,10 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"Package Control: ins",
+				"Package Control: Install Package"
+			],
 			[
 				"package in",
 				"Package Control: Install Package"
@@ -377,9 +502,22 @@
 	},
 	"file_history":
 	[
+		"/home/dhan/myprog/MyOpenCV/imgdiff/imgdiff.py",
+		"/home/dhan/myprog/MyOpenCV/contours/fmfinding.py",
+		"/home/dhan/myprog/welding_seam/gui/ws_gui.py",
+		"/home/dhan/myprog/PROJ/highway/src/dnet.py",
+		"/home/dhan/myprog/welding_seam/gui/test.py",
+		"/home/dhan/myprog/PROJ/highway/src/darkLocal.py",
+		"/home/dhan/myprog/PythonBasic/GUI/playVideo/showCamera.py",
+		"/tmp/.fr-cYCs7M/Abstract_Points_2019_04_26_Center_Line.m",
+		"/tmp/.fr-axbRL5/田伟写的matlab源码和运行结果/Abstract_Contour_Version9.m",
+		"/home/dhan/myprog/welding_seam/WeldingSeamTrace.py",
+		"/home/dhan/Downloads/arduino_serial.py",
+		"/home/dhan/myprog/welding_seam/gui/first.py",
+		"/home/dhan/myprog/welding_seam/ws_color.py",
+		"/home/dhan/myprog/PROJ/highway/src/darkPool.py",
 		"/home/dhan/myprog/welding_seam/gui/app.py",
 		"/home/dhan/myprog/welding_seam/gui/ws_tracing.py",
-		"/home/dhan/myprog/welding_seam/gui/test.py",
 		"/home/dhan/myprog/welding_seam/gui/grid2.py",
 		"/home/dhan/myprog/MyOpenCV/captureVideo/CapFrame.py",
 		"/home/dhan/myprog/welding_seam/C/ws_c.c",
@@ -442,6 +580,36 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"scipy.misc.imresize",
+			"resize",
+			"rect",
+			"shape",
+			"OUT",
+			"acum_object",
+			"cvtColor",
+			"frame_index",
+			"GaussianBlur",
+			"10",
+			"ChoseRoi",
+			"on_mouse",
+			"drawTag",
+			"pyplot",
+			"frame_queue",
+			"fillLineGaps",
+			"getBottomCenter",
+			"coreLine2Index",
+			"getBevelTop",
+			"getSurfaceLevel",
+			"getBevelTopCenter",
+			"getLineImage",
+			"fill2ColorImage",
+			"followCoreLine",
+			"getCoreImage",
+			"getCorePoint",
+			"getSurfaceLevel",
+			"getSurfaceAdjustAngle",
+			"getLines",
+			"imgRotate",
 			"blur",
 			"self.horizontalLayout.addWidget",
 			"fillLineGaps",
@@ -479,6 +647,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"acum_contours",
 			"9.0",
 			"SLOPE_TH",
 			"#",
@@ -493,24 +662,24 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 3,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "ws_color.py",
+					"file": "DoctTian/ImagePreprocessing.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 28491,
+						"buffer_size": 13494,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								23842,
-								23842
+								210,
+								210
 							]
 						],
 						"settings":
@@ -520,38 +689,99 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 11774.0,
+						"translation.y": 270.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "gui/ws_gui.py",
+					"file": "/home/dhan/myprog/PROJ/highway/src/darkLocal.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1380,
+						"buffer_size": 30199,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								744,
-								744
+								20681,
+								20681
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Python/Python.sublime-syntax"
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 7378.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/home/dhan/myprog/MyOpenCV/pdf/pdf2imgs.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6190,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1343,
+								1343
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 450.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/home/dhan/myprog/Mask_RCNN-2.0/utils.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 25943,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								14190,
+								14190
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 5932.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
 					"type": "text"
 				}
 			]
@@ -561,20 +791,50 @@
 			"sheets":
 			[
 				{
-					"buffer": 2,
-					"file": "/home/dhan/myprog/PythonBasic/GUI/playVideo/showCamera.py",
+					"buffer": 4,
+					"file": "WeldingSeamTrace.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1709,
+						"buffer_size": 20196,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1703,
-								1703
+								19641,
+								19641
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 9082.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "/home/dhan/myprog/MyOpenCV/contours/findCountours.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 23460,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								699,
+								699
 							]
 						],
 						"settings":
@@ -583,27 +843,27 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 300.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "/home/dhan/myprog/PythonBasic/QT/showCamera/showCamera.py",
+					"buffer": 6,
+					"file": "/home/dhan/myprog/PROJ/highway/src/fmfinding.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 861,
+						"buffer_size": 3660,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								651,
-								651
+								2210,
+								2210
 							]
 						],
 						"settings":
@@ -612,27 +872,27 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 630.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
-					"file": "gui/first.py",
+					"buffer": 7,
+					"file": "arduino_serial.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2684,
+						"buffer_size": 1367,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								527,
-								527
+								624,
+								624
 							]
 						],
 						"settings":
@@ -645,16 +905,45 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
-					"file": "gui/test.py",
+					"buffer": 8,
+					"file": "ws/ws_c.c",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1478,
+						"buffer_size": 8603,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2407,
+								2407
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1770.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "/home/dhan/myprog/PROJ/highway/src/schedrun.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3062,
 						"regions":
 						{
 						},
@@ -675,7 +964,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 4,
 					"type": "text"
 				}
 			]
@@ -709,7 +998,7 @@
 		"cols":
 		[
 			0.0,
-			0.46265370148,
+			0.474610485324,
 			1.0
 		],
 		"rows":
@@ -761,7 +1050,7 @@
 		],
 		"width": 0.0
 	},
-	"selected_group": 0,
+	"selected_group": 1,
 	"settings":
 	{
 	},
