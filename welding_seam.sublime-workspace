@@ -360,73 +360,10 @@
 	"buffers":
 	[
 		{
-			"file": "DoctTian/ImagePreprocessing.py",
-			"settings":
-			{
-				"buffer_size": 13494,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/dhan/myprog/PROJ/highway/src/darkLocal.py",
-			"settings":
-			{
-				"buffer_size": 30199,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/dhan/myprog/MyOpenCV/pdf/pdf2imgs.py",
-			"settings":
-			{
-				"buffer_size": 6190,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/dhan/myprog/Mask_RCNN-2.0/utils.py",
-			"settings":
-			{
-				"buffer_size": 25943,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "WeldingSeamTrace.py",
 			"settings":
 			{
-				"buffer_size": 20196,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/dhan/myprog/MyOpenCV/contours/findCountours.py",
-			"settings":
-			{
-				"buffer_size": 23460,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/dhan/myprog/PROJ/highway/src/fmfinding.py",
-			"settings":
-			{
-				"buffer_size": 3660,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "arduino_serial.py",
-			"settings":
-			{
-				"buffer_size": 1367,
+				"buffer_size": 20236,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -437,14 +374,6 @@
 			{
 				"buffer_size": 8603,
 				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/dhan/myprog/PROJ/highway/src/schedrun.py",
-			"settings":
-			{
-				"buffer_size": 3062,
 				"line_ending": "Unix"
 			}
 		}
@@ -502,12 +431,19 @@
 	},
 	"file_history":
 	[
+		"/home/dhan/myprog/PROJ/highway/src/schedrun.py",
+		"/home/dhan/myprog/ws/welding_seam/arduino_serial.py",
+		"/home/dhan/myprog/PROJ/highway/src/fmfinding.py",
+		"/home/dhan/myprog/ws/welding_seam/DoctTian/ImagePreprocessing.py",
+		"/home/dhan/myprog/PROJ/highway/src/darkLocal.py",
+		"/home/dhan/myprog/MyOpenCV/pdf/pdf2imgs.py",
+		"/home/dhan/myprog/Mask_RCNN-2.0/utils.py",
+		"/home/dhan/myprog/MyOpenCV/contours/findCountours.py",
 		"/home/dhan/myprog/MyOpenCV/imgdiff/imgdiff.py",
 		"/home/dhan/myprog/MyOpenCV/contours/fmfinding.py",
 		"/home/dhan/myprog/welding_seam/gui/ws_gui.py",
 		"/home/dhan/myprog/PROJ/highway/src/dnet.py",
 		"/home/dhan/myprog/welding_seam/gui/test.py",
-		"/home/dhan/myprog/PROJ/highway/src/darkLocal.py",
 		"/home/dhan/myprog/PythonBasic/GUI/playVideo/showCamera.py",
 		"/tmp/.fr-cYCs7M/Abstract_Points_2019_04_26_Center_Line.m",
 		"/tmp/.fr-axbRL5/田伟写的matlab源码和运行结果/Abstract_Contour_Version9.m",
@@ -566,7 +502,7 @@
 	],
 	"find":
 	{
-		"height": 39.0
+		"height": 24.0
 	},
 	"find_in_files":
 	{
@@ -662,149 +598,24 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 0,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "DoctTian/ImagePreprocessing.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 13494,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								210,
-								210
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 270.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "/home/dhan/myprog/PROJ/highway/src/darkLocal.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 30199,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								20681,
-								20681
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 7378.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 8,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "/home/dhan/myprog/MyOpenCV/pdf/pdf2imgs.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 6190,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1343,
-								1343
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 450.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "/home/dhan/myprog/Mask_RCNN-2.0/utils.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 25943,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								14190,
-								14190
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 5932.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 1,
-			"sheets":
-			[
-				{
-					"buffer": 4,
 					"file": "WeldingSeamTrace.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 20196,
+						"buffer_size": 20236,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								19641,
-								19641
+								15351,
+								15351
 							]
 						],
 						"settings":
@@ -814,102 +625,14 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 9082.0,
+						"translation.y": 8344.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
-					"file": "/home/dhan/myprog/MyOpenCV/contours/findCountours.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 23460,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								699,
-								699
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 300.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "/home/dhan/myprog/PROJ/highway/src/fmfinding.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3660,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2210,
-								2210
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 630.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "arduino_serial.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1367,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								624,
-								624
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 8,
+					"buffer": 1,
 					"file": "ws/ws_c.c",
 					"semi_transient": false,
 					"settings":
@@ -931,40 +654,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1770.0,
+						"translation.y": 2085.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 9,
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "/home/dhan/myprog/PROJ/highway/src/schedrun.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3062,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
+					"stack_index": 1,
 					"type": "text"
 				}
 			]
@@ -987,18 +680,11 @@
 				0,
 				1,
 				1
-			],
-			[
-				1,
-				0,
-				2,
-				1
 			]
 		],
 		"cols":
 		[
 			0.0,
-			0.474610485324,
 			1.0
 		],
 		"rows":
@@ -1050,7 +736,7 @@
 		],
 		"width": 0.0
 	},
-	"selected_group": 1,
+	"selected_group": 0,
 	"settings":
 	{
 	},

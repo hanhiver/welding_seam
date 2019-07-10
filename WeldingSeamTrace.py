@@ -304,9 +304,9 @@ def getLineImage(lib, image, black_limit = 0, correct_angle = True):
 
         print('Rotate angle: ', angle)
 
-        print('Before rotation: ', image.shape)
+        #print('Before rotation: ', image.shape)
         image = imgRotate(image, angle)
-        print('After rotation: ', image.shape)
+        #print('After rotation: ', image.shape)
 
         level = getSurfaceLevel(image, min_length = 200//RESIZE)[:2]
         print('Surface Level: ', level)
@@ -389,6 +389,16 @@ def drawTag(image, b_center, b_level):
         y2 = h-1
 
     cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 3)
+
+"""
+输入本帧画面得到的ceter值，经过平滑降噪计算之后输出。
+目前的平滑算法是，当前值和前面三帧的平均值比较：
+    超出合理范围： 丢弃不采用。
+    超出预定范围： 平均化之后采用。
+    未超出合理范围：直接采用。
+"""
+def normalizeCenter():
+    pass
 
 
 """
@@ -514,6 +524,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
 
     while True:
         return_value, frame = vid.read()
+        frame = imgRotate(frame, -10)
 
         if type(frame) != type(None):
             
