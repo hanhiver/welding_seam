@@ -317,7 +317,7 @@ def getLineImage(lib, image, black_limit = 0, correct_angle = True):
     coreImage = getCoreImage(lib, image, black_limit = black_limit)
     lineImage = followCoreLine(lib, coreImage, level, min_gap = 100//RESIZE, black_limit = black_limit)
     end = time.time()
-    print("TIME COST: ", end - start, ' seconds')
+    #print("TIME COST: ", end - start, ' seconds')
 
     return lineImage
 
@@ -396,9 +396,49 @@ def drawTag(image, b_center, b_level):
     超出合理范围： 丢弃不采用。
     超出预定范围： 平均化之后采用。
     未超出合理范围：直接采用。
+
+调用此函数需要准备一个array存储此前多帧数据。
 """
-def normalizeCenter():
-    pass
+def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 60, thres_normal = 25, skip = False):
+
+    #print('normalizeCenter(queue_array = {}, center = {})'.format(queue_array, center))
+    # 如果skip设置为真，不做处理，直接输出。
+    if skip:
+        return center, queue_array
+
+    # 如果队列里没有填满数据，直接输出，不做处理。
+    if len(queue_array) < queue_length:
+        queue_array.append(center)
+        return center, queue_array
+
+    # 如果队列已经填满，可以开始处理数据。
+    # 计算均值
+    avg = 0; 
+    for item in queue_array:
+        avg += item
+
+    avg = avg // len(queue_array)
+
+    #array = np.array(queue_array)
+    #avg = array.mean()
+    delta = abs(center - avg)
+
+    # 如果差值超过thres_drop，丢弃本次数据，返回之前的均值数据。
+    if delta > thres_drop:
+        print('Center {} DROPED, avg: {}, array: {}'.format(center, avg, queue_array))
+        return avg, queue_array
+
+    # 将本次数据添加到数据队列中，并将最早一次输入数据删除。
+    queue_array.append(center)
+    queue_array = queue_array[1:]
+    
+    # 如果差值超过thres_normal，输出和之前均值平均后结果。 
+    if delta > thres_normal: 
+        print('Center {} OVERED, avg: {}, array: {}'.format(center, avg, queue_array))
+        return (avg * 2 + center) // 3, queue_array
+
+    # 如果差值在可控范围内，直接输出。
+    return center, queue_array
 
 
 """
@@ -516,6 +556,9 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
 
     kernel = np.ones((5,5),np.uint8)
 
+    # 为normalizeCenter准备数据数组。
+    center_array = []
+
     if local_view:
         #cv2.namedWindow("result", cv2.WINDOW_NORMAL)
         cv2.namedWindow("result")
@@ -524,7 +567,11 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
 
     while True:
         return_value, frame = vid.read()
+        
+        # 根据图像特殊处理
+        # ===========================
         frame = imgRotate(frame, -10)
+        # ===========================
 
         if type(frame) != type(None):
             
@@ -566,7 +613,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
             if black_limit < 5:
                 black_limit = 5
 
-            print('MEAN: ', filt.mean(), ' BLACK_LIMIT: ', black_limit)
+            #print('MEAN: ', filt.mean(), ' BLACK_LIMIT: ', black_limit)
 
             coreline = getLineImage(lib, filt, black_limit = black_limit, correct_angle = False)
             gaps = fillLineGaps(lib, coreline, start_pixel = 5)
@@ -574,6 +621,9 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
             result = gaps + coreline
            
             b_center, b_level = getBottomCenter(lib, result, bottom_thick = 50, noisy_pixels = 10)
+
+            # 将center的输出值进行normalize处理，消除尖峰噪音干扰。
+            b_center, center_array = normalizeCenter(center_array, b_center, skip = False)
 
             # 如果我们开启了arduino serial通讯，这里拼凑坐标传送给机器人。
             if arduino is True:
