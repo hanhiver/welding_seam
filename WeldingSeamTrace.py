@@ -544,8 +544,9 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
     isOutput = True if output != "" else False
     if isOutput:
         output_res = (700, 600)
-        video_FourCC = cv2.VideoWriter_fourcc(*'mp4v')
+        #video_FourCC = cv2.VideoWriter_fourcc(*'mp4v')
         #video_FourCC = -1
+        video_FourCC = cv2.VideoWriter_fourcc("m", "p", "4", "v")
         out = cv2.VideoWriter(output, video_FourCC, 10, output_res)
         if not out.isOpened():
             print('isOpened(): {}. '.format(out.isOpened))
