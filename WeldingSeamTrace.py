@@ -543,11 +543,11 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
 
     isOutput = True if output != "" else False
     if isOutput:
-        output_res = (700, 600)
-        video_FourCC = cv2.VideoWriter_fourcc(*'av01')
+        output_res = (600, 750)
+        video_FourCC = cv2.VideoWriter_fourcc(*'DIVX')
         #video_FourCC = -1
         #video_FourCC = cv2.VideoWriter_fourcc("m", "p", "4", "v")
-        out = cv2.VideoWriter(output, video_FourCC, 10, output_res)
+        out = cv2.VideoWriter(output, video_FourCC, 25, output_res)
         out_opened = out.isOpened()
         if out_opened:
             print('OUT Opened: isOpened(): {}. '.format(out_opened))
@@ -661,11 +661,12 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
 
             fill_black = np.zeros(shape = (RESOLUTION[1], RESOLUTION[0], 3))
 
-            frame = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+            #frame = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
             result = cv2.resize(result, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+            mix_image = cv2.resize(mix_image, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
 
-            image2 = np.hstack([frame, result])
-            images = np.vstack([mix_image, image2])
+            image2 = np.hstack([mix_image, result])
+            images = np.vstack([frame, image2])
             #print(images.shape)
             
             if local_view:
