@@ -543,8 +543,13 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
 
     isOutput = True if output != "" else False
     if isOutput:
-        video_FourCC = cv2.VideoWriter_fourcc(*'XVID')
-        out = cv2.VideoWriter(output, video_FourCC, 10, RESOLUTION)
+        output_res = (700, 600)
+        video_FourCC = cv2.VideoWriter_fourcc(*'mp4v')
+        #video_FourCC = -1
+        out = cv2.VideoWriter(output, video_FourCC, 10, output_res)
+        if not out.isOpened():
+            print('isOpened(): {}. '.format(out.isOpened))
+            return
 
     print("=== Start the WS detecting ===")
 
@@ -657,6 +662,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
 
             image2 = np.hstack([frame, result])
             images = np.vstack([mix_image, image2])
+            #print(images.shape)
             
             if local_view:
                 cv2.imshow("result", images)
