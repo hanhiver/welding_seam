@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"videof",
+				"video_FourCC"
+			],
+			[
+				"queue",
+				"queue_array"
+			],
+			[
 				"minish",
 				"mini_shape"
 			],
@@ -360,11 +368,19 @@
 	"buffers":
 	[
 		{
-			"file": "WeldingSeamTrace.py",
+			"file": "/home/dhan/myprog/ws/WeldingSeamTrace/WeldingSeamTrace.py",
 			"settings":
 			{
-				"buffer_size": 20236,
+				"buffer_size": 25391,
 				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/dhan/Downloads/ibm-rhsm.sh",
+			"settings":
+			{
+				"buffer_size": 20628,
 				"line_ending": "Unix"
 			}
 		},
@@ -431,6 +447,10 @@
 	},
 	"file_history":
 	[
+		"/home/dhan/myprog/python/MyOpenCV/readCam/py/readCam.py",
+		"/home/dhan/myprog/ws/WeldingSeamTrace/WeldingSeamTrace.py",
+		"/home/dhan/myprog/python/PythonBasic/yaml/env.yaml",
+		"/home/dhan/myprog/python/PythonBasic/yaml/denv.yaml",
 		"/home/dhan/myprog/PROJ/highway/src/schedrun.py",
 		"/home/dhan/myprog/ws/welding_seam/arduino_serial.py",
 		"/home/dhan/myprog/PROJ/highway/src/fmfinding.py",
@@ -516,6 +536,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"TIME",
 			"scipy.misc.imresize",
 			"resize",
 			"rect",
@@ -603,19 +624,19 @@
 			[
 				{
 					"buffer": 0,
-					"file": "WeldingSeamTrace.py",
+					"file": "/home/dhan/myprog/ws/WeldingSeamTrace/WeldingSeamTrace.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 20236,
+						"buffer_size": 25391,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								15351,
-								15351
+								15810,
+								15810
 							]
 						],
 						"settings":
@@ -625,7 +646,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 8344.0,
+						"translation.y": 7524.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -633,6 +654,36 @@
 				},
 				{
 					"buffer": 1,
+					"file": "/home/dhan/Downloads/ibm-rhsm.sh",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 20628,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								20628,
+								20628
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/ShellScript/Bash.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
 					"file": "ws/ws_c.c",
 					"semi_transient": false,
 					"settings":
@@ -654,7 +705,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 2085.0,
+						"translation.y": 4560.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
