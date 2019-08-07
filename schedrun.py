@@ -65,8 +65,11 @@ vid = None
 
 def init_camera(cam_input):
     global vid
-    #vid = cv2.VideoCapture(cam_input)
-    vid = cv2.VideoCapture(0)
+    
+    if cam_input:
+        vid = cv2.VideoCapture(cam_input)
+    else:
+        vid = cv2.VideoCapture(0)
 
     if not vid.isOpened():
         raise IOError("Couldn't open webcam or video")
@@ -175,7 +178,10 @@ def main(input_file):
 
 if __name__ == '__main__':
     #main('./1out.avi')
-    main(sys.argv[1])
+    if len(sys.argv) > 1:
+        main(sys.argv[1])
+    else:
+        main(None)
 
 
 
