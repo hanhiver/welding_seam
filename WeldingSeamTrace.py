@@ -429,8 +429,8 @@ def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 60, thr
         return avg, queue_array
 
     # 将本次数据添加到数据队列中，并将最早一次输入数据删除。
-    queue_array.append(center)
-    queue_array = queue_array[1:]
+    #queue_array.append(center)
+    #queue_array = queue_array[1:]
     
     # 如果差值超过thres_normal，输出和之前均值平均后结果。 
     if delta > thres_normal: 
@@ -438,6 +438,15 @@ def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 60, thr
         return (avg * 2 + center) // 3, queue_array
 
     # 如果差值在可控范围内，直接输出。
+    # 为了防止抖动，和之前一个信号比较，如果输出范围小于1，则不变化输出。
+    print("C: ", center, queue_array[-2])
+    if abs(center - queue_array[-2]) < 2:
+        center = queue_array[-2]
+
+    # 将本次数据添加到数据队列中，并将最早一次输入数据删除。
+    queue_array.append(center)
+    queue_array = queue_array[1:]
+
     return center, queue_array
 
 
@@ -579,14 +588,16 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
         
         # 根据图像特殊处理
         # ===========================
-        frame = imgRotate(frame, -10)
+        #frame = imgRotate(frame, -10)
+        (h, w) = frame.shape[:2]
+        frame = frame[6*h//10:7*h//10, 4*w//9:5*w//8]
         # ===========================
 
         if type(frame) != type(None):
             
             # 根据摄像头摆放位置确定是否需要旋转图像。
             # 目前的处理逻辑是处理凸字形的焊缝折线。
-            frame = np.rot90(frame, k = 0)
+            frame = np.rot90(frame, k = 2)
 
             # 根据摄像头摆放位置切除多余的干扰画面。
             # 目前这个设置是基于7块样板的图像进行设置。
@@ -630,9 +641,12 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
             result = gaps + coreline
            
             b_center, b_level = getBottomCenter(lib, result, bottom_thick = 50, noisy_pixels = 10)
+            #b_center, b_level = getBottomCenter(lib, result, bottom_thick = 15, noisy_pixels = 5)
 
             # 将center的输出值进行normalize处理，消除尖峰噪音干扰。
             b_center, center_array = normalizeCenter(center_array, b_center, skip = False)
+
+            print('B_CENTER: ', b_center)
 
             # 如果我们开启了arduino serial通讯，这里拼凑坐标传送给机器人。
             if arduino is True:
