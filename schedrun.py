@@ -77,7 +77,7 @@ def init_camera(cam_input):
     print("!!! TYPE:", type(cam_input), type(video_FourCC), type(video_fps), type(video_size))
     print("!!! TYPE:", cam_input, video_FourCC, video_fps, video_size)
 
-def get_frame_from_camera(frame_queue):
+def get_frame_from_camera(frame_queue, buffer_limit = 200):
     global vid 
 
     while True:
@@ -95,13 +95,13 @@ def main(input_file):
     sched_run = SchedRun(func = get_frame_from_camera, args = {frame_queue}, 
                          init_func = init_camera, init_args = {input_file},
                          interval = 0.01, 
-                         init_interval = 0.05)
+                         init_interval = 0.02)
 
     cv2.namedWindow("result", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("result", 640, 400)
     cv2.moveWindow("result", 100, 100)
 
-    timeout = 1 # Set timeout to 5 seconds. 
+    timeout = 5 # Set timeout to 5 seconds. 
     while True:
         try:
             frame = frame_queue.get(timeout = timeout)
