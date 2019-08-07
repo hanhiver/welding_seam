@@ -5,6 +5,7 @@ import sched
 import numpy as np
 import cv2 
 import time
+import ctypes
 #from PIL import Image
 
 # Class for multithreading open another task with certain interval. 
@@ -64,7 +65,8 @@ vid = None
 
 def init_camera(cam_input):
     global vid
-    vid = cv2.VideoCapture(cam_input)
+    #vid = cv2.VideoCapture(cam_input)
+    vid = cv2.VideoCapture(0)
 
     if not vid.isOpened():
         raise IOError("Couldn't open webcam or video")
@@ -74,43 +76,94 @@ def init_camera(cam_input):
     video_size      = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)),
                         int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
-    print("!!! TYPE:", type(cam_input), type(video_FourCC), type(video_fps), type(video_size))
-    print("!!! TYPE:", cam_input, video_FourCC, video_fps, video_size)
+    #print("!!! TYPE:", type(cam_input), type(video_FourCC), type(video_fps), type(video_size))
+    #print("!!! TYPE:", cam_input, video_FourCC, video_fps, video_size)
 
-def get_frame_from_camera(frame_queue, buffer_limit = 200):
+def get_frame_from_camera(frame_queue, frame_in_queue, lock, queue_limit = 20):
     global vid 
 
+    time_stamp = time.time()
+
     while True:
-        got_a_frame, frame = vid.read()
-        if type(frame) != type(None):
-            frame_queue.put(frame)
-            #time.sleep(0.05)
+        if frame_in_queue.value < queue_limit:
+            print("READ OUT: ", time.time() - time_stamp)
+            time_stamp = time.time()
+            got_a_frame, frame = vid.read()
+
+            #print(frame_in_queue.value)
+            lock.acquire()
+
+            if type(frame) != type(None):
+                frame_queue.put(frame)
+                frame_in_queue.value += 1
+                lock.release()
+                #time.sleep(0.05)
+                #print("READ IN: ", time.time() - time_stamp)
+            else:
+                print('Video Finished.')
+                lock.release()
+                break
         else:
-            print('Video Finished.')
-            break
+            time.sleep(0.05)
+
 
 def main(input_file):
     frame_queue = multiprocessing.Queue()
+    frame_in_queue = multiprocessing.Value(ctypes.c_int, 0)
+    process_lock = multiprocessing.Lock()
 
-    sched_run = SchedRun(func = get_frame_from_camera, args = {frame_queue}, 
-                         init_func = init_camera, init_args = {input_file},
+    time_stamp = time.time()
+
+    sched_run = SchedRun(func = get_frame_from_camera, args = (frame_queue, frame_in_queue, process_lock, 30, ), 
+                         init_func = init_camera, init_args = (input_file, ),
                          interval = 0.01, 
-                         init_interval = 0.02)
+                         init_interval = 0)
 
     cv2.namedWindow("result", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("result", 640, 400)
     cv2.moveWindow("result", 100, 100)
 
-    timeout = 5 # Set timeout to 5 seconds. 
+    timeout = 1 # Set timeout to 5 seconds. 
+    time.sleep(0.5)
+
+    accum_time = 0
+    curr_fps = 0
+    fps = "FPS: ??"
+    prev_time = time.time()
+
     while True:
-        try:
+
+        try: 
+            #frame = frame_queue.get(timeout = timeout)
+
+            #print("SHOW OUT: ", time.time() - time_stamp)
+            time_stamp = time.time()
             frame = frame_queue.get(timeout = timeout)
+
+            curr_time = time.time()
+            exec_time = curr_time - prev_time
+            prev_time = curr_time
+            accum_time = accum_time + exec_time
+            curr_fps = curr_fps + 1
+            if accum_time > 1:
+                accum_time = accum_time - 1
+                fps = "FPS: " + str(curr_fps)
+                curr_fps = 0
+            cv2.putText(frame, text=fps, org=(30, 60), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+                        fontScale=2, color=(255, 255, 255), thickness=2)
+
+            process_lock.acquire()
+            frame_in_queue.value -= 1
+            process_lock.release()
 
             cv2.imshow('result', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 sched_run.stop()
                 cv2.destroyAllWindows()
                 return False
+
+            #print("SHOW IN: ", time.time() - time_stamp)
+            
 
         except queue.Empty:
             print('Queue empty.')
@@ -122,7 +175,7 @@ def main(input_file):
 
 if __name__ == '__main__':
     #main('./1out.avi')
-    main('/Users/dhan/upload/fm1.mp4')
+    main(sys.argv[1])
 
 
 
