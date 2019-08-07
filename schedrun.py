@@ -8,6 +8,11 @@ import time
 import ctypes
 #from PIL import Image
 
+# 多进程视频文件摄像头读取测试程序。
+# python schedrun.py: 默认打开0号摄像头测试。
+# python schedrun.py test.avi: 打开test.avi视频文件测试。
+
+
 # Class for multithreading open another task with certain interval. 
 class SchedRun():
 
@@ -105,6 +110,7 @@ def get_frame_from_camera(frame_queue, frame_in_queue, lock, queue_limit = 20):
             else:
                 print('Video Finished.')
                 lock.release()
+                vid.release()
                 break
         else:
             time.sleep(0.05)
