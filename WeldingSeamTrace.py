@@ -5,7 +5,6 @@ import ctypes
 import time
 import argparse
 
-
 # For Arduino Serial Communication. 
 import arduino_serial as AS
 
@@ -400,7 +399,7 @@ def drawTag(image, b_center, b_level):
 
 调用此函数需要准备一个array存储此前多帧数据。
 """
-def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 60, thres_normal = 25, skip = False):
+def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 20, thres_normal = 10, skip = False):
 
     #print('normalizeCenter(queue_array = {}, center = {})'.format(queue_array, center))
     # 如果skip设置为真，不做处理，直接输出。
@@ -440,7 +439,7 @@ def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 60, thr
 
     # 如果差值在可控范围内，直接输出。
     # 为了防止抖动，和之前一个信号比较，如果输出范围小于1，则不变化输出。
-    print("C: ", center, queue_array[-2])
+    # print("C: ", center, queue_array[-2])
     if abs(center - queue_array[-2]) < 2:
         center = queue_array[-2]
 
@@ -527,7 +526,7 @@ input: 输入的视频文件名称。
 
 output: 输出存储的视频文件名称。
 """
-def wsVideoPhase(input, output, local_view = True, arduino = False):
+def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug = False):
     W = 300
     H = 250
     RESOLUTION = (W*2, H*2)
@@ -542,6 +541,10 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
     video_fps       = vid.get(cv2.CAP_PROP_FPS)
     video_size      = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)),
                         int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+
+    if time_debug:
+        time_stamp = time.time()
+        print(time_stamp, ': time debug enabled.')
 
     # Initialize the arduino serial communication. 
     if arduino is True:
@@ -584,21 +587,35 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
         cv2.resizeWindow("result", 800, 400)
         #cv2.moveWindow("result", 100, 100)
 
+    if time_debug:
+        time_cur = time.time()
+        print('{:1.6f}: 初始化完成. '.format((time_cur - time_stamp) * 1000));
+        time_stamp = time_cur
+        time_frame = time_cur
+
     while True:
+        if time_debug:
+            time_cur = time.time()
+            print('[{:3.3f} ms]: 开始处理一帧画面. '.format((time_cur - time_frame)*1000));
+            time_stamp = time_cur
+            time_frame = time_cur
+    
         return_value, frame = vid.read()
-        
+        if time_debug:
+            time_cur = time.time()
+            print('\t[{:3.3f} ms]: 从输出源得到一帧画面. '.format((time_cur - time_stamp)*1000));
+            time_stamp = time_cur
+                
         # 根据图像特殊处理
         # ===========================
-        #frame = imgRotate(frame, -10)
-        (h, w) = frame.shape[:2]
-        frame = frame[6*h//10:7*h//10, 4*w//9:5*w//8]
+        frame = imgRotate(frame, -10)
         # ===========================
-
+        
         if type(frame) != type(None):
             
             # 根据摄像头摆放位置确定是否需要旋转图像。
             # 目前的处理逻辑是处理凸字形的焊缝折线。
-            frame = np.rot90(frame, k = 2)
+            frame = np.rot90(frame, k = 0)
 
             # 根据摄像头摆放位置切除多余的干扰画面。
             # 目前这个设置是基于7块样板的图像进行设置。
@@ -615,6 +632,10 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
             (h, w) = frame.shape[:2]
 
             #frame = cv2.medianBlur(frame, 5)
+            if time_debug:
+                time_cur = time.time()
+                print('\t[{:3.3f} ms]: 图像输入预处理完成. '.format((time_cur - time_stamp)*1000));
+                time_stamp = time_cur
 
             if color_input:
                 # Get the blue image. 
@@ -636,18 +657,42 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
 
             #print('MEAN: ', filt.mean(), ' BLACK_LIMIT: ', black_limit)
 
+            if time_debug:
+                time_cur = time.time()
+                print('\t[{:3.3f} ms]: 分色和黑场检测完成. '.format((time_cur - time_stamp)*1000));
+                time_stamp = time_cur
+
+
             coreline = getLineImage(lib, filt, black_limit = black_limit, correct_angle = False)
+
+            if time_debug:
+                time_cur = time.time()
+                print('\t[{:3.3f} ms]: 基准线检测完成. '.format((time_cur - time_stamp)*1000));
+                time_stamp = time_cur
+            
             gaps = fillLineGaps(lib, coreline, start_pixel = 5)
+
+            if time_debug:
+                time_cur = time.time()
+                print('\t[{:3.3f} ms]: 缺损检测以及填充完成. '.format((time_cur - time_stamp)*1000));
+                time_stamp = time_cur
 
             result = gaps + coreline
            
             b_center, b_level = getBottomCenter(lib, result, bottom_thick = 50, noisy_pixels = 10)
-            #b_center, b_level = getBottomCenter(lib, result, bottom_thick = 15, noisy_pixels = 5)
+            
+            if time_debug:
+                time_cur = time.time()
+                print('\t[{:3.3f} ms]: 焊缝中心识别完成. '.format((time_cur - time_stamp)*1000));
+                time_stamp = time_cur
 
             # 将center的输出值进行normalize处理，消除尖峰噪音干扰。
             b_center, center_array = normalizeCenter(center_array, b_center, skip = False)
 
-            print('B_CENTER: ', b_center)
+            if time_debug:
+                time_cur = time.time()
+                print('\t[{:3.3f} ms]: 焊缝中心尖峰降噪完成. '.format((time_cur - time_stamp)*1000));
+                time_stamp = time_cur
 
             # 如果我们开启了arduino serial通讯，这里拼凑坐标传送给机器人。
             if arduino is True:
@@ -660,6 +705,10 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
                 # 通信的高地位分别怎么设置，我这里就只是用了你示例代码中的通信标志。
                 ####################################
                 AS_device.writePort('E7E701450124005A0008004EFE')
+                if time_debug:
+                    time_cur = time.time()
+                    print('\t[{:3.3f} ms]: 坐标写入串口完成. '.format((time_cur - time_stamp)*1000));
+                    time_stamp = time_cur
 
             if not color_input:
                 frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
@@ -673,7 +722,12 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
             
             drawTag(result, b_center, b_level)
             drawTag(frame, b_center, b_level)
-
+            
+            if time_debug:
+                time_cur = time.time()
+                print('\t[{:3.3f} ms]: 图像输出标记完成. '.format((time_cur - time_stamp)*1000));
+                time_stamp = time_cur
+            
             fill_black = np.zeros(shape = (RESOLUTION[1], RESOLUTION[0], 3))
 
             #frame = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
@@ -686,11 +740,23 @@ def wsVideoPhase(input, output, local_view = True, arduino = False):
             
             if local_view:
                 cv2.imshow("result", images)
-                if cv2.waitKey(75) & 0xFF == ord('q'):
+
+                if time_debug:
+                    time_cur = time.time()
+                    print('\t[{:3.3f} ms]: 图像屏幕输出完成. '.format((time_cur - time_stamp)*1000));
+                    time_stamp = time_cur
+                
+                if cv2.waitKey(1) & 0xFF == ord('q'):
                     return False
              
             if isOutput:
                 out.write(images)
+
+                if time_debug:
+                    time_cur = time.time()
+                    print('\t[{:3.3f} ms]: 图像文件输出完成. '.format((time_cur - time_stamp)*1000));
+                    time_stamp = time_cur
+
         else:
             break
                 
@@ -726,6 +792,10 @@ def main():
     parser.add_argument('-lv', '--localview', default = False, action = "store_true",
                         help = '[Optional] If shows result to local view. ')    
 
+    # 是否打印性能调试信息。
+    parser.add_argument('-t', '--time', default = False, action = "store_true",
+                        help = '[Optional] Print the time debug information. ')    
+
     # 默认处理所有文件选项。
     parser.add_argument('input', type = str, default = None, nargs = '+',
                         help = 'Input files. ')
@@ -739,7 +809,8 @@ def main():
         wsVideoPhase(input = FLAGS.input,  
                      output = FLAGS.output, 
                      local_view = FLAGS.localview,
-                     arduino = FLAGS.arduino)
+                     arduino = FLAGS.arduino,
+                     time_debug = FLAGS.time,)
 
     else:
         print("See usage with --help.")
