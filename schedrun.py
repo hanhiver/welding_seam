@@ -84,12 +84,15 @@ def init_camera(cam_input):
     video_size      = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)),
                         int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
+    print("INIT PID: ", os.getpid())
+
     #print("!!! TYPE:", type(cam_input), type(video_FourCC), type(video_fps), type(video_size))
     #print("!!! TYPE:", cam_input, video_FourCC, video_fps, video_size)
 
 def get_frame_from_camera(frame_queue, frame_in_queue, lock, queue_limit = 20):
     global vid 
 
+    print("WORKER PID", os.getpid())
     time_stamp = time.time()
 
     while True:
