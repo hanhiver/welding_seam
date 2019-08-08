@@ -608,7 +608,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
                 
         # 根据图像特殊处理
         # ===========================
-        frame = imgRotate(frame, -10)
+        frame = imgRotate(frame, 8)
         # ===========================
         
         if type(frame) != type(None):
@@ -622,6 +622,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
             # 未来这里会在GUI界面中可以设置，排除不必要的干扰区域。
             (h, w) = frame.shape[:2]
             #frame = frame[0:h, w//5:w*4//5]
+            frame = frame[4*h//9:5*h//9, 5*w//13:7*w//12]
 
             if len(frame.shape) > 2:
                 color_input = True
@@ -679,7 +680,8 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
             result = gaps + coreline
            
-            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 50, noisy_pixels = 10)
+            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 40, noisy_pixels = 10)
+            #b_center, b_level = getBottomCenter(lib, result, bottom_thick = 50, noisy_pixels = 10)
             
             if time_debug:
                 time_cur = time.time()

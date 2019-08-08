@@ -22,49 +22,60 @@ class SchedRun():
     # init_args (optional): initialization function argument.
     # interval: the func will be call after each interval of time. 
     # init_interval: the interval between init call and real worker function. 
-    def __init__(self, func, args, init_func = None, init_args = {}, interval = 0.04, init_interval = 0.5):
+    def __init__(self, 
+                 func, args, 
+                 init_func = None, init_args = {}, 
+                 clean_func = None, clean_args = {}, 
+                 interval = 0.04, init_interval = 0.5):
+
         self.func = func
         self.args = args
         self.init_func = init_func
         self.init_args = init_args
+        self.clean_func = clean_func
+        self.clean_args = clean_args
+
         self.interval = interval
         self.init_interval = init_interval
         self.event_id = None
 
         self.scheduler = sched.scheduler(time.time, time.sleep)
         self.sub_process = multiprocessing.Process(target = self.wrap_process, args = {}, daemon = True)
-        self.sub_process_continue = True
+        self.sub_process_continue = multiprocessing.Value(ctypes.c_bool, True)
         self.sub_process.start()
 
     def __del__(self):
-        self.sub_process.join()
+        pass
+        #self.sub_process.join()
         #print('SchedRun terminated. ')
 
     def wrap_func(self):
-        if self.sub_process_continue:
+        if self.sub_process_continue.value:
             self.scheduler.enter(self.interval, 1, self.wrap_func)
-            self.sub_process_continue = self.func(*self.args)
+            #self.sub_process_continue.value = self.func(*self.args)
+            self.func(*self.args)
         else:
-            #print('wrap_func finished. ')
+            self.scheduler.enter(0.0, 1, self.clean_func, argument = self.clean_args)
             return
 
     def wrap_process(self):
         if self.init_func:
             self.init_func(*self.init_args)
 
-        self.event_id = self.scheduler.enter(self.init_interval, 1, self.wrap_func) 
+        self.scheduler.enter(self.init_interval, 1, self.wrap_func) 
         self.scheduler.run()
-        #print('wrap_process finished. ')
+
+        #self.clean_func(*self.init_args)
         return
 
     def stop(self):
-        if self.event_id is not None:
-            self.scheduler.cancel(self.event_id)
-        
-        if self.sub_process.is_alive():
-            self.sub_process.terminate()
+        self.sub_process_continue.value = False
 
-        self.event_id = None
+        if self.sub_process.is_alive():
+            print("Join Process")
+            self.sub_process.join(1)
+            print("Clean Process")
+            self.sub_process.terminate()
 
 vid = None
 
