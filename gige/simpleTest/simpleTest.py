@@ -45,8 +45,15 @@ def initCam():
     # Set auto white-balance
     cam.BalanceWhiteAuto.set(1)
 
+    # Set exposure
+    #cam.ExposureTime.set(1000.0)
+    cam.ExposureAuto.set(1)
+
     # set gain. 
-    #cam.Gain.set(10.0)
+    cam.Gain.set(10.0)
+    #cam.GainAuto.set(1)
+
+    cam.BalanceWhiteAuto.set(1)
 
     # Start data acquisition. 
     cam.stream_on()
