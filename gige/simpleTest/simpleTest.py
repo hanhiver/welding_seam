@@ -98,6 +98,7 @@ def getFrame(cam, time_debug = False):
 
     return numpy_image
 
+
 def closeCam(cam):
     #global cam 
     # Stop the data aquisition. 
@@ -224,8 +225,8 @@ def main():
         print('ONE FRAME:  {:3.3f} ms'.format((time.time()-frame_stamp) * 1000))
         frame_stamp = time.time()
 
-        #numpy_image = getFrame()
         numpy_image = getFrame(cam, True)
+
         #print(numpy_image.shape)
 
         curr_time = time.time()
