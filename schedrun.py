@@ -60,7 +60,11 @@ class SchedRun():
 
     def wrap_process(self):
         if self.init_func:
-            self.init_func(*self.init_args)
+            res = self.init_func(*self.init_args)
+            if res:
+                print("Initilization Failed.")
+                self.sub_process_continue = False
+                return
 
         self.scheduler.enter(self.init_interval, 1, self.wrap_func) 
         self.scheduler.run()

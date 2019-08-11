@@ -34,7 +34,7 @@ def init_camera(width = 1920, height = 1200, auto_expose = True, auto_balance = 
     dev_num, dev_info_list = device_manager.update_device_list()
     if dev_num == 0:
         print('None device found. ')
-        return
+        return False
 
     # Get the first cam's IP address. 
     cam_ip = dev_info_list[0].get("ip")
