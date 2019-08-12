@@ -56,13 +56,16 @@ def init_camera(width = 1920, height = 1200, auto_expose = True, auto_balance = 
         if auto_expose:
             cam.ExposureAuto.set(1)
         else:
-            cam.ExposureTime.set(100.0)
+            cam.ExposureAuto.set(0)
+            cam.ExposureTime.set(200.0)
     
         # set gain. 
         cam.Gain.set(10.0)
         
         if auto_balance:
             cam.BalanceWhiteAuto.set(1)
+        else:
+            cam.BalanceWhiteAuto.set(0)
     
         # Start data acquisition. 
         cam.stream_on()
@@ -164,7 +167,7 @@ def main():
     shared_array = RawArray(ctypes.c_ubyte, array_temp)
     shared_value = RawValue(ctypes.c_uint, 0)
 
-    sched_run = schedrun.SchedRun(func = get_frame_from_camera, args = (shared_array, shared_value, process_lock, True, ), 
+    sched_run = schedrun.SchedRun(func = get_frame_from_camera, args = (shared_array, shared_value, process_lock, False, ), 
                                   init_func = init_camera, init_args = (WIDTH, HEIGHT, ),
                                   clean_func = close_camera, clean_args = {}, 
                                   interval = 0.001, 
@@ -179,6 +182,7 @@ def main():
     prev_time = time.time()
     show_fps = "Show FPS: ??"
     gige_fps = "GigE FPS: ??"
+    font_scale = WIDTH//800 + 1
     
     while True:        
         process_lock.acquire()
@@ -200,10 +204,10 @@ def main():
             gige_fps = "GigE FPS: " + str(shared_value.value)
         
         #fps = gige_fps + " VS " + show_fps
-        cv2.putText(frame, text=gige_fps, org=(30, 60), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
-                    fontScale=2, color=(0, 0, 255), thickness=2)
-        cv2.putText(frame, text=show_fps, org=(30, 120), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
-                    fontScale=2, color=(0, 0, 255), thickness=2)
+        cv2.putText(frame, text=gige_fps, org=(30, 80), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
+                    fontScale=font_scale, color=(0, 0, 255), thickness=2)
+        cv2.putText(frame, text=show_fps, org=(30, 160), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
+                    fontScale=font_scale, color=(0, 0, 255), thickness=2)
 
         cv2.imshow('result', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
