@@ -5,15 +5,16 @@ Created on Sat Aug 10 16:12:06 2019
 
 @author: dhan
 """
-import os, sys
+import os
 import multiprocessing
 import numpy as np
 import cv2 
 import time
 import ctypes
-import schedrun
-import gxipy as gx 
 from multiprocessing.sharedctypes import RawArray, RawValue
+
+import gxipy as gx 
+import schedrun
 
 WIDTH = 1920 
 HEIGHT = 1200
@@ -39,7 +40,7 @@ def init_camera(width = 1920, height = 1200, auto_expose = True, auto_balance = 
     
         # Get the first cam's IP address. 
         cam_ip = dev_info_list[0].get("ip")
-        print('Now, open the first cam with IP address {}.'.format(cam_ip))
+        print('Open camera (IP: {}), PID: {}.'.format(cam_ip, os.getpid()))
     
         # Open the first device. 
         cam = device_manager.open_device_by_ip(cam_ip)
@@ -55,7 +56,7 @@ def init_camera(width = 1920, height = 1200, auto_expose = True, auto_balance = 
         if auto_expose:
             cam.ExposureAuto.set(1)
         else:
-            cam.ExposureTime.set(1000.0)
+            cam.ExposureTime.set(100.0)
     
         # set gain. 
         cam.Gain.set(10.0)
@@ -83,7 +84,7 @@ def close_camera():
         print("Error: ", expt)
         return
     
-    print("Camera closed. ")
+    print("Camera closed. PID: ", os.getpid())
     return
     
 def get_frame_from_camera(shared_array, shared_value, lock, time_debug = False):
@@ -146,6 +147,13 @@ def get_frame_from_camera(shared_array, shared_value, lock, time_debug = False):
     size = ctypes.sizeof(src)
     ctypes.memmove(shared_array, src, size)
     lock.release()
+    
+    if time_debug:
+        print('Send the frame out:     {:3.3f} ms'.format((time.time()-time_stamp) * 1000))
+        time_stamp = time.time()
+    
+    if time_debug:   
+        print("")
 
     return True
 
@@ -156,15 +164,15 @@ def main():
     shared_array = RawArray(ctypes.c_ubyte, array_temp)
     shared_value = RawValue(ctypes.c_uint, 0)
 
-    sched_run = schedrun.SchedRun(func = get_frame_from_camera, args = (shared_array, shared_value, process_lock, False, ), 
+    sched_run = schedrun.SchedRun(func = get_frame_from_camera, args = (shared_array, shared_value, process_lock, True, ), 
                                   init_func = init_camera, init_args = (WIDTH, HEIGHT, ),
                                   clean_func = close_camera, clean_args = {}, 
                                   interval = 0.001, 
                                   init_interval = 0)
     
     cv2.namedWindow("result", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("result", 800, 500)
-    cv2.moveWindow("result", 100, 100)
+    #cv2.resizeWindow("result", 800, 500)
+    #cv2.moveWindow("result", 100, 100)
 
     accum_time = 0
     curr_fps = 0
@@ -201,10 +209,13 @@ def main():
         if cv2.waitKey(1) & 0xFF == ord('q'):
             sched_run.stop()
             cv2.destroyAllWindows()
-            return False
+            return True
 
+    # Normally, should not be here. 
     sched_run.stop()
     cv2.destroyAllWindows()
+    print('Oops, something wrong')
+    return False
 
 if __name__ == '__main__':
     main()

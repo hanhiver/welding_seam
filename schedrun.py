@@ -1,12 +1,18 @@
-import os, sys, argparse, time, datetime
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Aug 7 21:12:06 2019
+
+@author: dhan
+"""
+
+import os, sys
 import queue
 import multiprocessing 
 import sched
-import numpy as np
 import cv2 
 import time
 import ctypes
-#from PIL import Image
 
 # 多进程视频文件摄像头读取测试程序。
 # python schedrun.py: 默认打开0号摄像头测试。
@@ -46,8 +52,6 @@ class SchedRun():
 
     def __del__(self):
         pass
-        #self.sub_process.join()
-        #print('SchedRun terminated. ')
 
     def wrap_func(self):
         if self.sub_process_continue.value:
@@ -69,17 +73,16 @@ class SchedRun():
         self.scheduler.enter(self.init_interval, 1, self.wrap_func) 
         self.scheduler.run()
 
-        #self.clean_func(*self.init_args)
         return
 
     def stop(self):
         self.sub_process_continue.value = False
 
         if self.sub_process.is_alive():
-            print("Join Process")
             self.sub_process.join(1)
-            print("Clean Process")
-            self.sub_process.terminate()
+            
+            if self.sub_process.is_alive():
+                self.sub_process.terminate()
 
 vid = None
 
@@ -94,15 +97,8 @@ def init_camera(cam_input):
     if not vid.isOpened():
         raise IOError("Couldn't open webcam or video")
 
-    video_FourCC    = int(vid.get(cv2.CAP_PROP_FOURCC))
-    video_fps       = vid.get(cv2.CAP_PROP_FPS)
-    video_size      = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)),
-                        int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-
     print("INIT PID: ", os.getpid())
 
-    #print("!!! TYPE:", type(cam_input), type(video_FourCC), type(video_fps), type(video_size))
-    #print("!!! TYPE:", cam_input, video_FourCC, video_fps, video_size)
 
 def get_frame_from_camera(frame_queue, frame_in_queue, lock, queue_limit = 20):
     global vid 
@@ -139,7 +135,7 @@ def main(input_file):
     frame_in_queue = multiprocessing.Value(ctypes.c_int, 0)
     process_lock = multiprocessing.Lock()
 
-    time_stamp = time.time()
+    #time_stamp = time.time()
 
     sched_run = SchedRun(func = get_frame_from_camera, args = (frame_queue, frame_in_queue, process_lock, 30, ), 
                          init_func = init_camera, init_args = (input_file, ),
@@ -164,7 +160,7 @@ def main(input_file):
             #frame = frame_queue.get(timeout = timeout)
 
             #print("SHOW OUT: ", time.time() - time_stamp)
-            time_stamp = time.time()
+            #time_stamp = time.time()
             frame = frame_queue.get(timeout = timeout)
 
             curr_time = time.time()
@@ -188,9 +184,7 @@ def main(input_file):
                 sched_run.stop()
                 cv2.destroyAllWindows()
                 return False
-
             #print("SHOW IN: ", time.time() - time_stamp)
-            
 
         except queue.Empty:
             print('Queue empty.')
