@@ -29,56 +29,61 @@ def init_camera(width = 1920, height = 1200, auto_expose = True, auto_balance = 
     global cam 
     global device_manager
 
-     # Create a device manager. 
-    device_manager = gx.DeviceManager()
-    dev_num, dev_info_list = device_manager.update_device_list()
-    if dev_num == 0:
-        print('None device found. ')
-        return False
-
-    # Get the first cam's IP address. 
-    cam_ip = dev_info_list[0].get("ip")
-    print('Now, open the first cam with IP address {}.'.format(cam_ip))
-
-    # Open the first device. 
-    cam = device_manager.open_device_by_ip(cam_ip)
-
-    # Set continues acquisition.
-    cam.TriggerMode.set(gx.GxSwitchEntry.OFF)
-
-    # Set the cam Height and Width. 
-    cam.Width.set(width)
-    cam.Height.set(height)
-
-    # Set exposure
-    if auto_expose:
-        cam.ExposureAuto.set(1)
-    else:
-        cam.ExposureTime.set(1000.0)
-
-    # set gain. 
-    cam.Gain.set(10.0)
-    #cam.GainAuto.set(1)
+    try:
+        # Create a device manager. 
+        device_manager = gx.DeviceManager()
+        dev_num, dev_info_list = device_manager.update_device_list()
+        if dev_num == 0:
+            print('None device found. ')
+            return False
     
-    if auto_balance:
-        cam.BalanceWhiteAuto.set(1)
-
-    # Start data acquisition. 
-    cam.stream_on()
+        # Get the first cam's IP address. 
+        cam_ip = dev_info_list[0].get("ip")
+        print('Now, open the first cam with IP address {}.'.format(cam_ip))
     
-    return cam
+        # Open the first device. 
+        cam = device_manager.open_device_by_ip(cam_ip)
+    
+        # Set continues acquisition.
+        cam.TriggerMode.set(gx.GxSwitchEntry.OFF)
+    
+        # Set the cam Height and Width. 
+        cam.Width.set(width)
+        cam.Height.set(height)
+    
+        # Set exposure
+        if auto_expose:
+            cam.ExposureAuto.set(1)
+        else:
+            cam.ExposureTime.set(1000.0)
+    
+        # set gain. 
+        cam.Gain.set(10.0)
+        
+        if auto_balance:
+            cam.BalanceWhiteAuto.set(1)
+    
+        # Start data acquisition. 
+        cam.stream_on()
+    except Exception as expt:
+        print("Error: ", expt)
+        return
+    
 
 def close_camera():
     global cam 
     
+    try:
+        # Stop the data aquisition. 
+        cam.stream_off()
+    
+        # close device. 
+        cam.close_device()
+    except Exception as expt:
+        print("Error: ", expt)
+        return
+    
     print("Camera closed. ")
-
-    # Stop the data aquisition. 
-    cam.stream_off()
-
-    # close device. 
-    cam.close_device()
-
     return
     
 def get_frame_from_camera(shared_array, shared_value, lock, time_debug = False):
@@ -164,7 +169,7 @@ def main():
     accum_time = 0
     curr_fps = 0
     prev_time = time.time()
-    show_fps = "SHOW FPS: ??"
+    show_fps = "Show FPS: ??"
     gige_fps = "GigE FPS: ??"
     
     while True:        
@@ -186,9 +191,11 @@ def main():
         if shared_value.value > 0:
             gige_fps = "GigE FPS: " + str(shared_value.value)
         
-        fps = gige_fps + " VS " + show_fps
-        cv2.putText(frame, text=fps, org=(30, 60), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
-                    fontScale=2, color=(0, 0, 255), thickness=4)
+        #fps = gige_fps + " VS " + show_fps
+        cv2.putText(frame, text=gige_fps, org=(30, 60), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
+                    fontScale=2, color=(0, 0, 255), thickness=2)
+        cv2.putText(frame, text=show_fps, org=(30, 120), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
+                    fontScale=2, color=(0, 0, 255), thickness=2)
 
         cv2.imshow('result', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
