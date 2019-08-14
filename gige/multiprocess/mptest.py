@@ -170,8 +170,8 @@ def main():
     sched_run = schedrun.SchedRun(func = get_frame_from_camera, args = (shared_array, shared_value, process_lock, False, ), 
                                   init_func = init_camera, init_args = (WIDTH, HEIGHT, ),
                                   clean_func = close_camera, clean_args = {}, 
-                                  interval = 0.001, 
-                                  init_interval = 0)
+                                  interval = 0.0, 
+                                  init_interval = 0.0)
     
     cv2.namedWindow("result", cv2.WINDOW_NORMAL)
     #cv2.resizeWindow("result", 800, 500)
