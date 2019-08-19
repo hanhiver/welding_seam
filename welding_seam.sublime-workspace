@@ -409,20 +409,19 @@
 			}
 		},
 		{
-			"file": "/home/dhan/myprog/python/MyOpenCV/readCam/cpp/readCam_cpp.cpp",
-			"settings":
-			{
-				"buffer_size": 1481,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "gige_test.py",
 			"settings":
 			{
 				"buffer_size": 5129,
 				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "gige/multiprocess/mptest.py",
+			"settings":
+			{
+				"buffer_size": 6410,
 				"line_ending": "Unix"
 			}
 		},
@@ -497,6 +496,8 @@
 	},
 	"file_history":
 	[
+		"/home/dhan/myprog/ws/welding_seam/gige/multiprocess/schedrun.py",
+		"/home/dhan/myprog/python/MyOpenCV/readCam/cpp/readCam_cpp.cpp",
 		"/home/dhan/myprog/ws/welding_seam/schedrun.py",
 		"/home/dhan/myprog/ws/WeldingSeamTrace/WeldingSeamTrace.py",
 		"/home/dhan/myprog/ws/welding_seam/WeldingSeamTrace.py",
@@ -706,40 +707,11 @@
 						"translation.y": 2634.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "/home/dhan/myprog/python/MyOpenCV/readCam/cpp/readCam_cpp.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1481,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1463,
-								1463
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
 					"file": "gige_test.py",
 					"semi_transient": false,
 					"settings":
@@ -753,6 +725,36 @@
 							[
 								3778,
 								3778
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 630.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "gige/multiprocess/mptest.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6410,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4041,
+								4041
 							]
 						],
 						"settings":
@@ -781,8 +783,8 @@
 						"selection":
 						[
 							[
-								23607,
-								23607
+								15354,
+								15354
 							]
 						],
 						"settings":
@@ -792,7 +794,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 7657.0,
+						"translation.y": 7117.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 4,
@@ -825,7 +827,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 3,
 					"type": "text"
 				}
 			]
