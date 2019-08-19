@@ -388,7 +388,7 @@ def drawTag(image, b_center, b_level):
     if y2 > h-1:
         y2 = h-1
 
-    cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 3)
+    cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 2)
 
 """
 输入本帧画面得到的ceter值，经过平滑降噪计算之后输出。
@@ -527,8 +527,10 @@ input: 输入的视频文件名称。
 output: 输出存储的视频文件名称。
 """
 def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug = False):
-    W = 300
-    H = 250
+    #W = 300
+    #H = 250
+    W = 800
+    H = 500
     RESOLUTION = (W*2, H*2)
     HALF_RESOLUTION = (W, H)
     
@@ -608,7 +610,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
                 
         # 根据图像特殊处理
         # ===========================
-        frame = imgRotate(frame, 8)
+        #frame = imgRotate(frame, 8)
         # ===========================
         
         if type(frame) != type(None):
@@ -622,7 +624,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
             # 未来这里会在GUI界面中可以设置，排除不必要的干扰区域。
             (h, w) = frame.shape[:2]
             #frame = frame[0:h, w//5:w*4//5]
-            frame = frame[4*h//9:5*h//9, 5*w//13:7*w//12]
+            #frame = frame[4*h//9:5*h//9, 5*w//13:7*w//12]
 
             if len(frame.shape) > 2:
                 color_input = True
@@ -738,6 +740,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
             image2 = np.hstack([mix_image, result])
             images = np.vstack([frame, image2])
+            images = cv2.resize(images, (600, 750), interpolation = cv2.INTER_LINEAR_EXACT)
             #print(images.shape)
             
             if local_view:

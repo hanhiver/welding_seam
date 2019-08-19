@@ -229,7 +229,7 @@ def main():
     # WeldingVideo12
     # global initLaserPoints
     #cap = cv2.VideoCapture('/home/gq5251/py_code/Video/WeldingVideo003.avi')
-    cap = cv2.VideoCapture('/home/dhan/myprog/wsdata/2.avi')
+    cap = cv2.VideoCapture('../../wsdata/2.avi')
     ret, img = cap.read()
     global frameNum,frameSaved,leftButtonDownFlag,framePre
         
