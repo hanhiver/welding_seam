@@ -352,7 +352,7 @@ def getBottomCenter(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
 
     level = int(np.mean( bottom[noisy_pixels:(bottom.size - noisy_pixels)] ))
     center = int(np.mean( idx[noisy_pixels:(idx.size - noisy_pixels)] ))
-
+    
     return center, level
 
 """
@@ -388,7 +388,7 @@ def drawTag(image, b_center, b_level):
     if y2 > h-1:
         y2 = h-1
 
-    cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 2)
+    cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 5)
 
 """
 输入本帧画面得到的ceter值，经过平滑降噪计算之后输出。
@@ -399,7 +399,7 @@ def drawTag(image, b_center, b_level):
 
 调用此函数需要准备一个array存储此前多帧数据。
 """
-def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 20, thres_normal = 10, skip = False):
+def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 100, thres_normal = 50, move_limit = 3, skip = False):
 
     #print('normalizeCenter(queue_array = {}, center = {})'.format(queue_array, center))
     # 如果skip设置为真，不做处理，直接输出。
@@ -436,16 +436,23 @@ def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 20, thr
     if delta > thres_normal: 
         print('Center {} OVERED, avg: {}, array: {}'.format(center, avg, queue_array))
         return (avg * 2 + center) // 3, queue_array
+        #return (avg * 3 + center) // 4, queue_array
+
+    # 将本次数据添加到数据队列中，并将最早一次输入数据删除。
+    #queue_array.append(center)
+    #queue_array = queue_array[1:]
 
     # 如果差值在可控范围内，直接输出。
     # 为了防止抖动，和之前一个信号比较，如果输出范围小于1，则不变化输出。
     # print("C: ", center, queue_array[-2])
-    if abs(center - queue_array[-2]) < 2:
-        center = queue_array[-2]
+    if abs(center - queue_array[-1]) < move_limit:
+        center = queue_array[-1]
 
     # 将本次数据添加到数据队列中，并将最早一次输入数据删除。
     queue_array.append(center)
     queue_array = queue_array[1:]
+
+    #print('{}'.format(center))
 
     return center, queue_array
 
@@ -529,8 +536,8 @@ output: 输出存储的视频文件名称。
 def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug = False):
     #W = 300
     #H = 250
-    W = 800
-    H = 500
+    W = 1920//2
+    H = 720//2
     RESOLUTION = (W*2, H*2)
     HALF_RESOLUTION = (W, H)
     
@@ -623,7 +630,17 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
             # 目前这个设置是基于7块样板的图像进行设置。
             # 未来这里会在GUI界面中可以设置，排除不必要的干扰区域。
             (h, w) = frame.shape[:2]
-            #frame = frame[0:h, w//5:w*4//5]
+
+            # 对应12mm镜头，切除左右各1/4，切除下方1/4的画面
+            # ===========================
+            #frame = frame[0:3*h//4, w//4:3*w//4]
+            # ===========================
+
+            # 对应16mm镜头，暂时不切除。
+            # ===========================
+            frame = frame[2*h//5:h, 0:w]
+            # ===========================
+
             #frame = frame[4*h//9:5*h//9, 5*w//13:7*w//12]
 
             if len(frame.shape) > 2:
@@ -682,9 +699,8 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
             result = gaps + coreline
            
-            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 40, noisy_pixels = 10)
-            #b_center, b_level = getBottomCenter(lib, result, bottom_thick = 50, noisy_pixels = 10)
-            
+            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 100, noisy_pixels = 8)
+                        
             if time_debug:
                 time_cur = time.time()
                 print('\t[{:3.3f} ms]: 焊缝中心识别完成. '.format((time_cur - time_stamp)*1000));
@@ -692,6 +708,9 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
             # 将center的输出值进行normalize处理，消除尖峰噪音干扰。
             b_center, center_array = normalizeCenter(center_array, b_center, skip = False)
+
+            # 因为目前采用的分辨率是模拟屏幕的5倍，为了对应当前逻辑和减少抖动，输出值除以3取整。
+            real_center = int(b_center / 3)
 
             if time_debug:
                 time_cur = time.time()
@@ -703,7 +722,8 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
                 # 这个地方的b_center就是焊缝识别得到的中点坐标。
                 # 我们在这里用传统380线分辨率的做一个规一划处理。
-                real_center = b_center * 380 // w
+                # real_center = b_center * 380 // w
+            
                 ####################################
                 # 这个地方请修改代码，是否应该将real_center的值转化为16进制的数字，
                 # 通信的高地位分别怎么设置，我这里就只是用了你示例代码中的通信标志。
@@ -741,6 +761,10 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
             image2 = np.hstack([mix_image, result])
             images = np.vstack([frame, image2])
             images = cv2.resize(images, (600, 750), interpolation = cv2.INTER_LINEAR_EXACT)
+
+            center_string = "CENTER: " + str(real_center)
+            cv2.putText(images, text=center_string, org=(30, 30), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
+                    fontScale=0.5, color=(255, 255, 255), thickness=1)
             #print(images.shape)
             
             if local_view:
