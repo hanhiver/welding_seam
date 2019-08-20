@@ -533,7 +533,7 @@ input: 输入的视频文件名称。
 
 output: 输出存储的视频文件名称。
 """
-def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug = False):
+def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug = False, simple_show = True):
     #W = 300
     #H = 250
     W = 1920//2
@@ -565,7 +565,11 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
     isOutput = True if output != "" else False
     if isOutput:
-        output_res = (600, 750)
+        if simple_show: 
+            output_res = (1920//2, 720//2)
+        else:
+            output_res = (600, 750)
+
         video_FourCC = cv2.VideoWriter_fourcc(*'DIVX')
         #video_FourCC = -1
         #video_FourCC = cv2.VideoWriter_fourcc("m", "p", "4", "v")
@@ -737,32 +741,48 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
             if not color_input:
                 frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
 
-            mix_image = fill2ColorImage(lib, frame//2, result, fill_color = (255, 0, 0))
-            mix_image = fill2ColorImage(lib, mix_image, gaps, fill_color = (0, 255, 0))
 
-            drawTag(mix_image, b_center, b_level)
+            if simple_show:
+                mix_image = fill2ColorImage(lib, frame, result, fill_color = (255, 0, 0))
+                drawTag(frame, b_center, b_level)
+                images = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
 
-            result = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
-            
-            drawTag(result, b_center, b_level)
-            drawTag(frame, b_center, b_level)
-            
+                if time_debug:
+                    time_cur = time.time()
+                    print('\t[{:3.3f} ms]: 图像输出标记完成. '.format((time_cur - time_stamp)*1000));
+                    time_stamp = time_cur
+
+                
+            else: #simple_show  
+                mix_image = fill2ColorImage(lib, frame//2, result, fill_color = (255, 0, 0))
+                mix_image = fill2ColorImage(lib, mix_image, gaps, fill_color = (0, 255, 0))
+
+                drawTag(mix_image, b_center, b_level)
+
+                result = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
+                
+                drawTag(result, b_center, b_level)
+                drawTag(frame, b_center, b_level)
+                
+                if time_debug:
+                    time_cur = time.time()
+                    print('\t[{:3.3f} ms]: 图像输出标记完成. '.format((time_cur - time_stamp)*1000));
+                    time_stamp = time_cur
+                
+                fill_black = np.zeros(shape = (RESOLUTION[1], RESOLUTION[0], 3))
+
+                #frame = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+                result = cv2.resize(result, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+                mix_image = cv2.resize(mix_image, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+
+                image2 = np.hstack([mix_image, result])
+                images = np.vstack([frame, image2])
+                images = cv2.resize(images, (600, 750), interpolation = cv2.INTER_LINEAR_EXACT)
+
+            center_string = "Center: " + str(real_center)
             if time_debug:
-                time_cur = time.time()
-                print('\t[{:3.3f} ms]: 图像输出标记完成. '.format((time_cur - time_stamp)*1000));
-                time_stamp = time_cur
-            
-            fill_black = np.zeros(shape = (RESOLUTION[1], RESOLUTION[0], 3))
+                center_string += " --  TOF: {:3.3f}ms".format((time.time() - time_frame) * 1000)
 
-            #frame = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
-            result = cv2.resize(result, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
-            mix_image = cv2.resize(mix_image, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
-
-            image2 = np.hstack([mix_image, result])
-            images = np.vstack([frame, image2])
-            images = cv2.resize(images, (600, 750), interpolation = cv2.INTER_LINEAR_EXACT)
-
-            center_string = "CENTER: " + str(real_center)
             cv2.putText(images, text=center_string, org=(30, 30), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
                     fontScale=0.5, color=(255, 255, 255), thickness=1)
             #print(images.shape)
@@ -825,6 +845,10 @@ def main():
     parser.add_argument('-t', '--time', default = False, action = "store_true",
                         help = '[Optional] Print the time debug information. ')    
 
+    # 是否打印性能调试信息。
+    parser.add_argument('-d', '--demo', default = False, action = "store_true",
+                        help = '[Optional] If enable the DEMO mode to show image and baseline together. ')    
+    
     # 默认处理所有文件选项。
     parser.add_argument('input', type = str, default = None, nargs = '+',
                         help = 'Input files. ')
@@ -839,7 +863,8 @@ def main():
                      output = FLAGS.output, 
                      local_view = FLAGS.localview,
                      arduino = FLAGS.arduino,
-                     time_debug = FLAGS.time,)
+                     time_debug = FLAGS.time,
+                     simple_show = not FLAGS.demo, )
 
     else:
         print("See usage with --help.")
