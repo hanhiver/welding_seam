@@ -666,7 +666,8 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
                 b, r, g = cv2.split(frame)
                 #n = 50
                 #filt = (g.clip(n, n+1) - n) * 255 
-                filt = g
+                filt = r//3 + g//3 + b//3
+                #filt = r
             else:
                 filt = frame
 
@@ -676,10 +677,10 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
             if black_limit > 245:
                 black_limit = 245
 
-            if black_limit < 5:
-                black_limit = 5
+            if black_limit < 3:
+                black_limit = 3
 
-            #print('MEAN: ', filt.mean(), ' BLACK_LIMIT: ', black_limit)
+            print('MEAN: ', filt.mean(), ' BLACK_LIMIT: ', black_limit)
 
             if time_debug:
                 time_cur = time.time()
@@ -703,7 +704,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
             result = gaps + coreline
            
-            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 100, noisy_pixels = 8)
+            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 100, noisy_pixels = 15)
                         
             if time_debug:
                 time_cur = time.time()
