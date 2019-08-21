@@ -610,17 +610,18 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
         time_frame = time_cur
 
     while True:
+
+        time_frame = time.time()
+        
         if time_debug:
-            time_cur = time.time()
-            print('[{:3.3f} ms]: 开始处理一帧画面. '.format((time_cur - time_frame)*1000));
-            time_stamp = time_cur
-            time_frame = time_cur
+            #print('[{:3.3f} ms]: 帧间时间. '.format((time.time() - time_stamp)*1000));
+            print('[{:3.3f} ms]: 开始处理一帧画面. '.format((time.time() - time_frame)*1000));
+            time_stamp = time.time()
     
         return_value, frame = vid.read()
         if time_debug:
-            time_cur = time.time()
-            print('\t[{:3.3f} ms]: 从输出源得到一帧画面. '.format((time_cur - time_stamp)*1000));
-            time_stamp = time_cur
+            print('\t[{:3.3f} ms]: 从输出源得到一帧画面. '.format((time.time() - time_stamp)*1000));
+            time_stamp = time.time()
                 
         # 根据图像特殊处理
         # ===========================
@@ -660,9 +661,8 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
             #frame = cv2.medianBlur(frame, 5)
             if time_debug:
-                time_cur = time.time()
-                print('\t[{:3.3f} ms]: 图像输入预处理完成. '.format((time_cur - time_stamp)*1000));
-                time_stamp = time_cur
+                print('\t[{:3.3f} ms]: 图像输入预处理完成. '.format((time.time() - time_stamp)*1000));
+                time_stamp = time.time()
 
             if color_input:
                 # Get the blue image. 
@@ -687,33 +687,29 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
             #print('MEAN: ', filt.mean(), ' BLACK_LIMIT: ', black_limit)
 
             if time_debug:
-                time_cur = time.time()
-                print('\t[{:3.3f} ms]: 分色和黑场检测完成. '.format((time_cur - time_stamp)*1000));
-                time_stamp = time_cur
+                print('\t[{:3.3f} ms]: 分色和黑场检测完成. '.format((time.time() - time_stamp)*1000));
+                time_stamp = time.time()
 
 
             coreline = getLineImage(lib, filt, black_limit = black_limit, correct_angle = False)
 
             if time_debug:
-                time_cur = time.time()
-                print('\t[{:3.3f} ms]: 基准线检测完成. '.format((time_cur - time_stamp)*1000));
-                time_stamp = time_cur
+                print('\t[{:3.3f} ms]: 基准线检测完成. '.format((time.time() - time_stamp)*1000));
+                time_stamp = time.time()
             
             gaps = fillLineGaps(lib, coreline, start_pixel = 5)
 
             if time_debug:
-                time_cur = time.time()
-                print('\t[{:3.3f} ms]: 缺损检测以及填充完成. '.format((time_cur - time_stamp)*1000));
-                time_stamp = time_cur
+                print('\t[{:3.3f} ms]: 缺损检测以及填充完成. '.format((time.time() - time_stamp)*1000));
+                time_stamp = time.time()
 
             result = gaps + coreline
            
             b_center, b_level = getBottomCenter(lib, result, bottom_thick = 100, noisy_pixels = 15)
                         
             if time_debug:
-                time_cur = time.time()
-                print('\t[{:3.3f} ms]: 焊缝中心识别完成. '.format((time_cur - time_stamp)*1000));
-                time_stamp = time_cur
+                print('\t[{:3.3f} ms]: 焊缝中心识别完成. '.format((time.time() - time_stamp)*1000));
+                time_stamp = time.time()
 
             # 将center的输出值进行normalize处理，消除尖峰噪音干扰。
             b_center, center_array = normalizeCenter(center_array, b_center, skip = False)
@@ -723,9 +719,8 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
             center_list.append(real_center)
 
             if time_debug:
-                time_cur = time.time()
-                print('\t[{:3.3f} ms]: 焊缝中心尖峰降噪完成. '.format((time_cur - time_stamp)*1000));
-                time_stamp = time_cur
+                print('\t[{:3.3f} ms]: 焊缝中心尖峰降噪完成. '.format((time.time() - time_stamp)*1000));
+                time_stamp = time.time()
 
             # 如果我们开启了arduino serial通讯，这里拼凑坐标传送给机器人。
             if arduino is True:
@@ -740,9 +735,8 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
                 ####################################
                 AS_device.writePort('E7E701450124005A0008004EFE')
                 if time_debug:
-                    time_cur = time.time()
-                    print('\t[{:3.3f} ms]: 坐标写入串口完成. '.format((time_cur - time_stamp)*1000));
-                    time_stamp = time_cur
+                    print('\t[{:3.3f} ms]: 坐标写入串口完成. '.format((time.time() - time_stamp)*1000));
+                    time_stamp = time.time()
 
             if not color_input:
                 frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
@@ -754,9 +748,8 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
                 images = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
 
                 if time_debug:
-                    time_cur = time.time()
-                    print('\t[{:3.3f} ms]: 图像输出标记完成. '.format((time_cur - time_stamp)*1000));
-                    time_stamp = time_cur
+                    print('\t[{:3.3f} ms]: 图像输出标记完成. '.format((time.time() - time_stamp)*1000));
+                    time_stamp = time.time()
 
                 
             else: #simple_show  
@@ -771,9 +764,8 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
                 drawTag(frame, b_center, b_level)
                 
                 if time_debug:
-                    time_cur = time.time()
-                    print('\t[{:3.3f} ms]: 图像输出标记完成. '.format((time_cur - time_stamp)*1000));
-                    time_stamp = time_cur
+                    print('\t[{:3.3f} ms]: 图像输出标记完成. '.format((time.time() - time_stamp)*1000));
+                    time_stamp = time.time()
                 
                 fill_black = np.zeros(shape = (RESOLUTION[1], RESOLUTION[0], 3))
 
@@ -786,8 +778,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
                 images = cv2.resize(images, (600, 750), interpolation = cv2.INTER_LINEAR_EXACT)
 
             center_string = "Center: " + str(real_center)
-            if time_debug:
-                center_string += " --  TOF: {:3.3f}ms".format((time.time() - time_frame) * 1000)
+            center_string += " --  TOF: {:3.3f}ms".format((time.time() - time_frame) * 1000)
 
             cv2.putText(images, text=center_string, org=(30, 30), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
                     fontScale=0.5, color=(255, 255, 255), thickness=1)
@@ -795,22 +786,20 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
             
             if local_view:
                 cv2.imshow("result", images)
-
-                if time_debug:
-                    time_cur = time.time()
-                    print('\t[{:3.3f} ms]: 图像屏幕输出完成. '.format((time_cur - time_stamp)*1000));
-                    time_stamp = time_cur
                 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
+
+                if time_debug:
+                    print('\t[{:3.3f} ms]: 图像屏幕输出完成. '.format((time.time() - time_stamp)*1000));
+                    time_stamp = time.time()
              
             if isOutput:
                 out.write(images)
 
                 if time_debug:
-                    time_cur = time.time()
-                    print('\t[{:3.3f} ms]: 图像文件输出完成. '.format((time_cur - time_stamp)*1000));
-                    time_stamp = time_cur
+                    print('\t[{:3.3f} ms]: 图像文件输出完成. '.format((time.time() - time_stamp)*1000));
+                    time_stamp = time.time()
 
         else:
             break
