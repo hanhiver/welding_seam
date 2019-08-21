@@ -4,6 +4,7 @@ import cv2
 import ctypes
 import time
 import argparse
+import matplotlib.pyplot as plt 
 
 # For Arduino Serial Communication. 
 import arduino_serial as AS
@@ -541,6 +542,8 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
     RESOLUTION = (W*2, H*2)
     HALF_RESOLUTION = (W, H)
     
+    center_list = []
+
     vid = cv2.VideoCapture(input[0])
 
     if not vid.isOpened():
@@ -663,10 +666,11 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
             if color_input:
                 # Get the blue image. 
-                b, r, g = cv2.split(frame)
+                #b, r, g = cv2.split(frame)
                 #n = 50
                 #filt = (g.clip(n, n+1) - n) * 255 
-                filt = r//3 + g//3 + b//3
+                #filt = r//3 + g//3 + b//3
+                filt = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
                 #filt = r
             else:
                 filt = frame
@@ -680,7 +684,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
             if black_limit < 3:
                 black_limit = 3
 
-            print('MEAN: ', filt.mean(), ' BLACK_LIMIT: ', black_limit)
+            #print('MEAN: ', filt.mean(), ' BLACK_LIMIT: ', black_limit)
 
             if time_debug:
                 time_cur = time.time()
@@ -716,6 +720,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
             # 因为目前采用的分辨率是模拟屏幕的5倍，为了对应当前逻辑和减少抖动，输出值除以3取整。
             real_center = int(b_center / 3)
+            center_list.append(real_center)
 
             if time_debug:
                 time_cur = time.time()
@@ -797,7 +802,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
                     time_stamp = time_cur
                 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
-                    return False
+                    break
              
             if isOutput:
                 out.write(images)
@@ -809,7 +814,13 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
         else:
             break
-                
+    
+    plt.figure()
+    x = range(len(center_list))
+    plt.plot(x, center_list)
+    plt.ylim(0, max(center_list) + 10)
+    plt.show()
+
     if local_view:
         cv2.destroyAllWindows()
 
