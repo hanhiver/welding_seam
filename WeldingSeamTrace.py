@@ -610,14 +610,13 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
         time_frame = time_cur
 
     while True:
-
-        time_frame = time.time()
         
         if time_debug:
             #print('[{:3.3f} ms]: 帧间时间. '.format((time.time() - time_stamp)*1000));
             print('[{:3.3f} ms]: 开始处理一帧画面. '.format((time.time() - time_frame)*1000));
             time_stamp = time.time()
     
+        time_frame = time.time()
         return_value, frame = vid.read()
         if time_debug:
             print('\t[{:3.3f} ms]: 从输出源得到一帧画面. '.format((time.time() - time_stamp)*1000));
