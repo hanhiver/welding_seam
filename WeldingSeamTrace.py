@@ -816,6 +816,307 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
     if local_view:
         cv2.destroyAllWindows()
 
+"""
+多进程读取摄像头版本。
+输入视频文件，处理视频文件。
+input: 输入的视频文件名称。
+       如果是数字，则是打开第n+1号系统摄像头。
+
+output: 输出存储的视频文件名称。
+"""
+def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug = False, simple_show = True):
+    import gxipy as gx 
+    import schedrun
+    import multiprocessing
+    import ctypes
+    from multiprocessing.sharedctypes import RawArray, RawValue
+    from mptest import init_camera, close_camera, get_frame_from_camera
+
+    process_lock = multiprocessing.Lock()
+    array_temp = np.ones(shape = (1200 * 1920 * 3), dtype = np.ubyte)
+    shared_array = RawArray(ctypes.c_ubyte, array_temp)
+    shared_value = RawValue(ctypes.c_uint, 0)
+
+    sched_run = schedrun.SchedRun(func = get_frame_from_camera, args = (shared_array, shared_value, process_lock, False, ), 
+                                  init_func = init_camera, init_args = (1920, 1200, False, False),
+                                  clean_func = close_camera, clean_args = {}, 
+                                  interval = 0.0, 
+                                  init_interval = 0.0)
+    
+    W = 1920//2
+    H = 720//2
+    RESOLUTION = (W*2, H*2)
+    HALF_RESOLUTION = (W, H)
+    
+    center_list = []
+
+    if time_debug:
+        time_stamp = time.clock()
+        print(time_stamp, ': time debug enabled.')
+
+    # Initialize the arduino serial communication. 
+    if arduino is True:
+        AS_device = AS.arduino_serial('/dev/ttyUSB0')
+        ret = AS_device.openPort()
+        if ret is False:
+            print('Failed to open the Arduino Serial for communication. ')
+            return
+
+    isOutput = True if output != "" else False
+    if isOutput:
+        if simple_show: 
+            output_res = (1920//2, 720//2)
+        else:
+            output_res = (600, 750)
+
+        video_FourCC = cv2.VideoWriter_fourcc(*'DIVX')
+        #video_FourCC = -1
+        video_FourCC = cv2.VideoWriter_fourcc("m", "p", "4", "v")
+        out = cv2.VideoWriter(output, video_FourCC, 25, output_res)
+        out_opened = out.isOpened()
+        if out_opened:
+            print('OUT Opened: isOpened(): {}. '.format(out_opened))
+        else:
+            print('OUT Closed: isOpened(): {}. '.format(out_opened))
+            return
+
+    print("=== Start the WS detecting ===")
+
+    print('Load C lib. ')
+    so_file = './libws_c.so'
+    lib = ctypes.cdll.LoadLibrary(so_file)
+
+    lib.testlib()
+
+    kernel = np.ones((5,5),np.uint8)
+
+    # 为normalizeCenter准备数据数组。
+    center_array = []
+
+    if local_view:
+        #cv2.namedWindow("result", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("result")
+        cv2.resizeWindow("result", 800, 400)
+        #cv2.moveWindow("result", 100, 100)
+
+    if time_debug:
+        time_cur = time.clock()
+        print('{:1.6f}: 初始化完成. '.format((time_cur - time_stamp) * 1000));
+        time_stamp = time_cur
+        time_frame = time_cur
+
+    while True:
+        
+        if time_debug:
+            #print('[{:3.3f} ms]: 帧间时间. '.format((time.clock() - time_stamp)*1000));
+            print('[{:3.3f} ms]: 开始处理一帧画面. '.format((time.clock() - time_frame)*1000));
+            time_stamp = time.clock()
+    
+        time_frame = time.clock()
+
+        if time_debug:
+            time_stamp = time.clock()
+
+        process_lock.acquire()
+        frame = np.array(shared_array, dtype = np.uint8)
+        process_lock.release()
+        frame = frame.reshape((1200, 1920, 3))
+
+        if time_debug:
+            print('\t[{:3.3f} ms]: 从输出源得到一帧画面. '.format((time.clock() - time_stamp)*1000));
+            time_stamp = time.clock()
+                
+        # 根据图像特殊处理
+        # ===========================
+        #frame = imgRotate(frame, 8)
+        # ===========================
+        
+        if type(frame) != type(None):
+            
+            # 根据摄像头摆放位置确定是否需要旋转图像。
+            # 目前的处理逻辑是处理凸字形的焊缝折线。
+            frame = np.rot90(frame, k = 0)
+
+            # 根据摄像头摆放位置切除多余的干扰画面。
+            # 目前这个设置是基于7块样板的图像进行设置。
+            # 未来这里会在GUI界面中可以设置，排除不必要的干扰区域。
+            (h, w) = frame.shape[:2]
+
+            # 对应12mm镜头，切除左右各1/4，切除下方1/4的画面
+            # ===========================
+            #frame = frame[0:3*h//4, w//4:3*w//4]
+            # ===========================
+
+            # 对应16mm镜头，暂时不切除。
+            # ===========================
+            frame = frame[2*h//5:h, 0:w]
+            # ===========================
+
+            #frame = frame[4*h//9:5*h//9, 5*w//13:7*w//12]
+
+            if len(frame.shape) > 2:
+                color_input = True
+            else:
+                color_input = False
+
+            frame = cv2.resize(frame, RESOLUTION, interpolation = cv2.INTER_LINEAR)
+            (h, w) = frame.shape[:2]
+
+            #frame = cv2.medianBlur(frame, 5)
+            if time_debug:
+                print('\t[{:3.3f} ms]: 图像输入预处理完成. '.format((time.clock() - time_stamp)*1000));
+                time_stamp = time.clock()
+
+            if color_input:
+                # Get the blue image. 
+                #b, r, g = cv2.split(frame)
+                #n = 50
+                #filt = (g.clip(n, n+1) - n) * 255 
+                #filt = r//3 + g//3 + b//3
+                filt = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+                #filt = r
+            else:
+                filt = frame
+
+            mean = filt.mean()
+            #black_limit = (int)(mean * 8)
+            black_limit = (int)(mean * 5)
+            if black_limit > 245:
+                black_limit = 245
+
+            if black_limit < 3:
+                black_limit = 3
+
+            #print('MEAN: ', filt.mean(), ' BLACK_LIMIT: ', black_limit)
+
+            if time_debug:
+                print('\t[{:3.3f} ms]: 分色和黑场检测完成. '.format((time.clock() - time_stamp)*1000));
+                time_stamp = time.clock()
+
+
+            coreline = getLineImage(lib, filt, black_limit = black_limit, correct_angle = False)
+
+            if time_debug:
+                print('\t[{:3.3f} ms]: 基准线检测完成. '.format((time.clock() - time_stamp)*1000));
+                time_stamp = time.clock()
+            
+            gaps = fillLineGaps(lib, coreline, start_pixel = 5)
+
+            if time_debug:
+                print('\t[{:3.3f} ms]: 缺损检测以及填充完成. '.format((time.clock() - time_stamp)*1000));
+                time_stamp = time.clock()
+
+            result = gaps + coreline
+           
+            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 100, noisy_pixels = 15)
+                        
+            if time_debug:
+                print('\t[{:3.3f} ms]: 焊缝中心识别完成. '.format((time.clock() - time_stamp)*1000));
+                time_stamp = time.clock()
+
+            # 将center的输出值进行normalize处理，消除尖峰噪音干扰。
+            b_center, center_array = normalizeCenter(center_array, b_center, skip = False)
+
+            # 因为目前采用的分辨率是模拟屏幕的5倍，为了对应当前逻辑和减少抖动，输出值除以3取整。
+            real_center = int(b_center / 3)
+            center_list.append(real_center)
+
+            if time_debug:
+                print('\t[{:3.3f} ms]: 焊缝中心尖峰降噪完成. '.format((time.clock() - time_stamp)*1000));
+                time_stamp = time.clock()
+
+            # 如果我们开启了arduino serial通讯，这里拼凑坐标传送给机器人。
+            if arduino is True:
+
+                # 这个地方的b_center就是焊缝识别得到的中点坐标。
+                # 我们在这里用传统380线分辨率的做一个规一划处理。
+                # real_center = b_center * 380 // w
+            
+                ####################################
+                # 这个地方请修改代码，是否应该将real_center的值转化为16进制的数字，
+                # 通信的高地位分别怎么设置，我这里就只是用了你示例代码中的通信标志。
+                ####################################
+                AS_device.writePort('E7E701450124005A0008004EFE')
+                if time_debug:
+                    print('\t[{:3.3f} ms]: 坐标写入串口完成. '.format((time.clock() - time_stamp)*1000));
+                    time_stamp = time.clock()
+
+            if not color_input:
+                frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
+
+
+            if simple_show:
+                mix_image = fill2ColorImage(lib, frame, result, fill_color = (255, 0, 0))
+                drawTag(frame, b_center, b_level)
+                images = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+
+                if time_debug:
+                    print('\t[{:3.3f} ms]: 图像输出标记完成. '.format((time.clock() - time_stamp)*1000));
+                    time_stamp = time.clock()
+
+                
+            else: #simple_show  
+                mix_image = fill2ColorImage(lib, frame//2, result, fill_color = (255, 0, 0))
+                mix_image = fill2ColorImage(lib, mix_image, gaps, fill_color = (0, 255, 0))
+
+                drawTag(mix_image, b_center, b_level)
+
+                result = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
+                
+                drawTag(result, b_center, b_level)
+                drawTag(frame, b_center, b_level)
+                
+                if time_debug:
+                    print('\t[{:3.3f} ms]: 图像输出标记完成. '.format((time.clock() - time_stamp)*1000));
+                    time_stamp = time.clock()
+                
+                fill_black = np.zeros(shape = (RESOLUTION[1], RESOLUTION[0], 3))
+
+                #frame = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+                result = cv2.resize(result, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+                mix_image = cv2.resize(mix_image, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+
+                image2 = np.hstack([mix_image, result])
+                images = np.vstack([frame, image2])
+                images = cv2.resize(images, (600, 750), interpolation = cv2.INTER_LINEAR_EXACT)
+
+            center_string = "Center: " + str(real_center)
+            center_string += " --  TOF: {:3.3f}ms".format((time.clock() - time_frame) * 1000)
+
+            cv2.putText(images, text=center_string, org=(30, 30), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
+                    fontScale=0.5, color=(255, 255, 255), thickness=1)
+            #print(images.shape)
+            
+            if local_view:
+                cv2.imshow("result", images)
+                
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+
+                if time_debug:
+                    print('\t[{:3.3f} ms]: 图像屏幕输出完成. '.format((time.clock() - time_stamp)*1000));
+                    time_stamp = time.clock()
+             
+            if isOutput:
+                out.write(images)
+
+                if time_debug:
+                    print('\t[{:3.3f} ms]: 图像文件输出完成. '.format((time.clock() - time_stamp)*1000));
+                    time_stamp = time.clock()
+
+        else:
+            break
+
+    sched_run.stop()
+    
+    plt.figure()
+    x = range(len(center_list))
+    plt.plot(x, center_list)
+    plt.ylim(0, max(center_list) + 10)
+    plt.show()
+
+    if local_view:
+        cv2.destroyAllWindows()
 
 def main():
 
@@ -851,7 +1152,11 @@ def main():
 
     # 是否打印性能调试信息。
     parser.add_argument('-d', '--demo', default = False, action = "store_true",
-                        help = '[Optional] If enable the DEMO mode to show image and baseline together. ')    
+                        help = '[Optional] If enable the DEMO mode to show image and baseline together. ')  
+
+    # 是否打印性能调试信息。
+    parser.add_argument('-m', '--multiprocess', default = False, action = "store_true",
+                        help = '[Optional] If enable the DEMO mode to show image and baseline together. ')   
     
     # 默认处理所有文件选项。
     parser.add_argument('input', type = str, default = None, nargs = '+',
@@ -862,6 +1167,13 @@ def main():
     if FLAGS.image:
         wsImagePhase(FLAGS.input, output = FLAGS.output)
 
+    if FLAGS.multiprocess:
+        wsVideoPhaseMP(input = FLAGS.input,  
+                     output = FLAGS.output, 
+                     local_view = FLAGS.localview,
+                     arduino = FLAGS.arduino,
+                     time_debug = FLAGS.time,
+                     simple_show = not FLAGS.demo, )
     elif FLAGS.input:
         wsVideoPhase(input = FLAGS.input,  
                      output = FLAGS.output, 
