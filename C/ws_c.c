@@ -557,7 +557,7 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	/*
+	
 	getCoreImage(image, output1, HEIGHT, WIDTH, 0);
 	followCoreLine(output1, output2, HEIGHT, WIDTH, 2, 2, 3, 0);
 
@@ -573,7 +573,7 @@ int main(int argc, char const *argv[])
 	}
 	printf("\n");
 
-	printf("\n===Output1 Image: ===");
+	printf("\n===getCoreImage Image: ===");
 	for (i=0; i<HEIGHT; i++)
 	{
 		printf("\n");
@@ -585,7 +585,7 @@ int main(int argc, char const *argv[])
 	}
 	printf("\n");
 
-	printf("\n===Output2 Image: ===");
+	printf("\n===followCoreLine Image: ===");
 	for (i=0; i<HEIGHT; i++)
 	{
 		printf("\n");
@@ -596,7 +596,7 @@ int main(int argc, char const *argv[])
 		}
 	}
 	printf("\n");
-	*/
+	
 
 	printf("\n===CORELINE Image: ===");
 	for (i=0; i<HEIGHT; i++)
