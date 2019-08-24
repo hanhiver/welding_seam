@@ -165,7 +165,7 @@ def get_frame_from_camera(shared_array, shared_value, lock, time_debug = False):
     return True
 
 
-def init_videofile(filename):
+def init_file(filename):
     global vid 
 
     vid = cv2.VideoCapture(filename)
@@ -294,7 +294,7 @@ def main(filename):
     shared_value = RawValue(ctypes.c_uint, 0)
 
     sched_run = schedrun.SchedRun(func = get_frame_from_file, args = (shared_array, shared_value, process_lock, ), 
-                                  init_func = init_videofile, init_args = (filename, ),
+                                  init_func = init_file, init_args = (filename, ),
                                   clean_func = close_file, clean_args = {}, 
                                   interval = 0.0, 
                                   init_interval = 0.0)
