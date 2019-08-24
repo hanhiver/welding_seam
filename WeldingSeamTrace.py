@@ -344,7 +344,7 @@ def coreLine2Index(lib, coreImage):
 bottom_thick: 底部小平台厚度
 noisy_pixels: 作为噪音滤除的像素数目
 """
-def getBottomCenter(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
+def getBottomCenter2(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
     index = coreLine2Index(lib, coreImage)
     srt = index.argsort(kind = 'stable')
     idx = srt[:bottom_thick]
@@ -353,6 +353,42 @@ def getBottomCenter(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
 
     level = int(np.mean( bottom[noisy_pixels:(bottom.size - noisy_pixels)] ))
     center = int(np.mean( idx[noisy_pixels:(idx.size - noisy_pixels)] ))
+    
+    return center, level
+
+def getBottomCenter(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
+    index = coreLine2Index(lib, coreImage)
+    srt = index.argsort(kind = 'stable')
+    
+    idx = srt[:bottom_thick]
+    idx.sort()
+
+    # 将所有在bottom范围内的线段分开。
+    lines = []
+    line = []
+    for i in range(idx.size -1):
+        if (abs(idx[i] - idx[i+1]) < 4):
+            line.append(idx[i])
+        else:
+            lines.append(line)
+            line = []
+
+    if len(line) != 0:
+        lines.append(line)
+
+    # 找到其中最长的线段。
+    len_max = 0
+    line_out = None
+    for item in lines:
+        if len(item) > len_max:
+            len_max = len(item)
+            line_out = item
+
+    idx = np.array(line_out)
+    bottom = index[idx]
+
+    level = int(np.mean(bottom))
+    center = int(np.mean(idx))
     
     return center, level
 
@@ -833,6 +869,9 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
     from mptest import init_camera, close_camera, get_frame_from_camera
     from mptest import init_file, close_file, get_frame_from_file
 
+    print("Multiprocess Mode. ")
+    time.sleep(0.5)
+
     process_lock = multiprocessing.Lock()
     array_temp = np.ones(shape = (1200 * 1920 * 3), dtype = np.ubyte)
     shared_array = RawArray(ctypes.c_ubyte, array_temp)
@@ -1035,7 +1074,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
 
             result = gaps + coreline
            
-            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 100, noisy_pixels = 15)
+            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 80, noisy_pixels = 20)
                         
             if time_debug:
                 time_dur = time.time() - time_stamp
@@ -1045,7 +1084,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
                 print('\t[{:3.3f} ms]: 焊缝中心识别完成. '.format(time_dur))
 
             # 将center的输出值进行normalize处理，消除尖峰噪音干扰。
-            b_center, center_array = normalizeCenter(center_array, b_center, skip = False)
+            b_center, center_array = normalizeCenter(center_array, b_center, thres_drop = 100, thres_normal = 50, move_limit = 3, skip = False)
 
             # 因为目前采用的分辨率是模拟屏幕的5倍，为了对应当前逻辑和减少抖动，输出值除以3取整。
             real_center = int(b_center / 3)
@@ -1084,7 +1123,8 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
             if simple_show:
                 mix_image = fill2ColorImage(lib, frame, result, fill_color = (255, 0, 0))
                 drawTag(frame, b_center, b_level)
-                images = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+                images = frame
+                #images = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
 
                 if time_debug:
                     time_dur = time.time() - time_stamp
@@ -1115,8 +1155,8 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
                 fill_black = np.zeros(shape = (RESOLUTION[1], RESOLUTION[0], 3))
 
                 #frame = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
-                #result = cv2.resize(result, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
-                #mix_image = cv2.resize(mix_image, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+                result = cv2.resize(result, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
+                mix_image = cv2.resize(mix_image, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
 
                 image2 = np.hstack([mix_image, result])
                 images = np.vstack([frame, image2])
