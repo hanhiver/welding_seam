@@ -367,7 +367,7 @@ def getBottomCenter(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
     lines = []
     line = []
     for i in range(idx.size -1):
-        if (abs(idx[i] - idx[i+1]) < 4):
+        if (abs(idx[i] - idx[i+1]) < 9):
             line.append(idx[i])
         else:
             lines.append(line)
@@ -1074,7 +1074,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
 
             result = gaps + coreline
            
-            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 80, noisy_pixels = 20)
+            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 400, noisy_pixels = 20)
                         
             if time_debug:
                 time_dur = time.time() - time_stamp
