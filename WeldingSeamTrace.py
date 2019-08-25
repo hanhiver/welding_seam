@@ -12,6 +12,13 @@ import arduino_serial as AS
 TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png')
 #TEST_IMAGE = ('rsmall.png', )
 
+BOTTOM_THICK = 200
+NOISY_PIXELS = 50
+BOTTOM_LINE_GAP_MAX = 1
+
+DRAW_BOUND = False
+DRAW_BOTTOM = True
+
 WRITE_RESULT = False
 RESIZE = 20
 SLOPE_TH = 0.15
@@ -367,7 +374,7 @@ def getBottomCenter(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
     lines = []
     line = []
     for i in range(idx.size -1):
-        if (abs(idx[i] - idx[i+1]) < 9):
+        if (abs(idx[i] - idx[i+1]) <= BOTTOM_LINE_GAP_MAX):
             line.append(idx[i])
         else:
             lines.append(line)
@@ -389,8 +396,9 @@ def getBottomCenter(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
 
     level = int(np.mean(bottom))
     center = int(np.mean(idx))
+    bound = (idx.min(), idx.max())
     
-    return center, level
+    return center, level, bound
 
 """
 输入轮廓线图像平均法自动补足中间缺失的像素。
@@ -411,7 +419,7 @@ def fillLineGaps(lib, coreImage, start_pixel = 0):
 """
 输入彩色图像，焊缝底部中点位置画出标志线。
 """
-def drawTag(image, b_center, b_level):
+def drawTag(image, b_center, b_level, bottom_thick = None, bound = None):
     (h, w) = image.shape[:2]
     cv2.rectangle(image, (1, 1), (w-2, h-2), (130, 130, 130), 3)
 
@@ -425,8 +433,15 @@ def drawTag(image, b_center, b_level):
     if y2 > h-1:
         y2 = h-1
 
-    cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 5)
+    cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 3)
+    if bound != None:
+        cv2.line(image, (bound[0], y1 + 20), (bound[0], y2 - 20), (0, 255, 255), 1)
+        cv2.line(image, (bound[1], y1 + 20), (bound[1], y2 - 20), (0, 255, 255), 1) 
 
+    if bottom_thick != None:
+        cv2.line(image, (x1 + BOTTOM_THICK//2, y1 + 30), (x2 + BOTTOM_THICK//2, y2 - 30), (0, 255, 0), 2)
+        cv2.line(image, (x1 - BOTTOM_THICK//2, y1 + 30), (x2 - BOTTOM_THICK//2, y2 - 30), (0, 255, 0), 2)
+        
 """
 输入本帧画面得到的ceter值，经过平滑降噪计算之后输出。
 目前的平滑算法是，当前值和前面三帧的平均值比较：
@@ -530,7 +545,7 @@ def wsImagePhase(files, output = None, local_view = True):
         gaps = fillLineGaps(lib, result, start_pixel = 5)
         result = result + gaps 
 
-        b_center, b_level = getBottomCenter(lib, result, bottom_thick = 30)
+        b_center, b_level, bound = getBottomCenter(lib, result, bottom_thick = 30)
 
         np.set_printoptions(precision=10, suppress=True)
         print('Lowest point: ', b_center)
@@ -744,7 +759,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
             result = gaps + coreline
            
-            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 100, noisy_pixels = 15)
+            b_center, b_level, bound = getBottomCenter(lib, result, bottom_thick = 100, noisy_pixels = 15)
                         
             if time_debug:
                 print('\t[{:3.3f} ms]: 焊缝中心识别完成. '.format((time.time() - time_stamp)*1000));
@@ -783,7 +798,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
             if simple_show:
                 mix_image = fill2ColorImage(lib, frame, result, fill_color = (255, 0, 0))
-                drawTag(frame, b_center, b_level)
+                drawTag(frame, b_center, b_level, bound = bound)
                 images = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
 
                 if time_debug:
@@ -1074,7 +1089,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
 
             result = gaps + coreline
            
-            b_center, b_level = getBottomCenter(lib, result, bottom_thick = 400, noisy_pixels = 20)
+            b_center, b_level, bound = getBottomCenter(lib, result, bottom_thick = BOTTOM_THICK, noisy_pixels = NOISY_PIXELS)
                         
             if time_debug:
                 time_dur = time.time() - time_stamp
@@ -1122,7 +1137,16 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
 
             if simple_show:
                 mix_image = fill2ColorImage(lib, frame, result, fill_color = (255, 0, 0))
-                drawTag(frame, b_center, b_level)
+                if not DRAW_BOUND:
+                    bound = None
+
+                if not DRAW_BOTTOM:
+                    bottom_thick = None
+                else: 
+                    bottom_thick = BOTTOM_THICK
+
+                drawTag(frame, b_center, b_level, bottom_thick = bottom_thick, bound = bound)
+                #drawTag(frame, b_center, b_level)
                 images = frame
                 #images = cv2.resize(frame, HALF_RESOLUTION, interpolation = cv2.INTER_LINEAR)
 
