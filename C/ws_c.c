@@ -146,7 +146,12 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 	int i, j, temp;
 
 	int* index = (int*)malloc(sizeof(int)*w);
-	for (i=0; i<h; i++)
+	for (i=0; i<w; i++)
+	// Doct Tian found the in-complete initilization bug in 2019.8.27
+	// Previous code: 
+	// ==================	
+	//for (i=0; i<h; i++)
+	// ================== 
 	{
 		index[i] = -1;
 	}
