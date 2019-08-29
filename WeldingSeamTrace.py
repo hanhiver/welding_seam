@@ -12,11 +12,11 @@ import arduino_serial as AS
 TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png')
 #TEST_IMAGE = ('rsmall.png', )
 
-BOTTOM_THICK = 200
-NOISY_PIXELS = 50
+BOTTOM_THICK = 80
+NOISY_PIXELS = 20
 BOTTOM_LINE_GAP_MAX = 1
 
-DRAW_BOUND = False
+DRAW_BOUND = True
 DRAW_BOTTOM = True
 
 WRITE_RESULT = False
