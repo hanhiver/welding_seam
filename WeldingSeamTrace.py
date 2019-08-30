@@ -14,7 +14,7 @@ TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png')
 
 BOTTOM_THICK = 80
 NOISY_PIXELS = 20
-BOTTOM_LINE_GAP_MAX = 1
+BOTTOM_LINE_GAP_MAX = 2
 
 DRAW_BOUND = True
 DRAW_BOTTOM = True
@@ -465,7 +465,7 @@ def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 100, th
     # 如果队列里没有填满数据，直接输出，不做处理。
     if len(queue_array) < queue_length:
         queue_array.append(center)
-        return center, queue_array
+        return center, queue_array, dropped_array
 
     # 如果队列已经填满，可以开始处理数据。
     # 计算均值
@@ -481,13 +481,14 @@ def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 100, th
 
     # 如果差值超过thres_drop，丢弃本次数据，返回之前的均值数据。
     if delta > thres_drop:
-        print('Center {} DROPED, avg: {}, array: {}'.format(center, avg, queue_array))
+        print('Center {} DROPPED, avg: {}, array: {}'.format(center, avg, queue_array))
         dropped_array.append(center)
 
         if type(dropped_array) != type(None):
             # 如果连续Queue_length三分之一长度次丢弃数据，则认为跟踪丢失，
             # 将dropped_array的数据替换queue_array里的数据。
             if len(dropped_array) > (queue_length//3 - 1): 
+                print("DROPPED_ARRAY replace CENTER_ARRAY!")
                 queue_array = dropped_array.copy()
                 dropped_array = []
 
@@ -500,7 +501,7 @@ def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 100, th
     # 如果差值超过thres_normal，输出和之前均值平均后结果。 
     if delta > thres_normal: 
         print('Center {} OVERED, avg: {}, array: {}'.format(center, avg, queue_array))
-        return (avg * 2 + center) // 3, queue_array
+        return (avg * 2 + center) // 3, queue_array, dropped_array
         #return (avg * 3 + center) // 4, queue_array
 
     # 将本次数据添加到数据队列中，并将最早一次输入数据删除。
@@ -664,6 +665,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
 
     # 为normalizeCenter准备数据数组。
     center_array = []
+    dropped_array = []
 
     if local_view:
         #cv2.namedWindow("result", cv2.WINDOW_NORMAL)
@@ -783,7 +785,7 @@ def wsVideoPhase(input, output, local_view = True, arduino = False, time_debug =
                 time_stamp = time.time()
 
             # 将center的输出值进行normalize处理，消除尖峰噪音干扰。
-            b_center, center_array = normalizeCenter(center_array, b_center, skip = False)
+            b_center, center_array, dropped_array = normalizeCenter(center_array, b_center, skip = False, dropped_array = dropped_array)
 
             # 因为目前采用的分辨率是模拟屏幕的5倍，为了对应当前逻辑和减少抖动，输出值除以3取整。
             real_center = int(b_center / 3)
@@ -944,14 +946,14 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
     isOutput = True if output != "" else False
     if isOutput:
         if simple_show: 
-            output_res = (1920//2, 720//2)
+            output_res = (1920, 720)
         else:
             output_res = (600, 750)
 
         video_FourCC = cv2.VideoWriter_fourcc(*'DIVX')
         #video_FourCC = -1
         video_FourCC = cv2.VideoWriter_fourcc("m", "p", "4", "v")
-        out = cv2.VideoWriter(output, video_FourCC, 25, output_res)
+        out = cv2.VideoWriter(output, video_FourCC, 50, output_res)
         out_opened = out.isOpened()
         if out_opened:
             print('OUT Opened: isOpened(): {}. '.format(out_opened))
@@ -971,6 +973,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
 
     # 为normalizeCenter准备数据数组。
     center_array = []
+    dropped_array = []
 
     if local_view:
         #cv2.namedWindow("result", cv2.WINDOW_NORMAL)
@@ -1014,7 +1017,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
                 
         # 根据图像特殊处理
         # ===========================
-        #frame = imgRotate(frame, 8)
+        frame = imgRotate(frame, -4)
         # ===========================
         
         if type(frame) != type(None):
@@ -1035,7 +1038,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
 
             # 对应16mm镜头，暂时不切除。
             # ===========================
-            frame = frame[2*h//5:h, 0:w]
+            frame = frame[1*h//5:4*h//5, 0:w]
             # ===========================
 
             #frame = frame[4*h//9:5*h//9, 5*w//13:7*w//12]
@@ -1116,7 +1119,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
                 print('\t[{:3.3f} ms]: 焊缝中心识别完成. '.format(time_dur))
 
             # 将center的输出值进行normalize处理，消除尖峰噪音干扰。
-            b_center, center_array = normalizeCenter(center_array, b_center, thres_drop = 100, thres_normal = 50, move_limit = 3, skip = False)
+            b_center, center_array, dropped_array = normalizeCenter(center_array, b_center, thres_drop = 100, thres_normal = 50, move_limit = 3, skip = False, dropped_array = dropped_array)
 
             # 因为目前采用的分辨率是模拟屏幕的5倍，为了对应当前逻辑和减少抖动，输出值除以3取整。
             real_center = int(b_center / 3)
