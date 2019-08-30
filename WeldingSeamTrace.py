@@ -1121,7 +1121,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
                 time_dur_accum += time_dur
                 print('\t[{:3.3f} ms]: 基准线检测完成. '.format(time_dur))
             
-            #coreline = cutLowPixels(lib, coreline, low_level_limit = 10)
+            coreline = cutLowPixels(lib, coreline, low_level_limit = 10)
             gaps = fillLineGaps(lib, coreline, start_pixel = 5)
             result = gaps + coreline
             #result = coreline

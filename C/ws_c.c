@@ -464,7 +464,7 @@ int fillLineGaps2(unsigned char* coreLine, unsigned char* output, int h, int w, 
 // Cut the low pixel which below the laser base line. 
 int cutLowPixels(unsigned char* coreLine, unsigned char* output, int h, int w, int low_level_limit)
 {
-	int i, j, m, n;
+	int i, j;
 	
 	// First step, caculate the max power laser mark. 
 	int* accum_power = (int*)malloc(sizeof(int)*h);
@@ -478,7 +478,10 @@ int cutLowPixels(unsigned char* coreLine, unsigned char* output, int h, int w, i
 		for (j=0; j<w; j++)
 		{
 			accum_power[i] += coreLine[i*h + j];
+			if (coreLine[i*h + j] > 0)
+				printf("coreLine[i*h + j]: %d", (int)(coreLine[i*h + j]));
 		}
+		//printf("i: %d, accum_power[i]: %d\n", i, accum_power[i]);
 	}
 
 	int max_value = 0;
@@ -491,6 +494,7 @@ int cutLowPixels(unsigned char* coreLine, unsigned char* output, int h, int w, i
 			max_index = i;
 		}
 	}
+	printf("max_value: %d, max_index: %d\n", max_value, max_index);
 
 	// Initialize the output to all zero. 
 	for (i=0; i<h*w; i++)
