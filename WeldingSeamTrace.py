@@ -450,8 +450,12 @@ def drawTag(image, b_center, b_level, bottom_thick = None, bound = None):
     未超出合理范围：直接采用。
 
 调用此函数需要准备一个array存储此前多帧数据。
+
+默认dropped_array=None表示不启用dropped value追踪功能。
+如果需要启用该功能，需要提供一个array缓存此前丢弃的值。目前的逻辑会自动缓存三个丢弃的数据，
+如果这三个数据都可以互相接近并且是被连续丢弃的，则改变当前的队列值，提供自动跟踪。
 """
-def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 100, thres_normal = 50, move_limit = 3, skip = False):
+def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 100, thres_normal = 50, move_limit = 3, skip = False, dropped_array = None):
 
     #print('normalizeCenter(queue_array = {}, center = {})'.format(queue_array, center))
     # 如果skip设置为真，不做处理，直接输出。
@@ -478,7 +482,16 @@ def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 100, th
     # 如果差值超过thres_drop，丢弃本次数据，返回之前的均值数据。
     if delta > thres_drop:
         print('Center {} DROPED, avg: {}, array: {}'.format(center, avg, queue_array))
-        return avg, queue_array
+        dropped_array.append(center)
+
+        if type(dropped_array) != type(None):
+            # 如果连续Queue_length三分之一长度次丢弃数据，则认为跟踪丢失，
+            # 将dropped_array的数据替换queue_array里的数据。
+            if len(dropped_array) > (queue_length//3 - 1): 
+                queue_array = dropped_array.copy()
+                dropped_array = []
+
+        return avg, queue_array, dropped_array
 
     # 将本次数据添加到数据队列中，并将最早一次输入数据删除。
     #queue_array.append(center)
@@ -504,9 +517,13 @@ def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 100, th
     queue_array.append(center)
     queue_array = queue_array[1:]
 
+    # 如果本次有正常数据进入，则清空dropped_array
+    if type(dropped_array) != type(None):
+        dropped_array = []
+
     #print('{}'.format(center))
 
-    return center, queue_array
+    return center, queue_array, dropped_array
 
 
 """
