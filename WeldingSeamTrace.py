@@ -14,7 +14,7 @@ TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png')
 
 BOTTOM_THICK = 80
 NOISY_PIXELS = 20
-BOTTOM_LINE_GAP_MAX = 2
+BOTTOM_LINE_GAP_MAX = 5
 
 DRAW_BOUND = True
 DRAW_BOTTOM = True
@@ -363,33 +363,38 @@ def getBottomCenter2(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
     
     return center, level
 
-def getBottomCenter(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
+def getBottomCenter(lib, coreImage, bottom_thick = 30, noisy_pixels = 0, cut_lines = True):
     index = coreLine2Index(lib, coreImage)
     srt = index.argsort(kind = 'stable')
     
     idx = srt[:bottom_thick]
     idx.sort()
 
-    # 将所有在bottom范围内的线段分开。
-    lines = []
-    line = []
-    for i in range(idx.size -1):
-        if (abs(idx[i] - idx[i+1]) <= BOTTOM_LINE_GAP_MAX):
-            line.append(idx[i])
-        else:
+    if cut_lines:
+        # 将所有在bottom范围内的线段分开。
+        lines = []
+        line = []
+        for i in range(idx.size -1):
+            if (abs(idx[i] - idx[i+1]) <= BOTTOM_LINE_GAP_MAX):
+                line.append(idx[i])
+            else:
+                lines.append(line)
+                line = []
+
+        if len(line) != 0:
             lines.append(line)
-            line = []
 
-    if len(line) != 0:
-        lines.append(line)
+        # 找到其中最长的线段。
+        len_max = 0
+        line_out = None
+        for item in lines:
+            if len(item) > len_max:
+                len_max = len(item)
+                line_out = item
+        
+        if len_max < bottom_thick//2:
+            line_out = idx[noisy_pixels:bottom_thick-noisy_pixels]
 
-    # 找到其中最长的线段。
-    len_max = 0
-    line_out = None
-    for item in lines:
-        if len(item) > len_max:
-            len_max = len(item)
-            line_out = item
 
     idx = np.array(line_out)
     bottom = index[idx]
@@ -415,6 +420,24 @@ def fillLineGaps(lib, coreImage, start_pixel = 0):
     resImage = np.ctypeslib.as_array(outImage, shape = (h, w))
 
     return resImage
+
+
+"""
+将轮廓线激光基准线以下的像素点切除
+"""
+def cutLowPixels(lib, coreImage, low_level_limit = 10):
+    (h, w) = coreImage.shape[:2]
+    
+    coreLine = np.ctypeslib.as_ctypes(coreImage)
+    outImage = ctypes.create_string_buffer(ctypes.sizeof(ctypes.c_uint8) * w * h)
+
+    lib.cutLowPixels(coreLine, outImage, h, w, low_level_limit)
+
+    outImage = ctypes.cast(outImage, ctypes.POINTER(ctypes.c_uint8))
+    resImage = np.ctypeslib.as_array(outImage, shape = (h, w))
+
+    return resImage
+
 
 """
 输入彩色图像，焊缝底部中点位置画出标志线。
@@ -488,7 +511,7 @@ def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 100, th
             # 如果连续Queue_length三分之一长度次丢弃数据，则认为跟踪丢失，
             # 将dropped_array的数据替换queue_array里的数据。
             if len(dropped_array) > (queue_length//3 - 1): 
-                print("DROPPED_ARRAY replace CENTER_ARRAY!")
+                print("TRACK LOST, re-catch it!!!")
                 queue_array = dropped_array.copy()
                 dropped_array = []
 
@@ -1098,7 +1121,10 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
                 time_dur_accum += time_dur
                 print('\t[{:3.3f} ms]: 基准线检测完成. '.format(time_dur))
             
+            #coreline = cutLowPixels(lib, coreline, low_level_limit = 10)
             gaps = fillLineGaps(lib, coreline, start_pixel = 5)
+            result = gaps + coreline
+            #result = coreline
 
             if time_debug:
                 time_dur = time.time() - time_stamp
@@ -1107,7 +1133,6 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
                 time_dur_accum += time_dur
                 print('\t[{:3.3f} ms]: 缺损检测以及填充完成. '.format(time_dur))
 
-            result = gaps + coreline
            
             b_center, b_level, bound = getBottomCenter(lib, result, bottom_thick = BOTTOM_THICK, noisy_pixels = NOISY_PIXELS)
                         
@@ -1214,6 +1239,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
             #print(images.shape)
             
             if local_view:
+                images = coreline
                 cv2.imshow("result", images)
                 
                 if cv2.waitKey(1) & 0xFF == ord('q'):

@@ -461,6 +461,54 @@ int fillLineGaps2(unsigned char* coreLine, unsigned char* output, int h, int w, 
 
 }
 
+// Cut the low pixel which below the laser base line. 
+int cutLowPixels(unsigned char* coreLine, unsigned char* output, int h, int w, int low_level_limit)
+{
+	int i, j, m, n;
+	
+	// First step, caculate the max power laser mark. 
+	int* accum_power = (int*)malloc(sizeof(int)*h);
+	for (i=0; i<h; i++)
+	{
+		accum_power[i] = 0;
+	}
+
+	for (i=0; i<h; i++)
+	{
+		for (j=0; j<w; j++)
+		{
+			accum_power[i] += coreLine[i*h + j];
+		}
+	}
+
+	int max_value = 0;
+	int max_index = 0;
+	for (i=0; i<h; i++)
+	{
+		if (accum_power[i] > max_value)
+		{	
+			max_value = accum_power[i];
+			max_index = i;
+		}
+	}
+
+	// Initialize the output to all zero. 
+	for (i=0; i<h*w; i++)
+	{
+		output[i] = 0;
+	}
+
+	// Copy the coreLine to output for the pixels below the lazer line. 
+	for (i=0; i<(max_index+low_level_limit); i++)
+	{
+		for (j=0; j<w; j++)
+		{
+			output[i*w + j] = coreLine[i*w + j];
+		}
+	}
+
+	return 0; 
+}
 
 
 //int getBevelTop(unsigned char* coreLine, float* slope, int h, int w, int* bevelLeft, int* bevelRight, int judgeLength)
