@@ -127,4 +127,29 @@ def getSurfaceAdjustAngle(image, max_angle = 10, min_length = 200, max_line_gap 
 
     return ret_angle 
 
-    
+
+"""
+输入彩色图像，焊缝底部中点位置画出标志线。
+"""
+def drawTag(image, b_center, b_level, bottom_thick = None, bound = None):
+    (h, w) = image.shape[:2]
+    cv2.rectangle(image, (1, 1), (w-2, h-2), (130, 130, 130), 3)
+
+    x1 = b_center
+    x2 = b_center
+
+    y1 = b_level - h//20 
+    if y1 < 0:
+        y1 = 0
+    y2 = b_level + h//5 
+    if y2 > h-1:
+        y2 = h-1
+
+    cv2.line(image, (x1, y1), (x2, y2), (255, 255, 0), 3)
+    if bound != None:
+        cv2.line(image, (bound[0], y1 + 20), (bound[0], y2 - 20), (0, 255, 255), 1)
+        cv2.line(image, (bound[1], y1 + 20), (bound[1], y2 - 20), (0, 255, 255), 1) 
+
+    if bottom_thick != None:
+        cv2.line(image, (x1 + BOTTOM_THICK//2, y1 + 30), (x2 + BOTTOM_THICK//2, y2 - 30), (0, 255, 0), 2)
+        cv2.line(image, (x1 - BOTTOM_THICK//2, y1 + 30), (x2 - BOTTOM_THICK//2, y2 - 30), (0, 255, 0), 2)
