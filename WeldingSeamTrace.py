@@ -927,7 +927,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
     from mptest import init_file, close_file, get_frame_from_file
 
     print("Multiprocess Mode. ")
-    time.sleep(0.5)
+    time.sleep(0.05)
 
     process_lock = multiprocessing.Lock()
     array_temp = np.ones(shape = (1200 * 1920 * 3), dtype = np.ubyte)
@@ -1040,7 +1040,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
                 
         # 根据图像特殊处理
         # ===========================
-        frame = imgRotate(frame, -4)
+        frame = imgRotate(frame, -2)
         # ===========================
         
         if type(frame) != type(None):
@@ -1061,7 +1061,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
 
             # 对应16mm镜头，暂时不切除。
             # ===========================
-            frame = frame[1*h//5:4*h//5, 0:w]
+            frame = frame[2*h//5:h, 0:w]
             # ===========================
 
             #frame = frame[4*h//9:5*h//9, 5*w//13:7*w//12]
@@ -1121,7 +1121,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
                 time_dur_accum += time_dur
                 print('\t[{:3.3f} ms]: 基准线检测完成. '.format(time_dur))
             
-            coreline = cutLowPixels(lib, coreline, low_level_limit = 10)
+            #coreline = cutLowPixels(lib, coreline, low_level_limit = 10)
             gaps = fillLineGaps(lib, coreline, start_pixel = 5)
             result = gaps + coreline
             #result = coreline
@@ -1239,7 +1239,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
             #print(images.shape)
             
             if local_view:
-                images = coreline
+                #images = coreline
                 cv2.imshow("result", images)
                 
                 if cv2.waitKey(1) & 0xFF == ord('q'):

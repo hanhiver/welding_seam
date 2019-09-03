@@ -196,28 +196,29 @@ def get_frame_from_file(shared_array, shared_value, lock, frame_delay = 0.035, t
 
     return_value, frame = vid.read()
 
-    if time_debug:
-        print('Get a frame from file:   {:3.3f} ms'.format((time.time()-time_stamp) * 1000))
-        time_stamp = time.time() 
-    
-    if type(frame) != type(None):
-        #print(frame_in_queue.value)
-        lock.acquire()
-        src = np.ctypeslib.as_ctypes(frame.reshape((HEIGHT * WIDTH * 3)))
-        size = ctypes.sizeof(src)
-        ctypes.memmove(shared_array, src, size)
-        lock.release()
-    
-    if time_debug:
-        print('Send the frame out:     {:3.3f} ms'.format((time.time()-time_stamp) * 1000))
-        time_stamp = time.time()
+    if return_value: 
+        if time_debug:
+            print('Get a frame from file:   {:3.3f} ms'.format((time.time()-time_stamp) * 1000))
+            time_stamp = time.time() 
+        
+        if type(frame) != type(None):
+            #print(frame_in_queue.value)
+            lock.acquire()
+            src = np.ctypeslib.as_ctypes(frame.reshape((HEIGHT * WIDTH * 3)))
+            size = ctypes.sizeof(src)
+            ctypes.memmove(shared_array, src, size)
+            lock.release()
+        
+        if time_debug:
+            print('Send the frame out:     {:3.3f} ms'.format((time.time()-time_stamp) * 1000))
+            time_stamp = time.time()
 
-    time.sleep(frame_delay)
+        time.sleep(frame_delay)
     
-    if time_debug:   
-        print("")
+        if time_debug:   
+            print("")
 
-    return True
+    return return_value
 
 def close_file():
     global vid 

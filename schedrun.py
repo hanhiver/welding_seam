@@ -57,7 +57,8 @@ class SchedRun():
         if self.sub_process_continue.value:
             self.scheduler.enter(self.interval, 1, self.wrap_func)
             #self.sub_process_continue.value = self.func(*self.args)
-            self.func(*self.args)
+            res = self.func(*self.args)
+            self.sub_process_continue.value = res
         else:
             self.scheduler.enter(0.0, 1, self.clean_func, argument = self.clean_args)
             return
