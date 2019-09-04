@@ -426,7 +426,7 @@ def fillLineGaps(lib, coreImage, start_pixel = 0):
 """
 根据激光线强度计算baseline高度。
 """
-def getBaseLineHeight(image)
+def getBaseLineHeight(image):
     sum_array = image.sum(axis=1)
     return sum_array.argmax()
 
