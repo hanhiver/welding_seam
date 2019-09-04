@@ -524,6 +524,12 @@ def normalizeCenter(queue_array, center, queue_length = 10, thres_drop = 100, th
     # 如果差值超过thres_normal，输出和之前均值平均后结果。 
     if delta > thres_normal: 
         print('Center {} OVERED, avg: {}, array: {}'.format(center, avg, queue_array))
+        queue_array.append(center)
+        queue_array = queue_array[1:]
+        # 如果本次有正常数据进入，则清空dropped_array
+        if type(dropped_array) != type(None):
+            dropped_array = []
+        
         return (avg * 2 + center) // 3, queue_array, dropped_array
         #return (avg * 3 + center) // 4, queue_array
 
