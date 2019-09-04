@@ -12,8 +12,8 @@ import arduino_serial as AS
 TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png')
 #TEST_IMAGE = ('rsmall.png', )
 
-BOTTOM_THICK = 80
-NOISY_PIXELS = 20
+BOTTOM_THICK = 150
+NOISY_PIXELS = 30
 BOTTOM_LINE_GAP_MAX = 5
 
 DRAW_BOUND = True
@@ -1046,7 +1046,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
                 
         # 根据图像特殊处理
         # ===========================
-        frame = imgRotate(frame, -2)
+        frame = imgRotate(frame, -5)
         # ===========================
         
         if type(frame) != type(None):
@@ -1067,7 +1067,8 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
 
             # 对应16mm镜头，暂时不切除。
             # ===========================
-            frame = frame[2*h//5:h, 0:w]
+            #frame = frame[2*h//5:h, 0:w]
+            frame = frame[0:h, 0:w]
             # ===========================
 
             #frame = frame[4*h//9:5*h//9, 5*w//13:7*w//12]
