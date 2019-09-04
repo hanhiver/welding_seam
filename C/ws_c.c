@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+extern "C"
+{
+
 int WIDTH = 6;
 int HEIGHT = 6;
 unsigned char IMAGE[] = { 0, 0, 3, 0, 1, 0, 
@@ -683,3 +686,4 @@ int main(int argc, char const *argv[])
 	return 0;
 }
 
+} // extern "C"

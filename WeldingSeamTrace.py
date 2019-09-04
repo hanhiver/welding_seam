@@ -12,9 +12,11 @@ import arduino_serial as AS
 TEST_IMAGE = ('ssmall.png', 'sbig.png', 'rsmall.png')
 #TEST_IMAGE = ('rsmall.png', )
 
-BOTTOM_THICK = 150
+BOTTOM_THICK = 250
 NOISY_PIXELS = 30
 BOTTOM_LINE_GAP_MAX = 5
+
+ADJUST_ANGLE = -1.5
 
 DRAW_BOUND = True
 DRAW_BOTTOM = True
@@ -421,23 +423,12 @@ def fillLineGaps(lib, coreImage, start_pixel = 0):
 
     return resImage
 
-
 """
-将轮廓线激光基准线以下的像素点切除
+根据激光线强度计算baseline高度。
 """
-def cutLowPixels(lib, coreImage, low_level_limit = 10):
-    (h, w) = coreImage.shape[:2]
-    
-    coreLine = np.ctypeslib.as_ctypes(coreImage)
-    outImage = ctypes.create_string_buffer(ctypes.sizeof(ctypes.c_uint8) * w * h)
-
-    lib.cutLowPixels(coreLine, outImage, h, w, low_level_limit)
-
-    outImage = ctypes.cast(outImage, ctypes.POINTER(ctypes.c_uint8))
-    resImage = np.ctypeslib.as_array(outImage, shape = (h, w))
-
-    return resImage
-
+def getBaseLineHeight(image)
+    sum_array = image.sum(axis=1)
+    return sum_array.argmax()
 
 """
 输入彩色图像，焊缝底部中点位置画出标志线。
@@ -1046,7 +1037,7 @@ def wsVideoPhaseMP(input, output, local_view = True, arduino = False, time_debug
                 
         # 根据图像特殊处理
         # ===========================
-        frame = imgRotate(frame, -5)
+        frame = imgRotate(frame, ADJUST_ANGLE)
         # ===========================
         
         if type(frame) != type(None):
