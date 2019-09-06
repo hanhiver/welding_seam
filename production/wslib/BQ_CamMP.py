@@ -6,8 +6,9 @@ import ctypes
 import multiprocessing
 from multiprocessing.sharedctypes import RawArray, RawValue
 
-import pylib.schedrun as schedrun
-import hwlib.GigE_Daheng as gige 
+sys.path.append("..")
+import wslib.pylib.schedrun as schedrun
+import wslib.hwlib.GigE_Daheng as gige 
 
 """
 BQ_Cam提供了多进程打开文件或者相机功能。
