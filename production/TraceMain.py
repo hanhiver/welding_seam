@@ -27,8 +27,8 @@ def on_mouse(event, x, y, flags, param):
         point2y = y
 
 
-def nothing():
-    pass
+def nothing(input):
+    print("Set to: ", input)
 
 def main(filename):
     global point1x,point1y,point2x,point2y
@@ -39,7 +39,7 @@ def main(filename):
     cv2.resizeWindow("result", 1000, 700)
     cv2.moveWindow("result", 100, 100)
     cv2.setMouseCallback('result', on_mouse)
-    cv2.createTrackbar('Bottom_Thick','result',20,300,nothing)
+    cv2.createTrackbar('Bottom_Thick','result',20,500,nothing)
     BOTTOM_THICK = cv2.getTrackbarPos('Bottom_Thick','result')
     #showCrosshair = False
     #fromCenter = False
