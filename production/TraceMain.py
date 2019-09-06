@@ -5,12 +5,46 @@ import time
 
 from wslib.BQ_CamMP import BQ_Cam
 
+point1x = 0
+point1y = 0
+point2x = 0
+point2y = 0
+leftButtonDownFlag = False
+
+def on_mouse(event, x, y, flags, param):
+    global point1x,point1y,point2x,point2y,leftButtonDownFlag
+    if event == cv2.EVENT_LBUTTONDOWN:         #左键点击
+        leftButtonDownFlag = True
+        point1x = x
+        point1y = y
+    elif event == cv2.EVENT_MOUSEMOVE:         #左键移动
+        if(leftButtonDownFlag==True):
+            point2x = x
+            point2y = y
+    elif event == cv2.EVENT_LBUTTONUP:         #左键释放
+        leftButtonDownFlag = False
+        point2x = x
+        point2y = y
+
+
+def nothing():
+    pass
+
 def main(filename):
+    global point1x,point1y,point2x,point2y
+
     cam = BQ_Cam(filename)
     
     cv2.namedWindow("result", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("result", 1000, 700)
     cv2.moveWindow("result", 100, 100)
+    cv2.setMouseCallback('result', on_mouse)
+    cv2.createTrackbar('Bottom_Thick','result',20,300,nothing)
+    BOTTOM_THICK = cv2.getTrackbarPos('Bottom_Thick','result')
+    #showCrosshair = False
+    #fromCenter = False
+    #r = cv2.selectROI("Image", frame, fromCenter, showCrosshair)
+    #print(r)
 
     accum_time = 0
     curr_fps = 0
@@ -44,7 +78,12 @@ def main(filename):
         cv2.putText(frame, text=show_fps, org=(30, 160), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
                     fontScale=font_scale, color=(0, 0, 255), thickness=2)
 
+        if (point1x + point1y + point2x + point2y) > 0:
+            cv2.rectangle(frame, pt1 = (point1x, point1y), pt2 = (point2x, point2y), 
+                          color = (0, 255, 0), thickness = 2)
+
         cv2.imshow('result', frame)
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
