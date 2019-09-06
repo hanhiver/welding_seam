@@ -12,7 +12,7 @@ def initCLib(so_file = "./libws_c.so"):
     so_file = './libws_c.so'
     lib = ctypes.cdll.LoadLibrary(so_file)
     
-    lib.testlib()
+    #lib.testlib()
 
     return lib	
 

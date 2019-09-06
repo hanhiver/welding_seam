@@ -5,14 +5,16 @@ import time
 
 from wslib.BQ_CamMP import BQ_Cam
 
-point1x = 0
-point1y = 0
-point2x = 0
-point2y = 0
-leftButtonDownFlag = False
+BOTTOM_THICK
+
+# 共享变量
+roi1x, roi1y, roi2x, roi2y = 0, 0, 0, 0           # ROI坐标
+point1x, point1y, point2x, point2y = 0, 0, 0, 0   # 鼠标事件坐标
+leftButtonDownFlag = False                        # 鼠标释放标志
 
 def on_mouse(event, x, y, flags, param):
-    global point1x,point1y,point2x,point2y,leftButtonDownFlag
+    global point1x, point1y, point2x, point2y, leftButtonDownFlag
+    global roi1x, roi1y, roi2x, roi2y
     if event == cv2.EVENT_LBUTTONDOWN:         #左键点击
         leftButtonDownFlag = True
         point1x = x
@@ -25,13 +27,18 @@ def on_mouse(event, x, y, flags, param):
         leftButtonDownFlag = False
         point2x = x
         point2y = y
+        roi1x = point1x
+        roi1y = point1y
+        roi2x = point2x
+        roi2y = point2y
 
-
-def nothing(input):
-    print("Set to: ", input)
+def set_bottom_thick(input):
+    global BOTTOM_THICK 
+    BOTTOM_THICK = input
 
 def main(filename):
-    global point1x,point1y,point2x,point2y
+    global point1x, point1y, point2x, point2y
+    global roi1x, roi1y, roi2x, roi2y
 
     cam = BQ_Cam(filename)
     
@@ -41,10 +48,6 @@ def main(filename):
     cv2.setMouseCallback('result', on_mouse)
     cv2.createTrackbar('Bottom_Thick','result',20,500,nothing)
     BOTTOM_THICK = cv2.getTrackbarPos('Bottom_Thick','result')
-    #showCrosshair = False
-    #fromCenter = False
-    #r = cv2.selectROI("Image", frame, fromCenter, showCrosshair)
-    #print(r)
 
     accum_time = 0
     curr_fps = 0
@@ -52,6 +55,10 @@ def main(filename):
     show_fps = "Show FPS: ??"
     gige_fps = "GigE FPS: ??"
     font_scale = cam.width//800 + 1
+
+    # 初始设置ROI为整幅图像
+    roi2x = cam.width
+    roi2y = cam.height
     
     while True: 
         (ok, fps, frame) = cam.read()       
@@ -78,9 +85,13 @@ def main(filename):
         cv2.putText(frame, text=show_fps, org=(30, 160), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
                     fontScale=font_scale, color=(0, 0, 255), thickness=2)
 
-        if (point1x + point1y + point2x + point2y) > 0:
-            cv2.rectangle(frame, pt1 = (point1x, point1y), pt2 = (point2x, point2y), 
-                          color = (0, 255, 0), thickness = 2)
+        if (roi1x + roi1y + roi2x + roi2y) > 0:
+            cv2.rectangle(frame, pt1=(roi1x, roi1y), pt2=(roi2x, roi2y), 
+                          color=(0, 255, 0), thickness=2)
+
+        if leftButtonDownFlag == True and (point1x + point1y + point2x + point2y) > 0:
+            cv2.rectangle(frame, pt1=(point1x, point1y), pt2=(point2x, point2y), 
+                          color=(0, 0, 255), thickness=2)
 
         cv2.imshow('result', frame)
 
