@@ -10,8 +10,10 @@ import wslib.pylib.schedrun as schedrun
 import wslib.hwlib.GigE_Daheng as gige 
 
 def main(filename):
+    (w, h) = gige.get_resolution(filename)
+
     process_lock = multiprocessing.Lock()
-    array_temp = np.ones(shape = (gige.HEIGHT * gige.WIDTH * 3), dtype = np.ubyte)
+    array_temp = np.ones(shape = (h * w * 3), dtype = np.ubyte)
     shared_array = RawArray(ctypes.c_ubyte, array_temp)
     shared_value = RawValue(ctypes.c_uint, 0)
 
@@ -30,7 +32,7 @@ def main(filename):
     prev_time = time.time()
     show_fps = "Show FPS: ??"
     gige_fps = "GigE FPS: ??"
-    font_scale = gige.WIDTH//800 + 1
+    font_scale = w//800 + 1
     
     while True:        
         if shared_value.value > 10000:
@@ -47,7 +49,7 @@ def main(filename):
         process_lock.acquire()
         frame = np.array(shared_array, dtype = np.uint8)
         process_lock.release()
-        frame = frame.reshape((gige.HEIGHT, gige.WIDTH, 3))
+        frame = frame.reshape((h, w, 3))
         
         curr_time = time.time()
         exec_time = curr_time - prev_time

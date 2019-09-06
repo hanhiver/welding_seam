@@ -29,30 +29,55 @@ prev_time = time.time()      # 帧率计算时间戳
 
 
 """
+获取文件或者摄像头的分辨率。
+"""
+def get_resolution(filename = None):
+    global WIDTH
+    global HEIGHT
+    
+    if filename is None:
+        return (WIDTH, HEIGHT)
+
+    vid = cv2.VideoCapture(filename)
+
+    if not vid.isOpened():
+        raise IOError("打开文件或本地相机失败: {}".format(input))
+
+    (WIDTH, HEIGHT) = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                        int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+
+    vid.release()
+
+    return (WIDTH, HEIGHT)
+
+
+"""
 相机初始化程序
+cam_ip: 相机的IP地址。
 width, height: 相机分辨率设置
 auto_expose: 自动曝光
 auto_balance: 自动白平衡
 """
-def init_camera(width = 1920, height = 1200, auto_expose = True, auto_balance = True):
+def init_camera(cam_ip = None, width = 1920, height = 1200, auto_expose = True, auto_balance = True):
     import gxipy as gx 
     global cam 
     global device_manager
 
     try:
-        # Create a device manager. 
-        device_manager = gx.DeviceManager()
-        dev_num, dev_info_list = device_manager.update_device_list()
-        if dev_num == 0:
-            print('没有找到可用设备。')
-            return False
-    
-        # Get the first cam's IP address. 
-        cam_ip = dev_info_list[0].get("ip")
-        print('打开网络相机 (IP: {}), 进程PID: {}.'.format(cam_ip, os.getpid()))
-    
-        # Open the first device. 
+        if cam_ip is None:
+            # Create a device manager. 
+            device_manager = gx.DeviceManager()
+            dev_num, dev_info_list = device_manager.update_device_list()
+            if dev_num == 0:
+                print('没有找到可用设备。')
+                return False
+        
+            # Get the first cam's IP address. 
+            cam_ip = dev_info_list[0].get("ip")
+            
+        # Open the device. 
         cam = device_manager.open_device_by_ip(cam_ip)
+        print('打开网络相机 (IP: {}), 进程PID: {}.'.format(cam_ip, os.getpid()))
     
         # Set continues acquisition.
         cam.TriggerMode.set(gx.GxSwitchEntry.OFF)
@@ -200,7 +225,6 @@ def init_file(filename):
     (WIDTH, HEIGHT) = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)),
                         int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
-
 """
 从本地文件或者本地相机读取一帧并写入共享存储区。
 shared_array: multiprocessing.sharedctypes.RawArray多进程共享内存空间。
@@ -209,7 +233,7 @@ lock: multiprocessing.Lock()进程间同步锁。
 frame_delay: 每帧图像间隔时间。
 time_debug: 是否打印debug信息。
 """
-def get_frame_from_file(shared_array, shared_value, lock, frame_delay = 0.02, time_debug = False):
+def get_frame_from_file(shared_array, shared_value, lock, frame_delay = 0.03, time_debug = False):
     global vid  
     global accum_time
     global curr_fps
@@ -267,9 +291,11 @@ def get_frame_from_file(shared_array, shared_value, lock, frame_delay = 0.02, ti
 """
 def close_file():
     global vid 
+
+    vid.release()
     
     print("Camera closed. PID: ", os.getpid())
-    return
+    return True
 
 
 """
@@ -395,13 +421,7 @@ def main(filename):
         cv2.imshow('result', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-            """
-            sched_run.stop()
-            cv2.destroyAllWindows()
-            return True
-            """
 
-    # Normally, should not be here. 
     sched_run.stop()
     cv2.destroyAllWindows()
 
