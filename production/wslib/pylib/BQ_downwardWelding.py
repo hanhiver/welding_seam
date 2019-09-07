@@ -3,6 +3,10 @@ import numpy as np
 import cv2 
 import ctypes
 import time
+import sys
+
+sys.path.append("..")
+import wslib.clib.BQ_clib as clib 
 
 BOTTOM_THICK = 80
 NOISY_PIXELS = 20
@@ -15,7 +19,7 @@ noisy_pixels: 作为噪音滤除的像素数目
 cut_lines: 是否将底部小平台分成不同线段识别最长线段的中点位置。
 """
 def getBottomCenter(lib, coreImage, bottom_thick = 30, noisy_pixels = 0, cut_lines = True):
-    index = coreLine2Index(lib, coreImage)
+    index = clib.coreLine2Index(lib, coreImage)
     srt = index.argsort(kind = 'stable')
     
     idx = srt[:bottom_thick]
@@ -56,7 +60,7 @@ def getBottomCenter(lib, coreImage, bottom_thick = 30, noisy_pixels = 0, cut_lin
     return center, level, bound
 
 def getBottomCenter_old(lib, coreImage, bottom_thick = 30, noisy_pixels = 0):
-    index = coreLine2Index(lib, coreImage)
+    index = clib.coreLine2Index(lib, coreImage)
     srt = index.argsort(kind = 'stable')
     idx = srt[:bottom_thick]
 

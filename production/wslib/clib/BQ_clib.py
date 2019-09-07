@@ -1,5 +1,5 @@
 import math
-import numpy as numpy
+import numpy as np
 import ctypes
 import time
 
@@ -8,11 +8,8 @@ import time
 """
 def initCLib(so_file = "./libws_c.so"):
 	
-    print('Load C lib. ')
-    so_file = './libws_c.so'
+    #so_file = './libws_c.so'
     lib = ctypes.cdll.LoadLibrary(so_file)
-    
-    #lib.testlib()
 
     return lib	
 
@@ -89,7 +86,7 @@ def getLineImage(lib, image, black_limit = 0):
     level = (h//2, h//2)
 
     coreImage = getCoreImage(lib, image, black_limit = black_limit)
-    lineImage = followCoreLine(lib, coreImage, level, min_gap = 100//RESIZE, black_limit = black_limit)
+    lineImage = followCoreLine(lib, coreImage, level, min_gap = 5, black_limit = black_limit)
 
     return lineImage
 

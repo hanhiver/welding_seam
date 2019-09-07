@@ -4,13 +4,14 @@ import cv2
 import time
 
 from wslib.BQ_CamMP import BQ_Cam
-
-BOTTOM_THICK
+from wslib.BQ_wsPos import BQ_WsPos, PosNormalizer
+from wslib.pylib.BQ_imageLib import drawTag
 
 # 共享变量
 roi1x, roi1y, roi2x, roi2y = 0, 0, 0, 0           # ROI坐标
 point1x, point1y, point2x, point2y = 0, 0, 0, 0   # 鼠标事件坐标
 leftButtonDownFlag = False                        # 鼠标释放标志
+ws = None 
 
 def on_mouse(event, x, y, flags, param):
     global point1x, point1y, point2x, point2y, leftButtonDownFlag
@@ -27,26 +28,31 @@ def on_mouse(event, x, y, flags, param):
         leftButtonDownFlag = False
         point2x = x
         point2y = y
-        roi1x = point1x
-        roi1y = point1y
-        roi2x = point2x
-        roi2y = point2y
+        if (point2x - point1x) > 100 and (point2y - point1y) > 100: 
+            roi1x = point1x
+            roi1y = point1y
+            roi2x = point2x
+            roi2y = point2y
 
 def set_bottom_thick(input):
-    global BOTTOM_THICK 
-    BOTTOM_THICK = input
+    global ws
+    ws.bottom_thick = input
 
 def main(filename):
     global point1x, point1y, point2x, point2y
     global roi1x, roi1y, roi2x, roi2y
+    global ws 
 
     cam = BQ_Cam(filename)
+    ws = BQ_WsPos() 
+    pn = PosNormalizer()
+    ws.testlib()
     
     cv2.namedWindow("result", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("result", 1000, 700)
     cv2.moveWindow("result", 100, 100)
     cv2.setMouseCallback('result', on_mouse)
-    cv2.createTrackbar('Bottom_Thick','result',20,500,nothing)
+    cv2.createTrackbar('Bottom_Thick', 'result', ws.bottom_thick, 500, set_bottom_thick)
     BOTTOM_THICK = cv2.getTrackbarPos('Bottom_Thick','result')
 
     accum_time = 0
@@ -66,6 +72,26 @@ def main(filename):
         if not ok:
             print("Cam Error or file EOF. ")
             break
+
+        roi_image = frame[roi1y:roi2y, roi1x:roi2x]
+        #roi_image = cv2.normalize(roi_image,dst=None,alpha=350,beta=10,norm_type=cv2.NORM_MINMAX)
+
+        roi_center, roi_level, roi_bound = ws.phaseImage(roi_image)
+        frame = ws.fillCoreline2Image(frame, roi1x, roi1y)
+        
+        real_center = roi1x + roi_center
+        real_level = roi1y + roi_level
+        real_bound = (roi_bound[0]+roi1x, roi_bound[1]+roi1x)
+        real_center, roi_move = pn.normalizeCenter(real_center)
+
+        # Update ROI base on the new center. 
+        roi1x_update = roi1x + roi_move
+        roi2x_update = roi2x + roi_move
+        if roi1x_update > 0 and roi2x_update < cam.width:
+            roi1x = roi1x_update
+            roi2x = roi2x_update
+
+        drawTag(frame, real_center, real_level, bound = real_bound)
 
         gige_fps = "GigE FPS: " + str(fps)
         
