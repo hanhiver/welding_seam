@@ -117,7 +117,7 @@ def main(filename):
     show_fps = "Show FPS: ??"
     gige_fps = "GigE FPS: ??"
     font_scale = cam.width//800 + 1
-    
+    clahe = cv2.createCLAHE(clipLimit = 40, tileGridSize = (8, 8))
     while True: 
         (ok, fps, frame) = cam.read()       
         
@@ -136,6 +136,10 @@ def main(filename):
             accum_time = accum_time - 1
             show_fps = "Show FPS: " + str(curr_fps)
             curr_fps = 0
+
+        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+        #frame = cv2.equalizeHist(frame)
+        clahe.apply(frame)
                 
         #fps = gige_fps + " VS " + show_fps
         cv2.putText(frame, text=gige_fps, org=(30, 80), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 

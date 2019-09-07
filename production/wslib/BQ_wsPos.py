@@ -32,6 +32,7 @@ class BQ_WsPos():
         self.lib = clib.initCLib(so_file)
         self.bottom_thick = bottom_thick
         self.noisy_pixels = noisy_pixels
+        self.clahe = cv2.createCLAHE(clipLimit = 40, tileGridSize = (8, 8))
 
     """
     测试库文件是否正常加载。
@@ -54,6 +55,7 @@ class BQ_WsPos():
 
         # 图像灰度转换
         self.gray = cv2.cvtColor(self.image, cv2.COLOR_RGB2GRAY)
+        self.clahe.apply(self.gray)
 
         # 黑场检测和阈值切割
         mean = self.gray.mean()
@@ -111,7 +113,7 @@ class BQ_WsPos():
         pass
 
     def phaseImage(self, image):
-        self.image = image 
+        self.image = image
         self.img2baseline()
         center, level, bound = self.getBottomCenter()
 

@@ -6,12 +6,14 @@ import time
 from wslib.BQ_CamMP import BQ_Cam
 from wslib.BQ_wsPos import BQ_WsPos, PosNormalizer
 from wslib.pylib.BQ_imageLib import drawTag
+from wslib.pylib.loggerManager import LoggerManager
 
 # 共享变量
 roi1x, roi1y, roi2x, roi2y = 0, 0, 0, 0           # ROI坐标
 point1x, point1y, point2x, point2y = 0, 0, 0, 0   # 鼠标事件坐标
 leftButtonDownFlag = False                        # 鼠标释放标志
 ws = None 
+logger_manager = None  # 多进程日志文件记录
 
 def on_mouse(event, x, y, flags, param):
     global point1x, point1y, point2x, point2y, leftButtonDownFlag
@@ -38,14 +40,26 @@ def set_bottom_thick(input):
     global ws
     ws.bottom_thick = input
 
-def main(filename):
+def main(filename, log_level = 'warning'):
     global point1x, point1y, point2x, point2y
     global roi1x, roi1y, roi2x, roi2y
     global ws 
+    global logger_manager
+
+    logger_manager = LoggerManager(log_level = log_level)
+
+    logger = logger_manager.get_logger('TraceMain')
+    logger.info("进入TraceMain主程序。")
 
     cam = BQ_Cam(filename)
+    logger.debug("初始化cam完成。")
+
     ws = BQ_WsPos() 
+    logger.debug("初始化WsPos完成。")
+
     pn = PosNormalizer()
+    logger.debug("初始化PosNormalizer完成。")
+
     ws.testlib()
     
     cv2.namedWindow("result", cv2.WINDOW_NORMAL)
@@ -53,7 +67,7 @@ def main(filename):
     cv2.moveWindow("result", 100, 100)
     cv2.setMouseCallback('result', on_mouse)
     cv2.createTrackbar('Bottom_Thick', 'result', ws.bottom_thick, 500, set_bottom_thick)
-    BOTTOM_THICK = cv2.getTrackbarPos('Bottom_Thick','result')
+    logger.debug("初始化显示窗口完成。")
 
     accum_time = 0
     curr_fps = 0
@@ -67,15 +81,16 @@ def main(filename):
     roi2y = cam.height
     
     while True: 
-        (ok, fps, frame) = cam.read()       
+        (ok, fps, frame) = cam.read()
+        logger.debug("获取一帧图像。")    
         
         if not ok:
+            logger.critical("相机错误或者文件到达末尾。")
             print("Cam Error or file EOF. ")
             break
 
         roi_image = frame[roi1y:roi2y, roi1x:roi2x]
-        #roi_image = cv2.normalize(roi_image,dst=None,alpha=350,beta=10,norm_type=cv2.NORM_MINMAX)
-
+        
         roi_center, roi_level, roi_bound = ws.phaseImage(roi_image)
         frame = ws.fillCoreline2Image(frame, roi1x, roi1y)
         
@@ -124,10 +139,12 @@ def main(filename):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
+    logger.debug("退出TraceMain主程序，销毁所有显示窗口。")
+    logger_manager.stop()
     cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main(sys.argv[1], log_level = 'debug')
 
 
