@@ -12,7 +12,7 @@ from wslib.pylib.loggerManager import LoggerManager
 # 手动设置参数
 BOTTOM_THICK = 100     # 初始的底部平台宽度。
 NOISY_RATIO = 5        # 底部平台当做噪音滤除的分量，noisy_pixels = botton_thick // NOISY_RATIO
-ADJUST_ANGLE = 0       # 根据激光线和相机的安装位置调整初始的图像旋转角度。
+ADJUST_ANGLE = -5       # 根据激光线和相机的安装位置调整初始的图像旋转角度。
 
 # 共享变量
 roi1x, roi1y, roi2x, roi2y = 0, 0, 0, 0           # ROI坐标
