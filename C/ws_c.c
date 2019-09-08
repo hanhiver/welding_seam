@@ -158,6 +158,7 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 	{
 		index[i] = -1;
 	}
+	//printf("CLIB init finished. \n");
 
 	for (i=0; i<h; i++)
 	{
@@ -166,6 +167,7 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 			dst[i*w + j] = 0;
 		}
 	}
+	//printf("CLIB dst cleanup. \n");
 	//printf("\n");
 
 	for (i=0; i<w; i++)
@@ -203,6 +205,7 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 			pre_level = core_pos;
 		}
 	}
+	//printf("CLIB left2right. \n");
 
 	core_pos = 0; 
 	min_dist = h;
@@ -264,18 +267,29 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 					}
 				}
 			}
-			
-			if (src[index[i]*w + i] <= src[core_pos*w + i])
+
+			//printf("outside. i: %d. \n", i);
+			//printf("outside. index[i]: %d. \n", index[i]);
+			if (index[i] > 0)
 			{
-				dst[index[i]*w + i] = 0;
-				index[i] = core_pos;
-				dst[core_pos*w + i] = 255;
-				//dst[core_pos*w + i] = src[core_pos*w + i];
-				pre_level = core_pos;
+				if (src[index[i]*w + i] <= src[core_pos*w + i])
+				{
+					//printf("into. i: %d. \n", i);
+					//printf("into. index[i]: %d. \n", index[i]);
+					dst[index[i]*w + i] = 0;
+					//printf("check 1.\n");
+					index[i] = core_pos;
+					dst[core_pos*w + i] = 255;
+					//printf("check 2.\n");
+					//dst[core_pos*w + i] = src[core_pos*w + i];
+					pre_level = core_pos;
+					//printf("phase2.\n");
+				}
 			}
 
 		}
 	}
+	//printf("CLIB right2left. \n");
 
 	return 0;
 }

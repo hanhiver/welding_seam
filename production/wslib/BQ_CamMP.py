@@ -28,7 +28,8 @@ class BQ_Cam():
     def __init__(self, filename = None, cam_ip = None,  
                  width = 1920, height = 1200, 
                  auto_expose = True, auto_balance = True):
-
+        print("Filename: ", filename)
+        self.sched_run = None
         if filename is None:
             # 设置相机模式标识。
             self.mode = 0
@@ -53,7 +54,6 @@ class BQ_Cam():
         self.shared_array = RawArray(ctypes.c_ubyte, self.array_temp)
         self.shared_value = RawValue(ctypes.c_uint, 0)
 
-        self.sched_run = None
         if self.mode == 0: 
             self.sched_run = schedrun.SchedRun(
                         func = get_frame_from_camera, args = (self.shared_array, self.shared_value, self.process_lock, False, ), 

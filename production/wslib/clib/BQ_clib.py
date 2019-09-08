@@ -84,10 +84,11 @@ black_limit: 小于等于这个值的点会被视作黑色。
 def getLineImage(lib, image, black_limit = 0):
     (h, w) = image.shape[:2]
     level = (h//2, h//2)
-
+    #print("into getLineImage")
     coreImage = getCoreImage(lib, image, black_limit = black_limit)
+    #print("finish getCoreImage")
     lineImage = followCoreLine(lib, coreImage, level, min_gap = 5, black_limit = black_limit)
-
+    #print("finish followCoreLine")
     return lineImage
 
 """

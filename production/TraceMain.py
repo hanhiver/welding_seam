@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import cv2
 import time
+import argparse
 
 from wslib.BQ_CamMP import BQ_Cam
 from wslib.BQ_wsPos import BQ_WsPos, PosNormalizer
@@ -13,7 +14,9 @@ roi1x, roi1y, roi2x, roi2y = 0, 0, 0, 0           # ROI坐标
 point1x, point1y, point2x, point2y = 0, 0, 0, 0   # 鼠标事件坐标
 leftButtonDownFlag = False                        # 鼠标释放标志
 ws = None 
-logger_manager = None  # 多进程日志文件记录
+logger_manager = None  # 多进程日志文件记录管理器
+logger = None # 本日志文件记录器。
+time_stamp = time.time()
 
 def on_mouse(event, x, y, flags, param):
     global point1x, point1y, point2x, point2y, leftButtonDownFlag
@@ -30,7 +33,7 @@ def on_mouse(event, x, y, flags, param):
         leftButtonDownFlag = False
         point2x = x
         point2y = y
-        if (point2x - point1x) > 100 and (point2y - point1y) > 100: 
+        if (point2x - point1x) > 50 and (point2y - point1y) > 50: 
             roi1x = point1x
             roi1y = point1y
             roi2x = point2x
@@ -44,7 +47,7 @@ def main(filename, log_level = 'warning'):
     global point1x, point1y, point2x, point2y
     global roi1x, roi1y, roi2x, roi2y
     global ws 
-    global logger_manager
+    global logger_manager, logger
 
     logger_manager = LoggerManager(log_level = log_level)
 
@@ -54,10 +57,10 @@ def main(filename, log_level = 'warning'):
     cam = BQ_Cam(filename)
     logger.debug("初始化cam完成。")
 
-    ws = BQ_WsPos() 
+    ws = BQ_WsPos(logger_manager) 
     logger.debug("初始化WsPos完成。")
 
-    pn = PosNormalizer()
+    pn = PosNormalizer(logger_manager)
     logger.debug("初始化PosNormalizer完成。")
 
     ws.testlib()
@@ -66,7 +69,7 @@ def main(filename, log_level = 'warning'):
     cv2.resizeWindow("result", 1000, 700)
     cv2.moveWindow("result", 100, 100)
     cv2.setMouseCallback('result', on_mouse)
-    cv2.createTrackbar('Bottom_Thick', 'result', ws.bottom_thick, 500, set_bottom_thick)
+    cv2.createTrackbar('跟踪宽度', 'result', ws.bottom_thick, 500, set_bottom_thick)
     logger.debug("初始化显示窗口完成。")
 
     accum_time = 0
@@ -81,8 +84,16 @@ def main(filename, log_level = 'warning'):
     roi2y = cam.height
     
     while True: 
+
+        time_stamp = frame_stamp = time.time()
+
         (ok, fps, frame) = cam.read()
-        logger.debug("获取一帧图像。")    
+        logger.debug("获取一帧图像。")   
+
+        time_curr = time.time()
+        time_due = (time_curr - time_stamp) * 1000
+        time_stamp = time_curr
+        logger.info("    {:3.3f} ms 获取一帧图像。".format(time_due)) 
         
         if not ok:
             logger.critical("相机错误或者文件到达末尾。")
@@ -90,14 +101,30 @@ def main(filename, log_level = 'warning'):
             break
 
         roi_image = frame[roi1y:roi2y, roi1x:roi2x]
+        logger.debug("按照ROI切割图像，(x1: {}, y1: {}), (x2: {}, y2: {})".format(roi1x, roi1y, roi2x, roi2y))
         
+        logger.debug("开始分析ROI图像，bottom_thick: {}, noisy_pixels: {}".format(ws.bottom_thick, ws.noisy_pixels))
         roi_center, roi_level, roi_bound = ws.phaseImage(roi_image)
-        frame = ws.fillCoreline2Image(frame, roi1x, roi1y)
+        logger.debug("分析ROI图像完成， center: {}, level: {}, bound {}".format(roi_center, roi_level, roi_bound))
         
+        time_curr = time.time()
+        time_due = (time_curr - time_stamp) * 1000
+        time_stamp = time_curr
+        logger.info("    {:3.3f} ms 分析一帧图像。".format(time_due)) 
+
+        frame = ws.fillCoreline2Image(frame, roi1x, roi1y)
+        logger.debug("显示图像填充完成，x: {}, y: {}".format(roi_center, roi1x, roi1y))
+        
+        time_curr = time.time()
+        time_due = (time_curr - time_stamp) * 1000
+        time_stamp = time_curr
+        logger.info("    {:3.3f} ms 填充图像轮廓。".format(time_due)) 
+
         real_center = roi1x + roi_center
         real_level = roi1y + roi_level
         real_bound = (roi_bound[0]+roi1x, roi_bound[1]+roi1x)
         real_center, roi_move = pn.normalizeCenter(real_center)
+        logger.debug("输出中点平滑降噪完成，real_center: {}, roi_move: {}".format(real_center, roi_move))
 
         # Update ROI base on the new center. 
         roi1x_update = roi1x + roi_move
@@ -105,8 +132,15 @@ def main(filename, log_level = 'warning'):
         if roi1x_update > 0 and roi2x_update < cam.width:
             roi1x = roi1x_update
             roi2x = roi2x_update
+            logger.debug("ROI窗口自动跟踪移动完成，roi1x: {}, roi2x: {}".format(roi1x, roi2x))
+
+        time_curr = time.time()
+        time_due = (time_curr - time_stamp) * 1000
+        time_stamp = time_curr
+        logger.info("    {:3.3f} ms 输出降噪和ROI跟踪。".format(time_due)) 
 
         drawTag(frame, real_center, real_level, bound = real_bound)
+        logger.debug("输出图像标记完成。")
 
         gige_fps = "GigE FPS: " + str(fps)
         
@@ -134,10 +168,25 @@ def main(filename, log_level = 'warning'):
             cv2.rectangle(frame, pt1=(point1x, point1y), pt2=(point2x, point2y), 
                           color=(0, 0, 255), thickness=2)
 
+        time_curr = time.time()
+        time_due = (time_curr - time_stamp) * 1000
+        time_stamp = time_curr
+        logger.info("    {:3.3f} ms 输出图像标记。".format(time_due)) 
+
         cv2.imshow('result', frame)
+        logger.debug("图像输出屏幕完成。")
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
+            logger.debug("收到手动退出指令。")
             break
+
+        time_curr = time.time()
+        time_due = (time_curr - time_stamp) * 1000
+        time_stamp = time_curr
+        logger.info("    {:3.3f} ms 图像屏幕输出。".format(time_due)) 
+
+        time_due = (time.time() - frame_stamp) * 1000
+        logger.info("{:3.3f} ms 本帧图像处理完成。".format(time_due))
 
     logger.debug("退出TraceMain主程序，销毁所有显示窗口。")
     logger_manager.stop()
@@ -145,6 +194,32 @@ def main(filename, log_level = 'warning'):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], log_level = 'debug')
+    print(sys.argv[1])
+    parser = argparse.ArgumentParser()
+
+    # 输出文件。
+    parser.add_argument('-o', '--output', type = str, default = '', 
+                        help = '[Optional] Output video. ')
+
+    # 是否连接Arduino_serial进行通讯。
+    parser.add_argument('-a', '--arduino', default = False, action = "store_true", 
+                        help = '[Enable the Arduino Serial Communication. ')
+    
+    # 日志级别
+    parser.add_argument('-l', '--loglevel', type = str, default = 'warning',
+                        help = '[Optional] Log level. WARNING is default. ')
+
+    # 是否将处理后结果显示。
+    parser.add_argument('-lv', '--localview', default = False, action = "store_true",
+                        help = '[Optional] If shows result to local view. ')    
+
+    # 默认处理所有文件选项。
+    parser.add_argument('input', type = str, default = None, nargs = '+',
+                        help = 'Input files. ')
+
+    FLAGS = parser.parse_args()
+
+    main(FLAGS.input[0],  
+         log_level = FLAGS.loglevel)
 
 

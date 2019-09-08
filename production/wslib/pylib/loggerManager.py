@@ -81,8 +81,9 @@ class LoggerManager():
 		# Standard loging message format:
 		# time, log_level, <process_id:thread_name> - [module.func_name] log_messages. 
 		if not log_format:
-			log_format = '%(asctime)s %(levelname)7s  <%(process)s:%(threadName)s> - [%(name)s.%(funcName)s] - %(filename)s[line:%(lineno)d] %(message)s'
-		
+			#log_format = '%(asctime)s %(levelname)7s  <%(process)s:%(threadName)s> - [%(name)s.%(funcName)s] - %(filename)s[line:%(lineno)d] %(message)s'
+			log_format = '%(asctime)s %(levelname)7s  <%(process)s:%(threadName)s> - %(message)s'
+
 		self.formatter = logging.Formatter(log_format)
 
 		# Queue handler to recieve msg from other processes. 
