@@ -87,6 +87,11 @@ class BQ_WsPos():
                                 black_limit = self.black_limit)
         self.logger.debug("轮廓识别完成。")
         
+        time_curr = time.time()
+        time_due = (time_curr - time_stamp) * 1000
+        time_stamp = time_curr
+        self.logger.info("        {:3.3f} ms 轮廓识别".format(time_due))
+
         self.gaps = clib.fillLineGaps(
                                 self.lib, 
                                 self.coreline, 
@@ -98,7 +103,7 @@ class BQ_WsPos():
         time_curr = time.time()
         time_due = (time_curr - time_stamp) * 1000
         time_stamp = time_curr
-        self.logger.info("        {:3.3f} ms 轮廓识别和缺损填补。".format(time_due))
+        self.logger.info("        {:3.3f} ms 缺损填补。".format(time_due))
 
         return self.coreline
 
