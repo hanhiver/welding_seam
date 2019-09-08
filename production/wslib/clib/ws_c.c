@@ -266,12 +266,11 @@ int followCoreLine(unsigned char* src, unsigned char* dst, int h, int w, int ref
 						continue;
 					}
 				}
-			}
 
 			//printf("outside. i: %d. \n", i);
 			//printf("outside. index[i]: %d. \n", index[i]);
-			if (index[i] > 0)
-			{
+			//if (index[i] > 0)
+			//{
 				if (src[index[i]*w + i] <= src[core_pos*w + i])
 				{
 					//printf("into. i: %d. \n", i);

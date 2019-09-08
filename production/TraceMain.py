@@ -43,7 +43,7 @@ def set_bottom_thick(input):
     global ws
     ws.bottom_thick = input
 
-def main(filename, log_level = 'warning'):
+def main(filename, output, arduino = False, log_level = 'warning'):
     global point1x, point1y, point2x, point2y
     global roi1x, roi1y, roi2x, roi2y
     global ws 
@@ -54,7 +54,7 @@ def main(filename, log_level = 'warning'):
     logger = logger_manager.get_logger('TraceMain')
     logger.info("进入TraceMain主程序。")
 
-    cam = BQ_Cam(filename)
+    cam = BQ_Cam(logger_manager, filename)
     logger.debug("初始化cam完成。")
 
     ws = BQ_WsPos(logger_manager) 
@@ -63,13 +63,34 @@ def main(filename, log_level = 'warning'):
     pn = PosNormalizer(logger_manager)
     logger.debug("初始化PosNormalizer完成。")
 
-    ws.testlib()
-    
+    # Initialize the arduino serial communication. 
+    if arduino is True:
+        AS_device = AS.arduino_serial('/dev/ttyUSB0')
+        ret = AS_device.openPort()
+        if ret is False:
+            logger.critical("初始化Arduino失败。")
+            return
+        logger.debug("初始化Arduino完成。")
+
+    isOutput = True if output != "" else False
+    if isOutput:
+        output_res = (cam.width, cam.height)
+
+        #video_FourCC = cv2.VideoWriter_fourcc(*'DIVX')
+        video_FourCC = cv2.VideoWriter_fourcc("m", "p", "4", "v")
+        out = cv2.VideoWriter(output, video_FourCC, 50, output_res)
+        out_opened = out.isOpened()
+        if out_opened:
+            logger.warning('输出文件建立: {}. '.format(output))
+        else:
+            logger.critical('输出文件建立失败: {}. '.format(output))
+            return
+
     cv2.namedWindow("result", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("result", 1000, 700)
     cv2.moveWindow("result", 100, 100)
     cv2.setMouseCallback('result', on_mouse)
-    cv2.createTrackbar('跟踪宽度', 'result', ws.bottom_thick, 500, set_bottom_thick)
+    cv2.createTrackbar("BOTTOM", 'result', ws.bottom_thick, 500, set_bottom_thick)
     logger.debug("初始化显示窗口完成。")
 
     accum_time = 0
@@ -77,7 +98,7 @@ def main(filename, log_level = 'warning'):
     prev_time = time.time()
     show_fps = "Show FPS: ??"
     gige_fps = "GigE FPS: ??"
-    font_scale = cam.width//800 + 1
+    font_scale = cam.width//1000 + 1
 
     # 初始设置ROI为整幅图像
     roi2x = cam.width
@@ -220,6 +241,7 @@ if __name__ == '__main__':
     FLAGS = parser.parse_args()
 
     main(FLAGS.input[0],  
+         output = FLAGS.output,
          log_level = FLAGS.loglevel)
 
 

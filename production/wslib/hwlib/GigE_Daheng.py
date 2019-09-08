@@ -233,7 +233,7 @@ lock: multiprocessing.Lock()进程间同步锁。
 frame_delay: 每帧图像间隔时间。
 time_debug: 是否打印debug信息。
 """
-def get_frame_from_file(shared_array, shared_value, lock, frame_delay = 0.03, time_debug = False):
+def get_frame_from_file(shared_array, shared_value, lock, frame_delay = 0, time_debug = False):
     global vid  
     global accum_time
     global curr_fps

@@ -25,34 +25,38 @@ class BQ_Cam():
     auto_expose: 相机自动曝光。文件模式下无效。
     auto_balance: 相机自动白平衡，文件模式下无效。
     """
-    def __init__(self, filename = None, cam_ip = None,  
+    def __init__(self, logger_manager, 
+                 filename = None, cam_ip = None,  
                  width = 1920, height = 1200, 
                  auto_expose = True, auto_balance = True):
-        print("Filename: ", filename)
+        
+        self.logger = logger_manager.get_logger("BQ_Cam")
         self.sched_run = None
         if filename is None:
             # 设置相机模式标识。
             self.mode = 0
             # 相机模式分辨率自设，默认1920*1200
             (self.w, self.h) = (width, height)
+            self.cam_ip = cam_ip
+            self.auto_expose = auto_expose
+            self.auto_balance = auto_balance
+            self.logger.debug("网络相机模式，IP: {}, (w, h): ({}, {}).".format(cam_ip, self.w, self.h))
         else:
             # 设置文件模式标识。
             self.mode = 1
             # 文件模式获取分辨率
             (self.w, self.h) = gige.get_resolution(filename)
+            self.logger.debug("网络相机模式，filename: {}, (w, h): ({}, {}).".format(filename, self.w, self.h))
 
         self.width = self.w
         self.height = self.h
-
-        self.cam_ip = cam_ip
-        self.auto_expose = auto_expose
-        self.auto_balance = auto_balance
 
         # 准备进程锁和进程间共享空间。
         self.process_lock = multiprocessing.Lock()
         self.array_temp = np.ones(shape = (self.h * self.w * 3), dtype = np.ubyte)
         self.shared_array = RawArray(ctypes.c_ubyte, self.array_temp)
         self.shared_value = RawValue(ctypes.c_uint, 0)
+        self.logger.debug("进程共享内存准备完毕。")
 
         if self.mode == 0: 
             self.sched_run = schedrun.SchedRun(
@@ -66,10 +70,12 @@ class BQ_Cam():
                         func = gige.get_frame_from_file, args = (self.shared_array, self.shared_value, self.process_lock, ), 
                         init_func = gige.init_file, init_args = (filename, ),
                         clean_func = gige.close_file, clean_args = {}, 
-                        interval = 0.0, 
+                        interval = 0.025, 
                         init_interval = 0.0)
+        self.logger.debug("帧读取进程启动。")
 
         while self.shared_value == 0:
+            self.logger.debug("帧读取进程没准备好，等待50ms。")
             # 相机进程还没有准备好。
             sleep(0.05)
             continue
@@ -83,6 +89,7 @@ class BQ_Cam():
     """
     def read(self):
         if self.shared_value.value > 10000:
+            self.logger.debug("相机进程错误或文件到达末尾。shared_value: {}".format(shared_value.value))
             # 相机进程出错或者相机文件读取到末尾
             return (False, None, None)
     
