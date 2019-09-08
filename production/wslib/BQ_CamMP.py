@@ -89,7 +89,7 @@ class BQ_Cam():
     """
     def read(self):
         if self.shared_value.value > 10000:
-            self.logger.debug("相机进程错误或文件到达末尾。shared_value: {}".format(shared_value.value))
+            self.logger.debug("相机进程错误或文件到达末尾。shared_value: {}".format(self.shared_value.value))
             # 相机进程出错或者相机文件读取到末尾
             return (False, None, None)
     
