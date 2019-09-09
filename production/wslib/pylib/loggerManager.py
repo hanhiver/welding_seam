@@ -82,7 +82,7 @@ class LoggerManager():
 		# time, log_level, <process_id:thread_name> - [module.func_name] log_messages. 
 		if not log_format:
 			#log_format = '%(asctime)s %(levelname)7s  <%(process)s:%(threadName)s> - [%(name)s.%(funcName)s] - %(filename)s[line:%(lineno)d] %(message)s'
-			log_format = '%(asctime)s %(levelname)7s - [%(name)s.%(funcName)s] - %(message)s'
+			log_format = '%(asctime)s %(levelname)7s - %(message)s - [%(name)s.%(funcName)s]'
 
 		self.formatter = logging.Formatter(log_format)
 

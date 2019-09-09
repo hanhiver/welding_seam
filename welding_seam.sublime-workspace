@@ -4,6 +4,66 @@
 		"selected_items":
 		[
 			[
+				"sch",
+				"sched_run"
+			],
+			[
+				"poin",
+				"point1x"
+			],
+			[
+				"point2",
+				"point2x"
+			],
+			[
+				"pi",
+				"point1x"
+			],
+			[
+				"Mean",
+				"MeanValue"
+			],
+			[
+				"sub",
+				"sub_process_continue"
+			],
+			[
+				"ret",
+				"return_value"
+			],
+			[
+				"add",
+				"AddValue"
+			],
+			[
+				"vector",
+				"vector\tstandard header"
+			],
+			[
+				"ve",
+				"vector\tstandard header"
+			],
+			[
+				"corel",
+				"coreLine"
+			],
+			[
+				"cut",
+				"cutLowPixels"
+			],
+			[
+				"max",
+				"max_index"
+			],
+			[
+				"max_",
+				"max_value"
+			],
+			[
+				"dr",
+				"dropped_array"
+			],
+			[
 				"DRAW",
 				"DRAW_BOTTOM"
 			],
@@ -284,10 +344,6 @@
 				"ret_radian_right"
 			],
 			[
-				"ret",
-				"ret_radian_left"
-			],
-			[
 				"ze",
 				"zero_slope_lines_right"
 			],
@@ -388,10 +444,6 @@
 				"points_p"
 			],
 			[
-				"poin",
-				"point_array"
-			],
-			[
 				"TY_g",
 				"TY_getInterfaceNumber"
 			],
@@ -420,10 +472,19 @@
 	"buffers":
 	[
 		{
-			"file": "gige/simpleTest/simpleTest.py",
+			"file": "DoctTian/ImagePreprocessing.py",
 			"settings":
 			{
-				"buffer_size": 6503,
+				"buffer_size": 13500,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "production/TraceMain.py",
+			"settings":
+			{
+				"buffer_size": 10404,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -432,49 +493,85 @@
 			"file": "WeldingSeamTrace.py",
 			"settings":
 			{
-				"buffer_size": 42923,
+				"buffer_size": 44518,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "C/ws_c.c",
+			"file": "production/wslib/BQ_CamMP.py",
 			"settings":
 			{
-				"buffer_size": 11292,
+				"buffer_size": 5657,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "gige/multiprocess/mptest.py",
+			"file": "production/wslib/pylib/BQ_imageLib.py",
 			"settings":
 			{
-				"buffer_size": 10306,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/dhan/myprog/python/AI_train/perceptronTest.py",
-			"settings":
-			{
-				"buffer_size": 3564,
+				"buffer_size": 5016,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "/home/dhan/myprog/PROJ/highway/src/schedrun.py",
+			"file": "production/wslib/hwlib/GigE_Daheng.py",
 			"settings":
 			{
-				"buffer_size": 3062,
+				"buffer_size": 12084,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "production/wslib/pylib/schedrun.py",
+			"settings":
+			{
+				"buffer_size": 6069,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "production/wslib/pylib/loggerManager.py",
+			"settings":
+			{
+				"buffer_size": 4975,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "production/wslib/BQ_wsPos.py",
+			"settings":
+			{
+				"buffer_size": 7286,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		}
 	],
-	"build_system": "",
+	"build_system": "Packages/C++/C++ Single File.sublime-build",
 	"build_system_choices":
 	[
+		[
+			[
+				[
+					"Packages/C++/C++ Single File.sublime-build",
+					""
+				],
+				[
+					"Packages/C++/C++ Single File.sublime-build",
+					"Run"
+				]
+			],
+			[
+				"Packages/C++/C++ Single File.sublime-build",
+				"Run"
+			]
+		]
 	],
 	"build_varint": "",
 	"command_palette":
@@ -525,14 +622,57 @@
 	},
 	"file_history":
 	[
+		"/home/dhan/myprog/c_cpp/mycpp11/common.hpp",
+		"/home/dhan/myprog/ws/welding_seam/production/wslib/BQ_wsPos.py",
+		"/home/dhan/myprog/ws/welding_seam/production/wslib/BQ_CamMP.py",
+		"/home/dhan/myprog/ws/welding_seam/production/wslib/pylib/BQ_downwardWelding.py",
+		"/home/dhan/myprog/ws/welding_seam/production/wslib/pylib/BQ_imageLib.py",
+		"/home/dhan/myprog/c_cpp/mycpp11/test.cpp",
 		"/home/dhan/myprog/ws/welding_seam/C/ws_c.c",
-		"/home/dhan/myprog/python/PythonBasic/python.so/multi-thread-so/simpleTest/mt.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/container/Others/stack.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/algorithm/accumulate1.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/algorithm/shuffle2.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/funcObj_Lambda/meanLambda.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/container/Map/mapTest.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/funcObj_Lambda/meanLambda2.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/funcObj_Lambda/remove_if.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/thread/mutex/tryLock/tryLock.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/thread/mutex/tryLockUntil/tryLockUntil.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/funcObj_Lambda/for_each.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/funcObj_Lambda/sortFuncObj.cpp",
+		"/home/dhan/myprog/ws/welding_seam/mptest.py",
+		"/home/dhan/myprog/c_cpp/mycpp11/container/Others/cstyleArray1.cpp",
 		"/home/dhan/myprog/ws/welding_seam/WeldingSeamTrace.py",
-		"/home/dhan/myprog/ws/welding_seam/gige_test.py",
+		"/home/dhan/myprog/ws/welding_seam/schedrun.py",
+		"/home/dhan/myprog/ws/welding_seam/production/WeldingSeamTrace.py",
+		"/home/dhan/myprog/c_cpp/mycpp11/funcObj_Lambda/funcWithStatus.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/iterator/istreamTest1.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/container/Others/istreamTest1.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/container/Others/ostreamTest1.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/container/Array/arrayTest.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/container/Set/setTest.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/iterator/incrementTest.cpp",
 		"/home/dhan/myprog/ws/welding_seam/gige/multiprocess/mptest.py",
+		"/home/dhan/myprog/c_cpp/mycpp11/container/Unordered/unorderedTest.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/container/Vector/vectorTest.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/algorithm/funcObject.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/algorithm/binder.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/algorithm/remove.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/algorithm/predicate.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/algorithm/foreach.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/algorithm/reverseIterator.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/algorithm/streamIterator.cpp",
+		"/home/dhan/myprog/c_cpp/mycpp11/algorithm/insertIterator.cpp",
+		"/home/dhan/myprog/ws/welding_seam/gige/simpleTest/simpleTest.py",
+		"/home/dhan/myprog/ws/welding_seam/production/wslib/clib/BQ_clib.py",
+		"/home/dhan/myprog/ws/welding_seam/production/weldingSeamTrace.py",
+		"/home/dhan/myprog/python/AI_train/perceptronTest.py",
+		"/home/dhan/myprog/PROJ/highway/src/schedrun.py",
+		"/home/dhan/myprog/ws/WeldingSeamTrace/C/ws_c.c",
+		"/home/dhan/myprog/python/PythonBasic/python.so/multi-thread-so/simpleTest/mt.cpp",
+		"/home/dhan/myprog/ws/welding_seam/gige_test.py",
 		"/home/dhan/myprog/ws/welding_seam/gige/multiprocess/schedrun.py",
 		"/home/dhan/myprog/python/MyOpenCV/readCam/cpp/readCam_cpp.cpp",
-		"/home/dhan/myprog/ws/welding_seam/schedrun.py",
 		"/home/dhan/myprog/ws/WeldingSeamTrace/WeldingSeamTrace.py",
 		"/home/dhan/Downloads/ibm-rhsm.sh",
 		"/home/dhan/myprog/ws/welding_seam/ws/ws_c.c",
@@ -540,7 +680,6 @@
 		"/home/dhan/myprog/python/MyOpenCV/readCam/py/readCam.py",
 		"/home/dhan/myprog/python/PythonBasic/yaml/env.yaml",
 		"/home/dhan/myprog/python/PythonBasic/yaml/denv.yaml",
-		"/home/dhan/myprog/PROJ/highway/src/schedrun.py",
 		"/home/dhan/myprog/ws/welding_seam/arduino_serial.py",
 		"/home/dhan/myprog/PROJ/highway/src/fmfinding.py",
 		"/home/dhan/myprog/ws/welding_seam/DoctTian/ImagePreprocessing.py",
@@ -611,7 +750,7 @@
 	],
 	"find":
 	{
-		"height": 24.0
+		"height": 27.0
 	},
 	"find_in_files":
 	{
@@ -625,6 +764,13 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"输出图像标记",
+			"Cam Error or file EOF",
+			"ChoseRoi",
+			"}",
+			"getLineImage",
+			"getSurfaceLevel",
+			"normalizeCenter",
 			"drawTag",
 			"getBottomCenter",
 			".format(time_dur);",
@@ -731,28 +877,29 @@
 			[
 				{
 					"buffer": 0,
-					"file": "gige/simpleTest/simpleTest.py",
+					"file": "DoctTian/ImagePreprocessing.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6503,
+						"buffer_size": 13500,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4937,
-								4937
+								160,
+								160
 							]
 						],
 						"settings":
 						{
 							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2385.0,
+						"translation.y": 864.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
@@ -760,19 +907,79 @@
 				},
 				{
 					"buffer": 1,
-					"file": "WeldingSeamTrace.py",
+					"file": "production/TraceMain.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 42923,
+						"buffer_size": 10404,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								443,
-								443
+								7617,
+								7617
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 4752.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "WeldingSeamTrace.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 44518,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								12691,
+								12691
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 7612.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "production/wslib/BQ_CamMP.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5657,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								285,
+								285
 							]
 						],
 						"settings":
@@ -785,16 +992,46 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "C/ws_c.c",
+					"buffer": 4,
+					"file": "production/wslib/pylib/BQ_imageLib.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 11292,
+						"buffer_size": 5016,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								330,
+								330
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "production/wslib/hwlib/GigE_Daheng.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 12084,
 						"regions":
 						{
 						},
@@ -807,31 +1044,32 @@
 						],
 						"settings":
 						{
-							"syntax": "Packages/C++/C.sublime-syntax",
-							"translate_tabs_to_spaces": false
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 8166.0,
+						"translation.y": 970.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "gige/multiprocess/mptest.py",
+					"buffer": 6,
+					"file": "production/wslib/pylib/schedrun.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 10306,
+						"buffer_size": 6069,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								6167,
-								6167
+								2196,
+								2196
 							]
 						],
 						"settings":
@@ -841,27 +1079,86 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 36.0,
+						"translation.y": 108.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "WeldingSeamTrace.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 44518,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								14518,
+								14518
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "production/wslib/pylib/loggerManager.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4975,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2156,
+								2156
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1134.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 4,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
-					"file": "/home/dhan/myprog/python/AI_train/perceptronTest.py",
+					"buffer": 8,
+					"file": "production/wslib/BQ_wsPos.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3564,
+						"buffer_size": 7286,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3119,
-								3119
+								5372,
+								5372
 							]
 						],
 						"settings":
@@ -871,40 +1168,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1170.0,
+						"translation.y": 2808.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "/home/dhan/myprog/PROJ/highway/src/schedrun.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3062,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1968,
-								1968
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 405.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
@@ -912,7 +1179,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 24.0
+		"height": 27.0
 	},
 	"input":
 	{
@@ -943,17 +1210,17 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 120.0
+		"height": 254.0
 	},
 	"output.find_results":
 	{
 		"height": 0.0
 	},
-	"pinned_build_system": "Packages/User/python3.sublime-build",
+	"pinned_build_system": "",
 	"project": "welding_seam.sublime-project",
 	"replace":
 	{
-		"height": 44.0
+		"height": 50.0
 	},
 	"save_all_on_build": true,
 	"select_file":
