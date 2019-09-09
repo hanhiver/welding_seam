@@ -2,8 +2,8 @@ import numpy as np
 import cv2
 import ctypes
 import time
-import argparse
 import sys
+import logging
 
 sys.path.append("..")
 import wslib.clib.BQ_clib as clib 
@@ -76,10 +76,11 @@ class BQ_WsPos():
         if self.black_limit < 3:
             self.black_limit = 3
 
-        time_curr = time.time()
-        time_due = (time_curr - time_stamp) * 1000
-        time_stamp = time_curr
-        self.logger.info("        {:3.3f} ms 图像增强操作".format(time_due))
+        if self.logger.getEffectiveLevel() >= logging.INFO:
+            time_curr = time.time()
+            time_due = (time_curr - time_stamp) * 1000
+            time_stamp = time_curr
+            self.logger.info("        {:3.3f} ms 图像增强操作".format(time_due))
 
         self.coreline = clib.getLineImage(
                                 self.lib, 
@@ -87,10 +88,11 @@ class BQ_WsPos():
                                 black_limit = self.black_limit)
         self.logger.debug("轮廓识别完成。")
         
-        time_curr = time.time()
-        time_due = (time_curr - time_stamp) * 1000
-        time_stamp = time_curr
-        self.logger.info("        {:3.3f} ms 轮廓识别".format(time_due))
+        if self.logger.getEffectiveLevel() >= logging.INFO:
+            time_curr = time.time()
+            time_due = (time_curr - time_stamp) * 1000
+            time_stamp = time_curr
+            self.logger.info("        {:3.3f} ms 轮廓识别".format(time_due))
 
         self.gaps = clib.fillLineGaps(
                                 self.lib, 
@@ -100,10 +102,11 @@ class BQ_WsPos():
         
         self.coreline = self.gaps + self.coreline
 
-        time_curr = time.time()
-        time_due = (time_curr - time_stamp) * 1000
-        time_stamp = time_curr
-        self.logger.info("        {:3.3f} ms 缺损填补。".format(time_due))
+        if self.logger.getEffectiveLevel() >= logging.INFO:
+            time_curr = time.time()
+            time_due = (time_curr - time_stamp) * 1000
+            time_stamp = time_curr
+            self.logger.info("        {:3.3f} ms 缺损填补。".format(time_due))
 
         return self.coreline
 
@@ -129,10 +132,11 @@ class BQ_WsPos():
         
         self.logger.debug("中点位置识别完成。")
 
-        time_curr = time.time()
-        time_due = (time_curr - time_stamp) * 1000
-        time_stamp = time_curr
-        self.logger.info("        {:3.3f} ms 中点位置识别。".format(time_due))
+        if self.logger.getEffectiveLevel() >= logging.INFO:
+            time_curr = time.time()
+            time_due = (time_curr - time_stamp) * 1000
+            time_stamp = time_curr
+            self.logger.info("        {:3.3f} ms 中点位置识别。".format(time_due))
 
         return self.center, self.level, self.bound 
 
@@ -151,10 +155,11 @@ class BQ_WsPos():
         extend_coreline[Y:Y+self.coreline.shape[0], X:X+self.coreline.shape[1]] += self.coreline
         result = clib.fill2ColorImage(self.lib, image, extend_coreline, fill_color = fill_color)
 
-        time_curr = time.time()
-        time_due = (time_curr - time_stamp) * 1000
-        time_stamp = time_curr
-        self.logger.info("        {:3.3f} ms 图像标记。".format(time_due))
+        if self.logger.getEffectiveLevel() >= logging.INFO:
+            time_curr = time.time()
+            time_due = (time_curr - time_stamp) * 1000
+            time_stamp = time_curr
+            self.logger.info("        {:3.3f} ms 图像标记。".format(time_due))
 
         return result
 
@@ -191,10 +196,11 @@ class PosNormalizer():
             
         self.last_pos = self.center
 
-        time_curr = time.time()
-        time_due = (time_curr - time_stamp) * 1000
-        time_stamp = time_curr
-        self.logger.info("        {:3.3f} ms 位置输出平滑降噪。".format(time_due))
+        if self.logger.getEffectiveLevel() >= logging.INFO:
+            time_curr = time.time()
+            time_due = (time_curr - time_stamp) * 1000
+            time_stamp = time_curr
+            self.logger.info("        {:3.3f} ms 位置输出平滑降噪。".format(time_due))
 
         return self.center, diff 
 

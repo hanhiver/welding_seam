@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import time
 import argparse
+import logging
 
 from wslib.BQ_CamMP import BQ_Cam
 from wslib.BQ_wsPos import BQ_WsPos, PosNormalizer
@@ -111,14 +112,14 @@ def main(filename, output, arduino = False, log_level = 'warning'):
         (ok, fps, frame) = cam.read()
         logger.debug("获取一帧图像。")   
 
-        time_curr = time.time()
-        time_due = (time_curr - time_stamp) * 1000
-        time_stamp = time_curr
-        logger.info("    {:3.3f} ms 获取一帧图像。".format(time_due)) 
+        if (logger.getEffectiveLevel() >= logging.INFO):
+            time_curr = time.time()
+            time_due = (time_curr - time_stamp) * 1000
+            time_stamp = time_curr
+            logger.info("    {:3.3f} ms 获取一帧图像。".format(time_due)) 
         
         if not ok:
             logger.critical("相机错误或者文件到达末尾。")
-            print("Cam Error or file EOF. ")
             break
 
         roi_image = frame[roi1y:roi2y, roi1x:roi2x]
@@ -128,18 +129,20 @@ def main(filename, output, arduino = False, log_level = 'warning'):
         roi_center, roi_level, roi_bound = ws.phaseImage(roi_image)
         logger.debug("分析ROI图像完成， center: {}, level: {}, bound {}".format(roi_center, roi_level, roi_bound))
         
-        time_curr = time.time()
-        time_due = (time_curr - time_stamp) * 1000
-        time_stamp = time_curr
-        logger.info("    {:3.3f} ms 分析一帧图像。".format(time_due)) 
+        if (logger.getEffectiveLevel() >= logging.INFO):
+            time_curr = time.time()
+            time_due = (time_curr - time_stamp) * 1000
+            time_stamp = time_curr
+            logger.info("    {:3.3f} ms 分析一帧图像。".format(time_due)) 
 
         frame = ws.fillCoreline2Image(frame, roi1x, roi1y)
         logger.debug("显示图像填充完成，x: {}, y: {}".format(roi_center, roi1x, roi1y))
         
-        time_curr = time.time()
-        time_due = (time_curr - time_stamp) * 1000
-        time_stamp = time_curr
-        logger.info("    {:3.3f} ms 填充图像轮廓。".format(time_due)) 
+        if (logger.getEffectiveLevel() >= logging.INFO):
+            time_curr = time.time()
+            time_due = (time_curr - time_stamp) * 1000
+            time_stamp = time_curr
+            logger.info("    {:3.3f} ms 填充图像轮廓。".format(time_due)) 
 
         real_center = roi1x + roi_center
         real_level = roi1y + roi_level
@@ -155,12 +158,13 @@ def main(filename, output, arduino = False, log_level = 'warning'):
             roi2x = roi2x_update
             logger.debug("ROI窗口自动跟踪移动完成，roi1x: {}, roi2x: {}".format(roi1x, roi2x))
 
-        time_curr = time.time()
-        time_due = (time_curr - time_stamp) * 1000
-        time_stamp = time_curr
-        logger.info("    {:3.3f} ms 输出降噪和ROI跟踪。".format(time_due)) 
+        if (logger.getEffectiveLevel() >= logging.INFO):
+            time_curr = time.time()
+            time_due = (time_curr - time_stamp) * 1000
+            time_stamp = time_curr
+            logger.info("    {:3.3f} ms 输出降噪和ROI跟踪。".format(time_due)) 
 
-        drawTag(frame, real_center, real_level, bound = real_bound)
+        drawTag(frame, real_center, real_level, bound = real_bound, bottom_thick = ws.bottom_thick)
         logger.debug("输出图像标记完成。")
 
         gige_fps = "GigE FPS: " + str(fps)
@@ -201,13 +205,14 @@ def main(filename, output, arduino = False, log_level = 'warning'):
             logger.debug("收到手动退出指令。")
             break
 
-        time_curr = time.time()
-        time_due = (time_curr - time_stamp) * 1000
-        time_stamp = time_curr
-        logger.info("    {:3.3f} ms 图像屏幕输出。".format(time_due)) 
+        if (logger.getEffectiveLevel() >= logging.INFO):
+            time_curr = time.time()
+            time_due = (time_curr - time_stamp) * 1000
+            time_stamp = time_curr
+            logger.info("    {:3.3f} ms 图像屏幕输出。".format(time_due)) 
 
-        time_due = (time.time() - frame_stamp) * 1000
-        logger.info("{:3.3f} ms 本帧图像处理完成。".format(time_due))
+            time_due = (time.time() - frame_stamp) * 1000
+            logger.info("{:3.3f} ms 本帧图像处理完成。".format(time_due))
 
     logger.debug("退出TraceMain主程序，销毁所有显示窗口。")
     logger_manager.stop()

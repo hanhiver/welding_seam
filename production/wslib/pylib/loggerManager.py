@@ -160,12 +160,17 @@ def main():
 	global logger_manager
 
 	# Initilaize a LoggerManager
-	logger_manager = LoggerManager()
+	logger_manager = LoggerManager(log_level='info')
 
 	# Get logger in main() function. 
 	logger = logger_manager.get_logger('Mainfunc')
 	logger.debug('A DEBUG information in Main. ')
 	logger.info('A INFO information in Main. ')
+
+	print(logger.getEffectiveLevel())
+	print(logging.CRITICAL)
+	if (logger.getEffectiveLevel() >= logging.INFO):
+		print("GOT IT. ")
 
 	from threading import Thread 
 	t = Thread(target = write_log)

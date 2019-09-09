@@ -453,8 +453,8 @@ def drawTag(image, b_center, b_level, bottom_thick = None, bound = None):
         cv2.line(image, (bound[1], y1 + 20), (bound[1], y2 - 20), (0, 255, 255), 1) 
 
     if bottom_thick != None:
-        cv2.line(image, (x1 + BOTTOM_THICK//2, y1 + 30), (x2 + BOTTOM_THICK//2, y2 - 30), (0, 255, 0), 2)
-        cv2.line(image, (x1 - BOTTOM_THICK//2, y1 + 30), (x2 - BOTTOM_THICK//2, y2 - 30), (0, 255, 0), 2)
+        cv2.line(image, (x1 + bottom_thick//2, y1 + 30), (x2 + bottom_thick//2, y2 - 30), (0, 255, 0), 2)
+        cv2.line(image, (x1 - bottom_thick//2, y1 + 30), (x2 - bottom_thick//2, y2 - 30), (0, 255, 0), 2)
         
 """
 输入本帧画面得到的ceter值，经过平滑降噪计算之后输出。
