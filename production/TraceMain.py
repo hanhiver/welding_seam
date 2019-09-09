@@ -7,8 +7,13 @@ import logging
 
 from wslib.BQ_CamMP import BQ_Cam
 from wslib.BQ_wsPos import BQ_WsPos, PosNormalizer
-from wslib.pylib.BQ_imageLib import drawTag
+from wslib.pylib.BQ_imageLib import drawTag, imgRotate
 from wslib.pylib.loggerManager import LoggerManager
+
+# 手动设置参数
+BOTTOM_THICK = 100     # 初始的底部平台宽度。
+NOISY_RATIO = 5        # 底部平台当做噪音滤除的分量，noisy_pixels = botton_thick // NOISY_RATIO
+ADJUST_ANGLE = 0       # 根据激光线和相机的安装位置调整初始的图像旋转角度。
 
 # 共享变量
 roi1x, roi1y, roi2x, roi2y = 0, 0, 0, 0           # ROI坐标
@@ -43,6 +48,7 @@ def on_mouse(event, x, y, flags, param):
 def set_bottom_thick(input):
     global ws
     ws.bottom_thick = input
+    ws.noisy_pixels = input // NOISY_RATIO
 
 def main(filename, output, arduino = False, log_level = 'warning'):
     global point1x, point1y, point2x, point2y
@@ -62,7 +68,9 @@ def main(filename, output, arduino = False, log_level = 'warning'):
         cam = BQ_Cam(logger_manager, filename)
         logger.debug("进入文件模式。")
 
-    ws = BQ_WsPos(logger_manager) 
+    ws = BQ_WsPos(logger_manager, 
+                  bottom_thick = BOTTOM_THICK, 
+                  noisy_pixels = BOTTOM_THICK//NOISY_RATIO) 
     logger.debug("初始化WsPos完成。")
 
     pn = PosNormalizer(logger_manager)
@@ -114,7 +122,7 @@ def main(filename, output, arduino = False, log_level = 'warning'):
         time_stamp = frame_stamp = time.time()
 
         (ok, fps, frame) = cam.read()
-        logger.debug("获取一帧图像。")   
+        logger.debug("获取一帧图像。") 
 
         if (logger.getEffectiveLevel() >= logging.INFO):
             time_curr = time.time()
@@ -125,6 +133,11 @@ def main(filename, output, arduino = False, log_level = 'warning'):
         if not ok:
             logger.critical("相机错误或者文件到达末尾。")
             break
+
+        # 根据图像特殊处理
+        # ===========================
+        frame = imgRotate(frame, ADJUST_ANGLE)
+        # ===========================
 
         roi_image = frame[roi1y:roi2y, roi1x:roi2x]
         logger.debug("按照ROI切割图像，(x1: {}, y1: {}), (x2: {}, y2: {})".format(roi1x, roi1y, roi2x, roi2y))
@@ -168,7 +181,28 @@ def main(filename, output, arduino = False, log_level = 'warning'):
             time_stamp = time_curr
             logger.info("    {:3.3f} ms 输出降噪和ROI跟踪。".format(time_due)) 
 
+<<<<<<< HEAD
         drawTag(frame, real_center, real_level, bound = real_bound, bottom_thick = ws.bottom_thick)
+=======
+        # 如果我们开启了arduino serial通讯，这里拼凑坐标传送给机器人。
+        if arduino is True:
+
+            # 这个地方的real_center就是焊缝识别得到的中点坐标。
+            # 我们在这里用传统380线分辨率的做一个规一划处理。
+            # output_center = real_center // 3
+        
+            ####################################
+            # 这个地方请修改代码，是否应该将real_center的值转化为16进制的数字，
+            # 通信的高地位分别怎么设置，我这里就只是用了你示例代码中的通信标志。
+            ####################################
+            AS_device.writePort('E7E701450124005A0008004EFE')
+            time_curr = time.time()
+            time_due = (time_curr - time_stamp) * 1000
+            time_stamp = time_curr
+            logger.info("    {:3.3f} ms 坐标写入串口完成。".format(time_due))
+
+        drawTag(frame, real_center, real_level, bound = real_bound)
+>>>>>>> a190a31e14fa61c6ae9680e3b085f6969e148324
         logger.debug("输出图像标记完成。")
 
         gige_fps = "GigE FPS: " + str(fps)
@@ -239,10 +273,6 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--loglevel', type = str, default = 'warning',
                         help = '[Optional] Log level. WARNING is default. ')
 
-    # 是否将处理后结果显示。
-    parser.add_argument('-lv', '--localview', default = False, action = "store_true",
-                        help = '[Optional] If shows result to local view. ')    
-
     # 默认处理所有文件选项。
     parser.add_argument('input', type = str, default = None, nargs = '+',
                         help = 'Input files. ')
@@ -251,6 +281,8 @@ if __name__ == '__main__':
 
     main(FLAGS.input[0],  
          output = FLAGS.output,
-         log_level = FLAGS.loglevel)
+         arduino = FLAGS.arduino,
+         log_level = FLAGS.loglevel, 
+         )
 
 

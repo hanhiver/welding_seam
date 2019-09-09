@@ -8,6 +8,9 @@ import time
 旋转图像，给定angle，旋转图像。
 """
 def imgRotate(image, angle):
+    if angle == 0:
+        return image
+
     # Get the dimention of the image and then determine the certer. 
     (h, w) = image.shape[:2]
     (cX, cY) = (w // 2, h // 2)
