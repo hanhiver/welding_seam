@@ -240,6 +240,15 @@ def main(filename, output, arduino = False, log_level = 'warning'):
             time_stamp = time_curr
             logger.info("    {:3.3f} ms 输出图像标记。".format(time_due)) 
 
+        if isOutput:
+            out.write(frame)
+            if (logger.getEffectiveLevel() >= logging.INFO):
+                time_curr = time.time()
+                time_due = (time_curr - time_stamp) * 1000
+                time_stamp = time_curr
+                logger.info("    {:3.3f} ms 视频文件输出。".format(time_due)) 
+
+
         cv2.imshow('result', frame)
         logger.debug("图像输出屏幕完成。")
 
