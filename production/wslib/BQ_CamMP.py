@@ -46,7 +46,7 @@ class BQ_Cam():
             self.mode = 1
             # 文件模式获取分辨率
             (self.w, self.h) = gige.get_resolution(filename)
-            self.logger.debug("网络相机模式，filename: {}, (w, h): ({}, {}).".format(filename, self.w, self.h))
+            self.logger.debug("文件读取模式: {}, (w, h): ({}, {}).".format(filename, self.w, self.h))
 
         self.width = self.w
         self.height = self.h
