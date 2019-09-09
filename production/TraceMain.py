@@ -181,9 +181,6 @@ def main(filename, output, arduino = False, log_level = 'warning'):
             time_stamp = time_curr
             logger.info("    {:3.3f} ms 输出降噪和ROI跟踪。".format(time_due)) 
 
-<<<<<<< HEAD
-        drawTag(frame, real_center, real_level, bound = real_bound, bottom_thick = ws.bottom_thick)
-=======
         # 如果我们开启了arduino serial通讯，这里拼凑坐标传送给机器人。
         if arduino is True:
 
@@ -201,8 +198,7 @@ def main(filename, output, arduino = False, log_level = 'warning'):
             time_stamp = time_curr
             logger.info("    {:3.3f} ms 坐标写入串口完成。".format(time_due))
 
-        drawTag(frame, real_center, real_level, bound = real_bound)
->>>>>>> a190a31e14fa61c6ae9680e3b085f6969e148324
+        drawTag(frame, real_center, real_level, bound = real_bound, bottom_thick = ws.bottom_thick)
         logger.debug("输出图像标记完成。")
 
         gige_fps = "GigE FPS: " + str(fps)
@@ -231,10 +227,11 @@ def main(filename, output, arduino = False, log_level = 'warning'):
             cv2.rectangle(frame, pt1=(point1x, point1y), pt2=(point2x, point2y), 
                           color=(0, 0, 255), thickness=2)
 
-        time_curr = time.time()
-        time_due = (time_curr - time_stamp) * 1000
-        time_stamp = time_curr
-        logger.info("    {:3.3f} ms 输出图像标记。".format(time_due)) 
+        if (logger.getEffectiveLevel() >= logging.INFO):
+            time_curr = time.time()
+            time_due = (time_curr - time_stamp) * 1000
+            time_stamp = time_curr
+            logger.info("    {:3.3f} ms 输出图像标记。".format(time_due)) 
 
         cv2.imshow('result', frame)
         logger.debug("图像输出屏幕完成。")
