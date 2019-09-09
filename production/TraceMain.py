@@ -55,8 +55,12 @@ def main(filename, output, arduino = False, log_level = 'warning'):
     logger = logger_manager.get_logger('TraceMain')
     logger.info("进入TraceMain主程序。")
 
-    cam = BQ_Cam(logger_manager, filename)
-    logger.debug("初始化cam完成。")
+    if filename == 'cam': 
+        cam = BQ_Cam(logger_manager)
+        logger.debug("进入网络相机模式。")
+    else:
+        cam = BQ_Cam(logger_manager, filename)
+        logger.debug("进入文件模式。")
 
     ws = BQ_WsPos(logger_manager) 
     logger.debug("初始化WsPos完成。")
@@ -220,7 +224,7 @@ def main(filename, output, arduino = False, log_level = 'warning'):
 
 
 if __name__ == '__main__':
-    print(sys.argv[1])
+    #print(sys.argv[1])
     parser = argparse.ArgumentParser()
 
     # 输出文件。

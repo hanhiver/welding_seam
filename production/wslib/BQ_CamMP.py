@@ -60,9 +60,9 @@ class BQ_Cam():
 
         if self.mode == 0: 
             self.sched_run = schedrun.SchedRun(
-                        func = get_frame_from_camera, args = (self.shared_array, self.shared_value, self.process_lock, False, ), 
-                        init_func = init_camera, init_args = (self.cam_ip, self.w, self.h, self.auto_expose, self.auto_balance),
-                        clean_func = close_camera, clean_args = {}, 
+                        func = gige.get_frame_from_camera, args = (self.shared_array, self.shared_value, self.process_lock, False, ), 
+                        init_func = gige.init_camera, init_args = (self.cam_ip, self.w, self.h, self.auto_expose, self.auto_balance),
+                        clean_func = gige.close_camera, clean_args = {}, 
                         interval = 0.0, 
                         init_interval = 0.0)
         else:
@@ -72,13 +72,23 @@ class BQ_Cam():
                         clean_func = gige.close_file, clean_args = {}, 
                         interval = 0.025, 
                         init_interval = 0.0)
+
         self.logger.debug("帧读取进程启动。")
 
-        while self.shared_value == 0:
-            self.logger.debug("帧读取进程没准备好，等待50ms。")
-            # 相机进程还没有准备好。
-            sleep(0.05)
-            continue
+        #while self.shared_value != 0:
+
+        for i in range(10):
+            if self.shared_value == 0:    
+                self.logger.debug("帧读取进程没准备好，等待100ms。")
+                # 相机进程还没有准备好。
+                time.sleep(0.1)
+
+        if self.shared_value == 0:
+            return None
+
+
+    def ready(self):
+        return self.sched_run.ready()
 
     """
     从相机获取一帧图像。

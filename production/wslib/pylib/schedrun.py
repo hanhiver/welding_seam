@@ -76,6 +76,9 @@ class SchedRun():
 
         return
 
+    def ready(self):
+        return self.sub_process_continue
+        
     def stop(self):
         self.sub_process_continue.value = False
 

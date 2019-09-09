@@ -187,7 +187,7 @@ class PosNormalizer():
                                 move_limit = self.move_limit, 
                                 dropped_array = self.dropped_array)
         self.logger.debug("位置输出平滑降噪完成。")
-        self.logger.debug("  - value_array: {}, dropped_array: {}".format(self.value_array, self.dropped_array))
+        #self.logger.debug("  - value_array: {}, dropped_array: {}".format(self.value_array, self.dropped_array))
         
         if self.last_pos is None:
             diff = 0
