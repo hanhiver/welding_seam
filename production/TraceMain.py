@@ -214,7 +214,7 @@ def main(filename, output, arduino = False, log_level = 'warning'):
             show_fps = "Output FPS: " + str(curr_fps)
             curr_fps = 0
 
-        center_str = "Center Pos: {}".format(real_center)
+        center_str = "Center Pos: {}".format(real_center//3)
                 
         #fps = gige_fps + " VS " + show_fps
         cv2.putText(frame, text=gige_fps, org=(30, 80), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
