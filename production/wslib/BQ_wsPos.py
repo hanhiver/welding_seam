@@ -167,7 +167,7 @@ class BQ_WsPos():
 class PosNormalizer():
 
     def __init__(self, logger_manager,  
-                 thres_drop = 100, thres_normal = 50, move_limit = 3):
+                 thres_drop = 100, thres_normal = 50, move_limit = 4):
         self.logger = logger_manager.get_logger("BQ_WsPos")
         self.value_array = []
         self.dropped_array = []

@@ -4,6 +4,7 @@ import cv2
 import time
 import argparse
 import logging
+from PIL import ImageFont
 
 from wslib.BQ_CamMP import BQ_Cam
 from wslib.BQ_wsPos import BQ_WsPos, PosNormalizer
@@ -111,7 +112,7 @@ def main(filename, output, arduino = False, log_level = 'warning'):
     prev_time = time.time()
     show_fps = "Show FPS: ??"
     gige_fps = "GigE FPS: ??"
-    font_scale = cam.width//1000 + 1
+    font_scale = cam.width//2000 + 1
 
     # 初始设置ROI为整幅图像
     roi2x = cam.width
@@ -201,7 +202,7 @@ def main(filename, output, arduino = False, log_level = 'warning'):
         drawTag(frame, real_center, real_level, bound = real_bound, bottom_thick = ws.bottom_thick)
         logger.debug("输出图像标记完成。")
 
-        gige_fps = "GigE FPS: " + str(fps)
+        gige_fps = "Input FPS: " + str(fps)
         
         curr_time = time.time()
         exec_time = curr_time - prev_time
@@ -210,14 +211,20 @@ def main(filename, output, arduino = False, log_level = 'warning'):
         curr_fps = curr_fps + 1
         if accum_time > 1:
             accum_time = accum_time - 1
-            show_fps = "Show FPS: " + str(curr_fps)
+            show_fps = "Output FPS: " + str(curr_fps)
             curr_fps = 0
+
+        center_str = "Center Pos: {}".format(real_center)
                 
         #fps = gige_fps + " VS " + show_fps
-        cv2.putText(frame, text=gige_fps, org=(30, 80), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
-                    fontScale=font_scale, color=(0, 0, 255), thickness=2)
-        cv2.putText(frame, text=show_fps, org=(30, 160), fontFace=cv2.FONT_HERSHEY_TRIPLEX, 
-                    fontScale=font_scale, color=(0, 0, 255), thickness=2)
+        cv2.putText(frame, text=gige_fps, org=(30, 80), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+                    fontScale=font_scale, color=(200, 200, 200), thickness=2)
+        cv2.putText(frame, text=show_fps, org=(30, 120), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+                    fontScale=font_scale, color=(200, 200, 200), thickness=2)
+        cv2.putText(frame, text=center_str, org=(30, 160), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+                    fontScale=font_scale, color=(200, 200, 200), thickness=2)
+
+
 
         if (roi1x + roi1y + roi2x + roi2y) > 0:
             cv2.rectangle(frame, pt1=(roi1x, roi1y), pt2=(roi2x, roi2y), 
