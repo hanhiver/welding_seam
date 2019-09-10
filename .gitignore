@@ -29,3 +29,4 @@ production/wslib/pylib/__pycache__/BQ_downwardWelding.cpython-36.pyc
 production/wslib/pylib/__pycache__/BQ_imageLib.cpython-36.pyc
 production/wslib/pylib/__pycache__/loggerManager.cpython-36.pyc
 production/wslib/pylib/__pycache__/schedrun.cpython-36.pyc
+.DS_Store
