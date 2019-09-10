@@ -4,6 +4,16 @@ import cv2
 import ctypes
 import time
 
+VER_MAJOR = 1
+VER_MINOR = 0
+VER_SPK = 0
+"""
+返回图像处理库函数的版本
+"""
+def version():
+    return (VER_MAJOR, VER_MINOR, VER_SPK)
+    
+
 """
 旋转图像，给定angle，旋转图像。
 """

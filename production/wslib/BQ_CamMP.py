@@ -10,6 +10,16 @@ sys.path.append("..")
 import wslib.pylib.schedrun as schedrun
 import wslib.hwlib.GigE_Daheng as gige 
 
+VER_MAJOR = 1
+VER_MINOR = 0
+VER_SPK = 0
+"""
+返回相机库函数的版本
+"""
+def version():
+    return (VER_MAJOR, VER_MINOR, VER_SPK)
+
+
 """
 BQ_Cam提供了多进程打开文件或者相机功能。
 """

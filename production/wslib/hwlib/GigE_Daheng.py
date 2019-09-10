@@ -12,6 +12,15 @@ import time
 import ctypes
 from multiprocessing.sharedctypes import RawArray, RawValue
 
+VER_MAJOR = 1
+VER_MINOR = 0
+VER_SPK = 0
+"""
+返回大恒相机多进程驱动库函数的版本
+"""
+def version():
+    return (VER_MAJOR, VER_MINOR, VER_SPK)
+
 
 """
 全局共享变量

@@ -12,6 +12,16 @@ BOTTOM_THICK = 80
 NOISY_PIXELS = 20
 BOTTOM_LINE_GAP_MAX = 5
 
+VER_MAJOR = 1
+VER_MINOR = 0
+VER_SPK = 0
+"""
+返回横焊识别库函数的版本
+"""
+def version():
+    return (VER_MAJOR, VER_MINOR, VER_SPK)
+
+
 """
 输入轮廓线图像得到焊缝最底部小平台中点位置。
 bottom_thick: 底部小平台厚度

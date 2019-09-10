@@ -12,6 +12,16 @@ from wslib.pylib.loggerManager import LoggerManager
 
 time_stamp = time.time()
 
+VER_MAJOR = 1
+VER_MINOR = 0
+VER_SPK = 0
+"""
+返回焊缝识别库函数的版本
+"""
+def version():
+    return (VER_MAJOR, VER_MINOR, VER_SPK)
+
+
 """
 BQ_wsPos模块
 该模块完成从获取的原始图像到最终识别位置的输出。

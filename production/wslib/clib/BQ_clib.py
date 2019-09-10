@@ -3,6 +3,16 @@ import numpy as np
 import ctypes
 import time
 
+VER_MAJOR = 1
+VER_MINOR = 0
+VER_SPK = 0
+"""
+返回C库函数的版本
+"""
+def version():
+    return (VER_MAJOR, VER_MINOR, VER_SPK)
+
+
 """
 初始化C函数动态连接库的调用
 """
