@@ -10,10 +10,11 @@ from wslib.BQ_CamMP import BQ_Cam
 from wslib.BQ_wsPos import BQ_WsPos, PosNormalizer
 from wslib.pylib.BQ_imageLib import drawTag, imgRotate
 from wslib.pylib.loggerManager import LoggerManager
+import wslib.hwlib.arduino_serial as AS    # Arduino串口通信. 
 
 # 手动设置参数
 BOTTOM_THICK = 100     # 初始的底部平台宽度。
-NOISY_RATIO = 5        # 底部平台当做噪音滤除的分量，noisy_pixels = botton_thick // NOISY_RATIO
+NOISY_RATIO = 5        # 底部平台当做噪音滤除的分量，noisy_pixels = botton_thick//NOISY_RATIO
 ADJUST_ANGLE = 0       # 根据激光线和相机的安装位置调整初始的图像旋转角度。
 
 # 共享变量
@@ -22,7 +23,7 @@ point1x, point1y, point2x, point2y = 0, 0, 0, 0   # 鼠标事件坐标
 leftButtonDownFlag = False                        # 鼠标释放标志
 ws = None 
 logger_manager = None  # 多进程日志文件记录管理器
-logger = None # 本日志文件记录器。
+logger = None # 本进程日志文件记录器。
 time_stamp = time.time()
 
 def on_mouse(event, x, y, flags, param):
@@ -182,6 +183,9 @@ def main(filename, output, arduino = False, log_level = 'warning'):
             time_stamp = time_curr
             logger.info("    {:3.3f} ms 输出降噪和ROI跟踪。".format(time_due)) 
 
+        # 因为目前采用的分辨率是模拟屏幕的5倍，为了对应当前逻辑和减少抖动，输出值除以3取整。
+        out_center = real_center//3
+
         # 如果我们开启了arduino serial通讯，这里拼凑坐标传送给机器人。
         if arduino is True:
 
@@ -190,10 +194,10 @@ def main(filename, output, arduino = False, log_level = 'warning'):
             # output_center = real_center // 3
         
             ####################################
-            # 这个地方请修改代码，是否应该将real_center的值转化为16进制的数字，
+            # 这个地方请修改代码，是否应该将out_center的值转化为16进制的数字，
             # 通信的高地位分别怎么设置，我这里就只是用了你示例代码中的通信标志。
             ####################################
-            AS_device.writePort('E7E701450124005A0008004EFE')
+            AS_device.writePort('E7'+bin2Hex(out_center)+'0145005A0008004EFE')
             time_curr = time.time()
             time_due = (time_curr - time_stamp) * 1000
             time_stamp = time_curr
@@ -214,7 +218,7 @@ def main(filename, output, arduino = False, log_level = 'warning'):
             show_fps = "Output FPS: " + str(curr_fps)
             curr_fps = 0
 
-        center_str = "Center Pos: {}".format(real_center//3)
+        center_str = "Center Pos: {}".format(out_center)
                 
         #fps = gige_fps + " VS " + show_fps
         cv2.putText(frame, text=gige_fps, org=(30, 80), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
