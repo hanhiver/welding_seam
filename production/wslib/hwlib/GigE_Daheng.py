@@ -85,6 +85,7 @@ def init_camera(cam_ip = None, width = 1920, height = 1200, auto_expose = True, 
             cam_ip = dev_info_list[0].get("ip")
             
         # Open the device. 
+        print('打开网络相机 (IP: {}), 进程PID: {}.'.format(cam_ip, os.getpid()))
         cam = device_manager.open_device_by_ip(cam_ip)
         print('打开网络相机 (IP: {}), 进程PID: {}.'.format(cam_ip, os.getpid()))
     

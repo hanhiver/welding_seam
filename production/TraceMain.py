@@ -64,7 +64,7 @@ def main(filename, output, arduino = False, log_level = 'warning'):
     logger.info("进入TraceMain主程序。")
 
     if filename == 'cam': 
-        cam = BQ_Cam(logger_manager)
+        cam = BQ_Cam(logger_manager, filename = None, cam_ip='192.168.40.3')
         logger.debug("进入网络相机模式。")
     else:
         cam = BQ_Cam(logger_manager, filename)
