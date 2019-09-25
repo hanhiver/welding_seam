@@ -2137,7 +2137,7 @@ def main():
     
 #    VideoName = 'F:\博清科技\weld_video\立焊650nm滤光0.3%衰减16mm镜头180mm距离.avi'
     #VideoName = 'D:\weld_video\立焊0.3%衰减650nm滤光10000曝光多钉点1.avi'
-    VideoName = '0.3%Suai Jian 650nm Lv Guang 10000 Bao Guang Duo Ding Dian 3.avi'
+    #VideoName = '0.3%Suai Jian 650nm Lv Guang 10000 Bao Guang Duo Ding Dian 3.avi'
     #VideoName = '立焊0.3%衰减片10000曝光16mm镜头最大光圈聚焦在焊缝表面.avi'
 #    VideoName = '横焊脉冲填充0.3%衰减10000曝光16mm镜头从左到右.avi'
     #VideoName = '横焊脉冲盖面0.3%衰减10000曝光16mm镜头从左到右.avi'
@@ -2161,16 +2161,38 @@ def main():
     #VideoName = 'Li Han Da Di You Dang Ban 650nm Lv Guang 0.3% Suai Jian 16mm Jing Tou 180mm Ju Li.avi'
     #VideoName = 'Li Han Da Di 650nm Lv guang 0.3% Suai jian 16mm Jing Tou 180mm Ju Li 2.avi'
     #vid = cv2.VideoCapture(" 650nm 16mm 180mm 0.3%.avi")
-    vid = cv2.VideoCapture(VideoName)
+    #vid = cv2.VideoCapture(VideoName)
 
     #读取摄像头，并设置摄像头的分辨率
     #vid = cv2.VideoCapture(0)
     #vid.set(3, 2048)
     #vid.set(4, 1536)
 
-    if not vid.isOpened(): # 如果视频没有打开成功的话，
-        raise IOError("Couldn't open webcam or video:{}".format(input))
+    #if not vid.isOpened(): # 如果视频没有打开成功的话，
+    #    raise IOError("Couldn't open webcam or video:{}".format(input))
     
+    #VideoName = '0.3%Suai Jian 650nm Lv Guang 10000 Bao Guang Duo Ding Dian 3.avi'
+    VideoName = '/home/dhan/myprog/ws/wsdata/1920x1200/0.3%滤光片10000曝光0增益16mm镜头立向上.avi'
+
+    from frame_provider import frame_provider
+    if VideoName is None: 
+        ####################################################
+        # 打开摄像头
+        fp = frame_provider(mode = 'cam', cam_ip = "192.168.40.3")
+        ####################################################
+    else:
+        ####################################################
+        # 打开文件
+        fp = frame_provider(mode = 'file', file = VideoName)
+        ####################################################
+
+    # 开始文件读取或者相机采集进程。判断是否启动成功。
+    ok = fp.start()
+    if not ok: 
+        print("frame_provider初始化错误。")
+        return 
+
+
     print("=== Start the WS detecting ===")
 
     print('Load C lib. ')
@@ -2196,7 +2218,11 @@ def main():
 
     # 插入ＲＯＩ选取＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
     # cut_img 是用鼠标选取的 ROI 区域图像
-    ret, frame = vid.read()
+    #ret, frame = vid.read()
+    frame = fp.read()
+    if frame is None:
+        print("读取帧出错或文件到达末尾。")
+        return 
 
     #然后对彩色图像进行灰度变换
     Image_Gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -2414,12 +2440,18 @@ def main():
     # 增加计算,两侧拐点的距离
     Distance_Two_Points = math.sqrt((Mean_X_Left - Mean_X_Right)** 2 + (Mean_Y_Left  - Mean_Y_Right)** 2)
 
-    while(vid.isOpened()):
-        
+    #while(vid.isOpened()):
+    while True:   
 
         #计算循环消耗时间-----------------------------------------------------
         start_1 = time.time()
-        ret, frame = vid.read()
+
+        frame = fp.read()
+        if frame is None:
+            print("读取帧出错或文件到达末尾。")
+            break 
+
+        #ret, frame = vid.read()
         #end_1 = time.time()
         #print("每一帧读取的时间:%.4f秒"%(end_1-start_1))
 
@@ -2719,7 +2751,11 @@ def main():
         print("------------------循环总体运行时间---------------------:%.2f秒"%(end_1-start_1))
 
     # Release everything if job is finished
-    vid.release()
+    #vid.release()
+    
+    # 程序结束的时候停止图像读取线程。
+    fp.stop()
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     main()
