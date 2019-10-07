@@ -9,6 +9,7 @@ import numpy as np
 import cv2 
 import time
 import threading
+import datetime
 
 
 """
@@ -26,7 +27,7 @@ class frame_provider:
     auto_expose: 相机是否自动曝光，默认打开。
     width, height: 相机分辨率，默认(1920, 1080)
     """
-    def __init__(self, mode = 'file', file = None, cam_ip = None, auto_expose = True, width = 1920, height = 1080):
+    def __init__(self, mode = 'file', file = None, cam_ip = None, auto_expose = True, width = 1920, height = 1080, record = False, out_file = None):
         
         if mode == 'file':
             self.vid = cv2.VideoCapture(file)
@@ -81,6 +82,21 @@ class frame_provider:
         else: 
             raise ValueError('模式设置错误, mode: '.format(mode))
 
+        if record:
+            if out_file is None:
+                out_file = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.mp4'
+            
+            video_FourCC = cv2.VideoWriter_fourcc("m", "p", "4", "v")
+            output_res = (self.width, self.height)
+            self.out = cv2.VideoWriter(out_file, video_FourCC, 50, output_res)
+            if self.out.isOpened():
+                print('输出记录文件: {}. '.format(out_file))
+            else:
+                print('输出记录文件打开失败: {}. '.format(out_file))
+                return
+        else:
+            self.out = None 
+
         self.mode = mode 
         self.lock = threading.Lock()
         self.frame = None
@@ -111,6 +127,9 @@ class frame_provider:
 
             if not return_value: 
                 break
+
+            if self.out:
+                self.out.write(this_frame)
 
             with self.lock:
                 self.frame = this_frame
@@ -158,6 +177,9 @@ class frame_provider:
             if this_frame is None: 
                 print("Convert RGB to np failed. ")
                 continue 
+
+            if self.out:
+                self.out.write(this_frame)
 
             with self.lock:
                 self.frame = this_frame
@@ -209,7 +231,7 @@ def main(filename = None):
 
     ####################################################
     # 打开文件
-    fp = frame_provider(mode = 'file', file = filename)
+    fp = frame_provider(mode = 'file', file = filename, record = True)
     ####################################################
     
     ####################################################
